@@ -1,0 +1,98 @@
+[
+  {
+    "camp_id": "CAMP_01",
+    "name": "Dharavi Relief Camp",
+    "area": "Dharavi",
+    "lat": 19.0422,
+    "lng": 72.8533,
+    "current_headcount": 420,
+    "capacity": 600,
+    "status": "EVACUATED",
+    "danger_reason": "Rising floodwater \u2014 2ft in last hour",
+    "assigned_safe_zone": "SZ_H03"
+  },
+  {
+    "camp_id": "CAMP_02",
+    "name": "Kurla West Relief Camp",
+    "area": "Kurla",
+    "lat": 19.0726,
+    "lng": 72.8795,
+    "current_headcount": 310,
+    "capacity": 500,
+    "status": "ACTIVE",
+    "danger_reason": "",
+    "assigned_safe_zone": null
+  },
+  {
+    "camp_id": "CAMP_03",
+    "name": "Andheri East Relief Camp",
+    "area": "Andheri East",
+    "lat": 19.1136,
+    "lng": 72.8697,
+    "current_headcount": 185,
+    "capacity": 350,
+    "status": "EVACUATED",
+    "danger_reason": "Structural damage to camp buildings",
+    "assigned_safe_zone": "SZ_H05"
+  },
+  {
+    "camp_id": "CAMP_04",
+    "name": "Bandra Reclamation Camp",
+    "area": "Bandra West",
+    "lat": 19.0596,
+    "lng": 72.8295,
+    "current_headcount": 95,
+    "capacity": 200,
+    "status": "ACTIVE",
+    "danger_reason": "",
+    "assigned_safe_zone": null
+  },
+  {
+    "camp_id": "CAMP_05",
+    "name": "Sion Relief Camp",
+    "area": "Sion",
+    "lat": 19.043,
+    "lng": 72.8625,
+    "current_headcount": 270,
+    "capacity": 400,
+    "status": "ACTIVE",
+    "danger_reason": "",
+    "assigned_safe_zone": null
+  },
+  {
+    "camp_id": "CAMP_06",
+    "name": "Malad West Relief Camp",
+    "area": "Malad West",
+    "lat": 19.1872,
+    "lng": 72.8484,
+    "current_headcount": 140,
+    "capacity": 300,
+    "status": "ACTIVE",
+    "danger_reason": "",
+    "assigned_safe_zone": null
+  },
+  {
+    "camp_id": "CAMP_07",
+    "name": "Chembur Relief Camp",
+    "area": "Chembur",
+    "lat": 19.0622,
+    "lng": 72.9005,
+    "current_headcount": 230,
+    "capacity": 450,
+    "status": "ACTIVE",
+    "danger_reason": "",
+    "assigned_safe_zone": null
+  },
+  {
+    "camp_id": "CAMP_08",
+    "name": "Govandi Relief Camp",
+    "area": "Govandi",
+    "lat": 19.0742,
+    "lng": 72.9186,
+    "current_headcount": 380,
+    "capacity": 550,
+    "status": "EVACUATED",
+    "danger_reason": "Sewage overflow, health hazard declared",
+    "assigned_safe_zone": "SZ_H04"
+  }
+]

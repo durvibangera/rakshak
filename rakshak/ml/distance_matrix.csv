@@ -1,0 +1,193 @@
+camp_id,camp_name,camp_area,zone_id,zone_name,zone_type,zone_area,distance_km,zone_capacity
+CAMP_01,Dharavi Relief Camp,Dharavi,SZ_H03,Lokmanya Tilak Municipal Hospital (Sion Hospital),hospital,Sion,0.52,500
+CAMP_01,Dharavi Relief Camp,Dharavi,SZ_C04,Thadomal Shahani Engineering College,college,Bandra West,1.93,600
+CAMP_01,Dharavi Relief Camp,Dharavi,SZ_M01,Shivaji Park Municipal Ground,community_hall,Dadar,2.0,2000
+CAMP_01,Dharavi Relief Camp,Dharavi,SZ_S02,Don Bosco High School,school,Matunga,2.25,600
+CAMP_01,Dharavi Relief Camp,Dharavi,SZ_M02,MMRDA Grounds BKC,community_hall,Bandra Kurla Complex,2.7,3000
+CAMP_01,Dharavi Relief Camp,Dharavi,SZ_S05,IES Modern English School,school,Dadar,2.76,450
+CAMP_01,Dharavi Relief Camp,Dharavi,SZ_H01,Lilavati Hospital & Research Centre,hospital,Bandra West,3.23,800
+CAMP_01,Dharavi Relief Camp,Dharavi,SZ_S01,St. Stanislaus High School,school,Bandra West,3.38,700
+CAMP_01,Dharavi Relief Camp,Dharavi,SZ_S03,Holy Cross High School,school,Kurla West,4.44,500
+CAMP_01,Dharavi Relief Camp,Dharavi,SZ_C05,Vivekanand Education Society,college,Chembur,4.62,700
+CAMP_01,Dharavi Relief Camp,Dharavi,SZ_C02,SNDT Women's University,college,Santacruz West,4.95,750
+CAMP_01,Dharavi Relief Camp,Dharavi,SZ_C03,K.J. Somaiya College,college,Vidyavihar,6.69,800
+CAMP_01,Dharavi Relief Camp,Dharavi,SZ_H04,Rajawadi Government Hospital,hospital,Ghatkopar,7.18,400
+CAMP_01,Dharavi Relief Camp,Dharavi,SZ_H05,Seven Hills Hospital,hospital,"Marol, Andheri East",7.66,450
+CAMP_01,Dharavi Relief Camp,Dharavi,SZ_C01,Mithibai College,college,Vile Parle West,7.72,900
+CAMP_01,Dharavi Relief Camp,Dharavi,SZ_M03,Andheri Sports Complex,community_hall,Andheri West,8.65,1200
+CAMP_01,Dharavi Relief Camp,Dharavi,SZ_H02,Kokilaben Dhirubhai Ambani Hospital,hospital,Andheri West,10.65,600
+CAMP_01,Dharavi Relief Camp,Dharavi,SZ_S06,St. Xavier's High School,school,Fort,11.66,400
+CAMP_01,Dharavi Relief Camp,Dharavi,SZ_ST01,Wankhede Stadium,stadium,Marine Lines,11.86,2500
+CAMP_01,Dharavi Relief Camp,Dharavi,SZ_ST03,Cooperage Football Ground,stadium,Colaba,13.05,1000
+CAMP_01,Dharavi Relief Camp,Dharavi,SZ_S04,Ryan International School,school,Malad West,16.69,650
+CAMP_01,Dharavi Relief Camp,Dharavi,SZ_ST02,DY Patil Stadium,stadium,Nerul (accessible from Govandi),17.05,2000
+CAMP_01,Dharavi Relief Camp,Dharavi,SZ_M04,Mulund Municipal Grounds,community_hall,Mulund West,18.35,1500
+CAMP_01,Dharavi Relief Camp,Dharavi,SZ_M05,Borivali National Park Entry Ground,community_hall,Borivali,20.9,2500
+CAMP_02,Kurla West Relief Camp,Kurla,SZ_S03,Holy Cross High School,school,Kurla West,0.73,500
+CAMP_02,Kurla West Relief Camp,Kurla,SZ_M02,MMRDA Grounds BKC,community_hall,Bandra Kurla Complex,1.66,3000
+CAMP_02,Kurla West Relief Camp,Kurla,SZ_C05,Vivekanand Education Society,college,Chembur,2.83,700
+CAMP_02,Kurla West Relief Camp,Kurla,SZ_C03,K.J. Somaiya College,college,Vidyavihar,2.99,800
+CAMP_02,Kurla West Relief Camp,Kurla,SZ_H04,Rajawadi Government Hospital,hospital,Ghatkopar,3.24,400
+CAMP_02,Kurla West Relief Camp,Kurla,SZ_H05,Seven Hills Hospital,hospital,"Marol, Andheri East",3.75,450
+CAMP_02,Kurla West Relief Camp,Kurla,SZ_H03,Lokmanya Tilak Municipal Hospital (Sion Hospital),hospital,Sion,4.3,500
+CAMP_02,Kurla West Relief Camp,Kurla,SZ_C04,Thadomal Shahani Engineering College,college,Bandra West,4.71,600
+CAMP_02,Kurla West Relief Camp,Kurla,SZ_C02,SNDT Women's University,college,Santacruz West,4.94,750
+CAMP_02,Kurla West Relief Camp,Kurla,SZ_S01,St. Stanislaus High School,school,Bandra West,5.16,700
+CAMP_02,Kurla West Relief Camp,Kurla,SZ_S02,Don Bosco High School,school,Matunga,5.72,600
+CAMP_02,Kurla West Relief Camp,Kurla,SZ_H01,Lilavati Hospital & Research Centre,hospital,Bandra West,6.36,800
+CAMP_02,Kurla West Relief Camp,Kurla,SZ_M01,Shivaji Park Municipal Ground,community_hall,Dadar,6.36,2000
+CAMP_02,Kurla West Relief Camp,Kurla,SZ_C01,Mithibai College,college,Vile Parle West,6.69,900
+CAMP_02,Kurla West Relief Camp,Kurla,SZ_M03,Andheri Sports Complex,community_hall,Andheri West,6.75,1200
+CAMP_02,Kurla West Relief Camp,Kurla,SZ_S05,IES Modern English School,school,Dadar,7.07,450
+CAMP_02,Kurla West Relief Camp,Kurla,SZ_H02,Kokilaben Dhirubhai Ambani Hospital,hospital,Andheri West,8.84,600
+CAMP_02,Kurla West Relief Camp,Kurla,SZ_S04,Ryan International School,school,Malad West,13.79,650
+CAMP_02,Kurla West Relief Camp,Kurla,SZ_M04,Mulund Municipal Grounds,community_hall,Mulund West,14.0,1500
+CAMP_02,Kurla West Relief Camp,Kurla,SZ_ST02,DY Patil Stadium,stadium,Nerul (accessible from Govandi),14.64,2000
+CAMP_02,Kurla West Relief Camp,Kurla,SZ_S06,St. Xavier's High School,school,Fort,15.6,400
+CAMP_02,Kurla West Relief Camp,Kurla,SZ_ST01,Wankhede Stadium,stadium,Marine Lines,15.91,2500
+CAMP_02,Kurla West Relief Camp,Kurla,SZ_ST03,Cooperage Football Ground,stadium,Colaba,17.0,1000
+CAMP_02,Kurla West Relief Camp,Kurla,SZ_M05,Borivali National Park Entry Ground,community_hall,Borivali,17.48,2500
+CAMP_03,Andheri East Relief Camp,Andheri East,SZ_H05,Seven Hills Hospital,hospital,"Marol, Andheri East",1.35,450
+CAMP_03,Andheri East Relief Camp,Andheri East,SZ_M03,Andheri Sports Complex,community_hall,Andheri West,3.44,1200
+CAMP_03,Andheri East Relief Camp,Andheri East,SZ_S03,Holy Cross High School,school,Kurla West,4.11,500
+CAMP_03,Andheri East Relief Camp,Andheri East,SZ_C01,Mithibai College,college,Vile Parle West,4.5,900
+CAMP_03,Andheri East Relief Camp,Andheri East,SZ_H02,Kokilaben Dhirubhai Ambani Hospital,hospital,Andheri West,5.06,600
+CAMP_03,Andheri East Relief Camp,Andheri East,SZ_C02,SNDT Women's University,college,Santacruz West,5.11,750
+CAMP_03,Andheri East Relief Camp,Andheri East,SZ_H04,Rajawadi Government Hospital,hospital,Ghatkopar,5.73,400
+CAMP_03,Andheri East Relief Camp,Andheri East,SZ_M02,MMRDA Grounds BKC,community_hall,Bandra Kurla Complex,5.88,3000
+CAMP_03,Andheri East Relief Camp,Andheri East,SZ_C03,K.J. Somaiya College,college,Vidyavihar,6.03,800
+CAMP_03,Andheri East Relief Camp,Andheri East,SZ_S01,St. Stanislaus High School,school,Bandra West,6.81,700
+CAMP_03,Andheri East Relief Camp,Andheri East,SZ_C05,Vivekanand Education Society,college,Chembur,7.34,700
+CAMP_03,Andheri East Relief Camp,Andheri East,SZ_C04,Thadomal Shahani Engineering College,college,Bandra West,7.39,600
+CAMP_03,Andheri East Relief Camp,Andheri East,SZ_H03,Lokmanya Tilak Municipal Hospital (Sion Hospital),hospital,Sion,8.29,500
+CAMP_03,Andheri East Relief Camp,Andheri East,SZ_H01,Lilavati Hospital & Research Centre,hospital,Bandra West,8.54,800
+CAMP_03,Andheri East Relief Camp,Andheri East,SZ_S04,Ryan International School,school,Malad West,9.12,650
+CAMP_03,Andheri East Relief Camp,Andheri East,SZ_M01,Shivaji Park Municipal Ground,community_hall,Dadar,9.95,2000
+CAMP_03,Andheri East Relief Camp,Andheri East,SZ_S02,Don Bosco High School,school,Matunga,10.02,600
+CAMP_03,Andheri East Relief Camp,Andheri East,SZ_S05,IES Modern English School,school,Dadar,10.83,450
+CAMP_03,Andheri East Relief Camp,Andheri East,SZ_M04,Mulund Municipal Grounds,community_hall,Mulund West,11.4,1500
+CAMP_03,Andheri East Relief Camp,Andheri East,SZ_M05,Borivali National Park Entry Ground,community_hall,Borivali,12.89,2500
+CAMP_03,Andheri East Relief Camp,Andheri East,SZ_ST02,DY Patil Stadium,stadium,Nerul (accessible from Govandi),17.16,2000
+CAMP_03,Andheri East Relief Camp,Andheri East,SZ_S06,St. Xavier's High School,school,Fort,19.78,400
+CAMP_03,Andheri East Relief Camp,Andheri East,SZ_ST01,Wankhede Stadium,stadium,Marine Lines,19.98,2500
+CAMP_03,Andheri East Relief Camp,Andheri East,SZ_ST03,Cooperage Football Ground,stadium,Colaba,21.17,1000
+CAMP_04,Bandra Reclamation Camp,Bandra West,SZ_S01,St. Stanislaus High School,school,Bandra West,0.55,700
+CAMP_04,Bandra Reclamation Camp,Bandra West,SZ_H01,Lilavati Hospital & Research Centre,hospital,Bandra West,1.2,800
+CAMP_04,Bandra Reclamation Camp,Bandra West,SZ_C04,Thadomal Shahani Engineering College,college,Bandra West,1.24,600
+CAMP_04,Bandra Reclamation Camp,Bandra West,SZ_C02,SNDT Women's University,college,Santacruz West,2.61,750
+CAMP_04,Bandra Reclamation Camp,Bandra West,SZ_H03,Lokmanya Tilak Municipal Hospital (Sion Hospital),hospital,Sion,3.68,500
+CAMP_04,Bandra Reclamation Camp,Bandra West,SZ_M01,Shivaji Park Municipal Ground,community_hall,Dadar,3.71,2000
+CAMP_04,Bandra Reclamation Camp,Bandra West,SZ_M02,MMRDA Grounds BKC,community_hall,Bandra Kurla Complex,4.26,3000
+CAMP_04,Bandra Reclamation Camp,Bandra West,SZ_S05,IES Modern English School,school,Dadar,4.63,450
+CAMP_04,Bandra Reclamation Camp,Bandra West,SZ_S03,Holy Cross High School,school,Kurla West,5.08,500
+CAMP_04,Bandra Reclamation Camp,Bandra West,SZ_S02,Don Bosco High School,school,Matunga,5.26,600
+CAMP_04,Bandra Reclamation Camp,Bandra West,SZ_C01,Mithibai College,college,Vile Parle West,5.3,900
+CAMP_04,Bandra Reclamation Camp,Bandra West,SZ_M03,Andheri Sports Complex,community_hall,Andheri West,6.6,1200
+CAMP_04,Bandra Reclamation Camp,Bandra West,SZ_C05,Vivekanand Education Society,college,Chembur,7.02,700
+CAMP_04,Bandra Reclamation Camp,Bandra West,SZ_H05,Seven Hills Hospital,hospital,"Marol, Andheri East",7.42,450
+CAMP_04,Bandra Reclamation Camp,Bandra West,SZ_H02,Kokilaben Dhirubhai Ambani Hospital,hospital,Andheri West,8.35,600
+CAMP_04,Bandra Reclamation Camp,Bandra West,SZ_C03,K.J. Somaiya College,college,Vidyavihar,8.38,800
+CAMP_04,Bandra Reclamation Camp,Bandra West,SZ_H04,Rajawadi Government Hospital,hospital,Ghatkopar,8.69,400
+CAMP_04,Bandra Reclamation Camp,Bandra West,SZ_ST01,Wankhede Stadium,stadium,Marine Lines,13.44,2500
+CAMP_04,Bandra Reclamation Camp,Bandra West,SZ_S06,St. Xavier's High School,school,Fort,13.46,400
+CAMP_04,Bandra Reclamation Camp,Bandra West,SZ_ST03,Cooperage Football Ground,stadium,Colaba,14.77,1000
+CAMP_04,Bandra Reclamation Camp,Bandra West,SZ_S04,Ryan International School,school,Malad West,14.82,650
+CAMP_04,Bandra Reclamation Camp,Bandra West,SZ_M04,Mulund Municipal Grounds,community_hall,Mulund West,18.53,1500
+CAMP_04,Bandra Reclamation Camp,Bandra West,SZ_M05,Borivali National Park Entry Ground,community_hall,Borivali,19.35,2500
+CAMP_04,Bandra Reclamation Camp,Bandra West,SZ_ST02,DY Patil Stadium,stadium,Nerul (accessible from Govandi),19.62,2000
+CAMP_05,Sion Relief Camp,Sion,SZ_H03,Lokmanya Tilak Municipal Hospital (Sion Hospital),hospital,Sion,0.62,500
+CAMP_05,Sion Relief Camp,Sion,SZ_M02,MMRDA Grounds BKC,community_hall,Bandra Kurla Complex,2.12,3000
+CAMP_05,Sion Relief Camp,Sion,SZ_S02,Don Bosco High School,school,Matunga,2.14,600
+CAMP_05,Sion Relief Camp,Sion,SZ_C04,Thadomal Shahani Engineering College,college,Bandra West,2.7,600
+CAMP_05,Sion Relief Camp,Sion,SZ_M01,Shivaji Park Municipal Ground,community_hall,Dadar,2.76,2000
+CAMP_05,Sion Relief Camp,Sion,SZ_S05,IES Modern English School,school,Dadar,3.36,450
+CAMP_05,Sion Relief Camp,Sion,SZ_C05,Vivekanand Education Society,college,Chembur,3.66,700
+CAMP_05,Sion Relief Camp,Sion,SZ_S03,Holy Cross High School,school,Kurla West,3.97,500
+CAMP_05,Sion Relief Camp,Sion,SZ_S01,St. Stanislaus High School,school,Bandra West,4.05,700
+CAMP_05,Sion Relief Camp,Sion,SZ_H01,Lilavati Hospital & Research Centre,hospital,Bandra West,4.15,800
+CAMP_05,Sion Relief Camp,Sion,SZ_C02,SNDT Women's University,college,Santacruz West,5.35,750
+CAMP_05,Sion Relief Camp,Sion,SZ_C03,K.J. Somaiya College,college,Vidyavihar,5.83,800
+CAMP_05,Sion Relief Camp,Sion,SZ_H04,Rajawadi Government Hospital,hospital,Ghatkopar,6.35,400
+CAMP_05,Sion Relief Camp,Sion,SZ_H05,Seven Hills Hospital,hospital,"Marol, Andheri East",7.27,450
+CAMP_05,Sion Relief Camp,Sion,SZ_C01,Mithibai College,college,Vile Parle West,8.04,900
+CAMP_05,Sion Relief Camp,Sion,SZ_M03,Andheri Sports Complex,community_hall,Andheri West,8.8,1200
+CAMP_05,Sion Relief Camp,Sion,SZ_H02,Kokilaben Dhirubhai Ambani Hospital,hospital,Andheri West,10.86,600
+CAMP_05,Sion Relief Camp,Sion,SZ_S06,St. Xavier's High School,school,Fort,11.95,400
+CAMP_05,Sion Relief Camp,Sion,SZ_ST01,Wankhede Stadium,stadium,Marine Lines,12.21,2500
+CAMP_05,Sion Relief Camp,Sion,SZ_ST03,Cooperage Football Ground,stadium,Colaba,13.34,1000
+CAMP_05,Sion Relief Camp,Sion,SZ_ST02,DY Patil Stadium,stadium,Nerul (accessible from Govandi),16.08,2000
+CAMP_05,Sion Relief Camp,Sion,SZ_S04,Ryan International School,school,Malad West,16.69,650
+CAMP_05,Sion Relief Camp,Sion,SZ_M04,Mulund Municipal Grounds,community_hall,Mulund West,17.73,1500
+CAMP_05,Sion Relief Camp,Sion,SZ_M05,Borivali National Park Entry Ground,community_hall,Borivali,20.75,2500
+CAMP_06,Malad West Relief Camp,Malad West,SZ_S04,Ryan International School,school,Malad West,0.68,650
+CAMP_06,Malad West Relief Camp,Malad West,SZ_M05,Borivali National Park Entry Ground,community_hall,Borivali,5.19,2500
+CAMP_06,Malad West Relief Camp,Malad West,SZ_H02,Kokilaben Dhirubhai Ambani Hospital,hospital,Andheri West,6.26,600
+CAMP_06,Malad West Relief Camp,Malad West,SZ_M03,Andheri Sports Complex,community_hall,Andheri West,7.73,1200
+CAMP_06,Malad West Relief Camp,Malad West,SZ_C01,Mithibai College,college,Vile Parle West,9.17,900
+CAMP_06,Malad West Relief Camp,Malad West,SZ_H05,Seven Hills Hospital,hospital,"Marol, Andheri East",9.59,450
+CAMP_06,Malad West Relief Camp,Malad West,SZ_M04,Mulund Municipal Grounds,community_hall,Mulund West,11.37,1500
+CAMP_06,Malad West Relief Camp,Malad West,SZ_C02,SNDT Women's University,college,Santacruz West,11.72,750
+CAMP_06,Malad West Relief Camp,Malad West,SZ_S03,Holy Cross High School,school,Kurla West,12.56,500
+CAMP_06,Malad West Relief Camp,Malad West,SZ_H04,Rajawadi Government Hospital,hospital,Ghatkopar,13.69,400
+CAMP_06,Malad West Relief Camp,Malad West,SZ_S01,St. Stanislaus High School,school,Bandra West,13.78,700
+CAMP_06,Malad West Relief Camp,Malad West,SZ_C03,K.J. Somaiya College,college,Vidyavihar,14.14,800
+CAMP_06,Malad West Relief Camp,Malad West,SZ_M02,MMRDA Grounds BKC,community_hall,Bandra Kurla Complex,14.25,3000
+CAMP_06,Malad West Relief Camp,Malad West,SZ_C04,Thadomal Shahani Engineering College,college,Bandra West,14.89,600
+CAMP_06,Malad West Relief Camp,Malad West,SZ_H01,Lilavati Hospital & Research Centre,hospital,Bandra West,15.45,800
+CAMP_06,Malad West Relief Camp,Malad West,SZ_C05,Vivekanand Education Society,college,Chembur,15.8,700
+CAMP_06,Malad West Relief Camp,Malad West,SZ_H03,Lokmanya Tilak Municipal Hospital (Sion Hospital),hospital,Sion,16.41,500
+CAMP_06,Malad West Relief Camp,Malad West,SZ_M01,Shivaji Park Municipal Ground,community_hall,Dadar,17.7,2000
+CAMP_06,Malad West Relief Camp,Malad West,SZ_S02,Don Bosco High School,school,Matunga,18.23,600
+CAMP_06,Malad West Relief Camp,Malad West,SZ_S05,IES Modern English School,school,Dadar,18.64,450
+CAMP_06,Malad West Relief Camp,Malad West,SZ_ST02,DY Patil Stadium,stadium,Nerul (accessible from Govandi),23.69,2000
+CAMP_06,Malad West Relief Camp,Malad West,SZ_S06,St. Xavier's High School,school,Fort,27.67,400
+CAMP_06,Malad West Relief Camp,Malad West,SZ_ST01,Wankhede Stadium,stadium,Marine Lines,27.72,2500
+CAMP_06,Malad West Relief Camp,Malad West,SZ_ST03,Cooperage Football Ground,stadium,Colaba,29.01,1000
+CAMP_07,Chembur Relief Camp,Chembur,SZ_C05,Vivekanand Education Society,college,Chembur,1.19,700
+CAMP_07,Chembur Relief Camp,Chembur,SZ_C03,K.J. Somaiya College,college,Vidyavihar,1.44,800
+CAMP_07,Chembur Relief Camp,Chembur,SZ_H04,Rajawadi Government Hospital,hospital,Ghatkopar,2.06,400
+CAMP_07,Chembur Relief Camp,Chembur,SZ_S03,Holy Cross High School,school,Kurla West,3.21,500
+CAMP_07,Chembur Relief Camp,Chembur,SZ_M02,MMRDA Grounds BKC,community_hall,Bandra Kurla Complex,3.21,3000
+CAMP_07,Chembur Relief Camp,Chembur,SZ_H03,Lokmanya Tilak Municipal Hospital (Sion Hospital),hospital,Sion,5.15,500
+CAMP_07,Chembur Relief Camp,Chembur,SZ_H05,Seven Hills Hospital,hospital,"Marol, Andheri East",5.36,450
+CAMP_07,Chembur Relief Camp,Chembur,SZ_S02,Don Bosco High School,school,Matunga,5.87,600
+CAMP_07,Chembur Relief Camp,Chembur,SZ_C04,Thadomal Shahani Engineering College,college,Bandra West,6.49,600
+CAMP_07,Chembur Relief Camp,Chembur,SZ_M01,Shivaji Park Municipal Ground,community_hall,Dadar,7.27,2000
+CAMP_07,Chembur Relief Camp,Chembur,SZ_S01,St. Stanislaus High School,school,Bandra West,7.29,700
+CAMP_07,Chembur Relief Camp,Chembur,SZ_C02,SNDT Women's University,college,Santacruz West,7.38,750
+CAMP_07,Chembur Relief Camp,Chembur,SZ_S05,IES Modern English School,school,Dadar,7.74,450
+CAMP_07,Chembur Relief Camp,Chembur,SZ_H01,Lilavati Hospital & Research Centre,hospital,Bandra West,8.17,800
+CAMP_07,Chembur Relief Camp,Chembur,SZ_M03,Andheri Sports Complex,community_hall,Andheri West,9.12,1200
+CAMP_07,Chembur Relief Camp,Chembur,SZ_C01,Mithibai College,college,Vile Parle West,9.17,900
+CAMP_07,Chembur Relief Camp,Chembur,SZ_H02,Kokilaben Dhirubhai Ambani Hospital,hospital,Andheri West,11.16,600
+CAMP_07,Chembur Relief Camp,Chembur,SZ_ST02,DY Patil Stadium,stadium,Nerul (accessible from Govandi),12.25,2000
+CAMP_07,Chembur Relief Camp,Chembur,SZ_M04,Mulund Municipal Grounds,community_hall,Mulund West,13.9,1500
+CAMP_07,Chembur Relief Camp,Chembur,SZ_S06,St. Xavier's High School,school,Fort,15.35,400
+CAMP_07,Chembur Relief Camp,Chembur,SZ_S04,Ryan International School,school,Malad West,15.6,650
+CAMP_07,Chembur Relief Camp,Chembur,SZ_ST01,Wankhede Stadium,stadium,Marine Lines,15.81,2500
+CAMP_07,Chembur Relief Camp,Chembur,SZ_ST03,Cooperage Football Ground,stadium,Colaba,16.74,1000
+CAMP_07,Chembur Relief Camp,Chembur,SZ_M05,Borivali National Park Entry Ground,community_hall,Borivali,18.89,2500
+CAMP_08,Govandi Relief Camp,Govandi,SZ_H04,Rajawadi Government Hospital,hospital,Ghatkopar,1.06,400
+CAMP_08,Govandi Relief Camp,Govandi,SZ_C03,K.J. Somaiya College,college,Vidyavihar,1.13,800
+CAMP_08,Govandi Relief Camp,Govandi,SZ_C05,Vivekanand Education Society,college,Chembur,3.4,700
+CAMP_08,Govandi Relief Camp,Govandi,SZ_S03,Holy Cross High School,school,Kurla West,4.68,500
+CAMP_08,Govandi Relief Camp,Govandi,SZ_M02,MMRDA Grounds BKC,community_hall,Bandra Kurla Complex,5.32,3000
+CAMP_08,Govandi Relief Camp,Govandi,SZ_H05,Seven Hills Hospital,hospital,"Marol, Andheri East",5.4,450
+CAMP_08,Govandi Relief Camp,Govandi,SZ_H03,Lokmanya Tilak Municipal Hospital (Sion Hospital),hospital,Sion,7.46,500
+CAMP_08,Govandi Relief Camp,Govandi,SZ_S02,Don Bosco High School,school,Matunga,8.16,600
+CAMP_08,Govandi Relief Camp,Govandi,SZ_C04,Thadomal Shahani Engineering College,college,Bandra West,8.63,600
+CAMP_08,Govandi Relief Camp,Govandi,SZ_C02,SNDT Women's University,college,Santacruz West,8.97,750
+CAMP_08,Govandi Relief Camp,Govandi,SZ_S01,St. Stanislaus High School,school,Bandra West,9.25,700
+CAMP_08,Govandi Relief Camp,Govandi,SZ_M01,Shivaji Park Municipal Ground,community_hall,Dadar,9.59,2000
+CAMP_08,Govandi Relief Camp,Govandi,SZ_M03,Andheri Sports Complex,community_hall,Andheri West,9.85,1200
+CAMP_08,Govandi Relief Camp,Govandi,SZ_S05,IES Modern English School,school,Dadar,10.06,450
+CAMP_08,Govandi Relief Camp,Govandi,SZ_C01,Mithibai College,college,Vile Parle West,10.26,900
+CAMP_08,Govandi Relief Camp,Govandi,SZ_H01,Lilavati Hospital & Research Centre,hospital,Bandra West,10.31,800
+CAMP_08,Govandi Relief Camp,Govandi,SZ_ST02,DY Patil Stadium,stadium,Nerul (accessible from Govandi),10.72,2000
+CAMP_08,Govandi Relief Camp,Govandi,SZ_H02,Kokilaben Dhirubhai Ambani Hospital,hospital,Andheri West,11.74,600
+CAMP_08,Govandi Relief Camp,Govandi,SZ_M04,Mulund Municipal Grounds,community_hall,Mulund West,11.95,1500
+CAMP_08,Govandi Relief Camp,Govandi,SZ_S04,Ryan International School,school,Malad West,15.25,650
+CAMP_08,Govandi Relief Camp,Govandi,SZ_S06,St. Xavier's High School,school,Fort,17.43,400
+CAMP_08,Govandi Relief Camp,Govandi,SZ_ST01,Wankhede Stadium,stadium,Marine Lines,17.94,2500
+CAMP_08,Govandi Relief Camp,Govandi,SZ_M05,Borivali National Park Entry Ground,community_hall,Borivali,18.03,2500
+CAMP_08,Govandi Relief Camp,Govandi,SZ_ST03,Cooperage Football Ground,stadium,Colaba,18.81,1000

@@ -1,0 +1,9 @@
+id,name,operator_name,operator_phone,operator_email,lat,lng,radius_km,status
+7c745b0b-2511-4eea-b4f4-4ee962f2068e,Dharavi Relief Camp,Rajesh Patil,+912212345678,dharavi@rakshak.in,19.0422,72.8533,3.0,active
+4cc9b64c-87c9-40f1-beb4-b159df5f8790,Kurla West Relief Camp,Sunita Desai,+912212345679,kurla@rakshak.in,19.0726,72.8795,4.0,active
+336e8d08-34cb-48c4-a126-593eec84f787,Andheri East Relief Camp,Amir Shaikh,+912212345680,andheri@rakshak.in,19.1136,72.8697,5.0,active
+babd59e3-b8f2-40a5-bec7-c6285fe24e07,Bandra Reclamation Camp,Priya Nair,+912212345681,bandra@rakshak.in,19.0596,72.8295,3.5,active
+44223c88-fa7a-46fd-ac66-523041bb1407,Sion Relief Camp,Vikram Joshi,+912212345682,sion@rakshak.in,19.043,72.8625,3.0,active
+b47394ee-71c3-4d73-b6a8-d336ec32d1bd,Malad West Relief Camp,Fatima Khan,+912212345683,malad@rakshak.in,19.1872,72.8484,6.0,active
+5195b876-8e98-477f-b632-8e98ff8c5f7e,Chembur Relief Camp,Deepak Mehta,+912212345684,chembur@rakshak.in,19.0622,72.9005,4.5,active
+b7c66fcb-da36-45c4-99ca-a852e0c2b126,Govandi Relief Camp,Anjali Rao,+912212345685,govandi@rakshak.in,19.0742,72.9186,5.0,active

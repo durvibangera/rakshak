@@ -1,0 +1,420 @@
+[
+  {
+    "zone_id": "SZ_H01",
+    "name": "Lilavati Hospital & Research Centre",
+    "zone_type": "hospital",
+    "area": "Bandra West",
+    "lat": 19.0502,
+    "lng": 72.8238,
+    "capacity": 800,
+    "current_occupancy": 0,
+    "available_capacity": 800,
+    "is_safe": true,
+    "facilities": [
+      "medical",
+      "power_backup",
+      "water",
+      "kitchen"
+    ]
+  },
+  {
+    "zone_id": "SZ_H02",
+    "name": "Kokilaben Dhirubhai Ambani Hospital",
+    "zone_type": "hospital",
+    "area": "Andheri West",
+    "lat": 19.1347,
+    "lng": 72.827,
+    "capacity": 600,
+    "current_occupancy": 0,
+    "available_capacity": 600,
+    "is_safe": true,
+    "facilities": [
+      "medical",
+      "power_backup",
+      "water",
+      "kitchen"
+    ]
+  },
+  {
+    "zone_id": "SZ_H03",
+    "name": "Lokmanya Tilak Municipal Hospital (Sion Hospital)",
+    "zone_type": "hospital",
+    "area": "Sion",
+    "lat": 19.0399,
+    "lng": 72.8576,
+    "capacity": 500,
+    "current_occupancy": 420,
+    "available_capacity": 80,
+    "is_safe": true,
+    "facilities": [
+      "medical",
+      "power_backup",
+      "water"
+    ]
+  },
+  {
+    "zone_id": "SZ_H04",
+    "name": "Rajawadi Government Hospital",
+    "zone_type": "hospital",
+    "area": "Ghatkopar",
+    "lat": 19.0786,
+    "lng": 72.9097,
+    "capacity": 400,
+    "current_occupancy": 380,
+    "available_capacity": 20,
+    "is_safe": true,
+    "facilities": [
+      "medical",
+      "power_backup",
+      "water"
+    ]
+  },
+  {
+    "zone_id": "SZ_H05",
+    "name": "Seven Hills Hospital",
+    "zone_type": "hospital",
+    "area": "Marol, Andheri East",
+    "lat": 19.1063,
+    "lng": 72.88,
+    "capacity": 450,
+    "current_occupancy": 185,
+    "available_capacity": 265,
+    "is_safe": true,
+    "facilities": [
+      "medical",
+      "power_backup",
+      "water",
+      "kitchen"
+    ]
+  },
+  {
+    "zone_id": "SZ_S01",
+    "name": "St. Stanislaus High School",
+    "zone_type": "school",
+    "area": "Bandra West",
+    "lat": 19.0643,
+    "lng": 72.8312,
+    "capacity": 700,
+    "current_occupancy": 0,
+    "available_capacity": 700,
+    "is_safe": true,
+    "facilities": [
+      "toilets",
+      "water",
+      "open_ground"
+    ]
+  },
+  {
+    "zone_id": "SZ_S02",
+    "name": "Don Bosco High School",
+    "zone_type": "school",
+    "area": "Matunga",
+    "lat": 19.0238,
+    "lng": 72.8622,
+    "capacity": 600,
+    "current_occupancy": 0,
+    "available_capacity": 600,
+    "is_safe": true,
+    "facilities": [
+      "toilets",
+      "water",
+      "open_ground"
+    ]
+  },
+  {
+    "zone_id": "SZ_S03",
+    "name": "Holy Cross High School",
+    "zone_type": "school",
+    "area": "Kurla West",
+    "lat": 19.0769,
+    "lng": 72.8742,
+    "capacity": 500,
+    "current_occupancy": 0,
+    "available_capacity": 500,
+    "is_safe": true,
+    "facilities": [
+      "toilets",
+      "water"
+    ]
+  },
+  {
+    "zone_id": "SZ_S04",
+    "name": "Ryan International School",
+    "zone_type": "school",
+    "area": "Malad West",
+    "lat": 19.1921,
+    "lng": 72.8445,
+    "capacity": 650,
+    "current_occupancy": 0,
+    "available_capacity": 650,
+    "is_safe": true,
+    "facilities": [
+      "toilets",
+      "water",
+      "open_ground",
+      "kitchen"
+    ]
+  },
+  {
+    "zone_id": "SZ_S05",
+    "name": "IES Modern English School",
+    "zone_type": "school",
+    "area": "Dadar",
+    "lat": 19.0197,
+    "lng": 72.8422,
+    "capacity": 450,
+    "current_occupancy": 0,
+    "available_capacity": 450,
+    "is_safe": true,
+    "facilities": [
+      "toilets",
+      "water"
+    ]
+  },
+  {
+    "zone_id": "SZ_S06",
+    "name": "St. Xavier's High School",
+    "zone_type": "school",
+    "area": "Fort",
+    "lat": 18.9387,
+    "lng": 72.8353,
+    "capacity": 400,
+    "current_occupancy": 0,
+    "available_capacity": 400,
+    "is_safe": true,
+    "facilities": [
+      "toilets",
+      "water",
+      "open_ground"
+    ]
+  },
+  {
+    "zone_id": "SZ_C01",
+    "name": "Mithibai College",
+    "zone_type": "college",
+    "area": "Vile Parle West",
+    "lat": 19.1072,
+    "lng": 72.8274,
+    "capacity": 900,
+    "current_occupancy": 0,
+    "available_capacity": 900,
+    "is_safe": true,
+    "facilities": [
+      "toilets",
+      "water",
+      "open_ground",
+      "canteen"
+    ]
+  },
+  {
+    "zone_id": "SZ_C02",
+    "name": "SNDT Women's University",
+    "zone_type": "college",
+    "area": "Santacruz West",
+    "lat": 19.0827,
+    "lng": 72.8337,
+    "capacity": 750,
+    "current_occupancy": 0,
+    "available_capacity": 750,
+    "is_safe": true,
+    "facilities": [
+      "toilets",
+      "water",
+      "canteen",
+      "open_ground"
+    ]
+  },
+  {
+    "zone_id": "SZ_C03",
+    "name": "K.J. Somaiya College",
+    "zone_type": "college",
+    "area": "Vidyavihar",
+    "lat": 19.0731,
+    "lng": 72.9079,
+    "capacity": 800,
+    "current_occupancy": 0,
+    "available_capacity": 800,
+    "is_safe": true,
+    "facilities": [
+      "toilets",
+      "water",
+      "canteen",
+      "open_ground"
+    ]
+  },
+  {
+    "zone_id": "SZ_C04",
+    "name": "Thadomal Shahani Engineering College",
+    "zone_type": "college",
+    "area": "Bandra West",
+    "lat": 19.0536,
+    "lng": 72.8394,
+    "capacity": 600,
+    "current_occupancy": 0,
+    "available_capacity": 600,
+    "is_safe": true,
+    "facilities": [
+      "toilets",
+      "water",
+      "canteen"
+    ]
+  },
+  {
+    "zone_id": "SZ_C05",
+    "name": "Vivekanand Education Society",
+    "zone_type": "college",
+    "area": "Chembur",
+    "lat": 19.0524,
+    "lng": 72.8959,
+    "capacity": 700,
+    "current_occupancy": 0,
+    "available_capacity": 700,
+    "is_safe": true,
+    "facilities": [
+      "toilets",
+      "water",
+      "canteen",
+      "open_ground"
+    ]
+  },
+  {
+    "zone_id": "SZ_M01",
+    "name": "Shivaji Park Municipal Ground",
+    "zone_type": "community_hall",
+    "area": "Dadar",
+    "lat": 19.0282,
+    "lng": 72.8414,
+    "capacity": 2000,
+    "current_occupancy": 0,
+    "available_capacity": 2000,
+    "is_safe": true,
+    "facilities": [
+      "open_ground",
+      "water",
+      "toilets"
+    ]
+  },
+  {
+    "zone_id": "SZ_M02",
+    "name": "MMRDA Grounds BKC",
+    "zone_type": "community_hall",
+    "area": "Bandra Kurla Complex",
+    "lat": 19.0607,
+    "lng": 72.87,
+    "capacity": 3000,
+    "current_occupancy": 0,
+    "available_capacity": 3000,
+    "is_safe": true,
+    "facilities": [
+      "open_ground",
+      "water",
+      "power_backup"
+    ]
+  },
+  {
+    "zone_id": "SZ_M03",
+    "name": "Andheri Sports Complex",
+    "zone_type": "community_hall",
+    "area": "Andheri West",
+    "lat": 19.1185,
+    "lng": 72.8374,
+    "capacity": 1200,
+    "current_occupancy": 0,
+    "available_capacity": 1200,
+    "is_safe": true,
+    "facilities": [
+      "open_ground",
+      "water",
+      "toilets",
+      "kitchen"
+    ]
+  },
+  {
+    "zone_id": "SZ_M04",
+    "name": "Mulund Municipal Grounds",
+    "zone_type": "community_hall",
+    "area": "Mulund West",
+    "lat": 19.1757,
+    "lng": 72.956,
+    "capacity": 1500,
+    "current_occupancy": 0,
+    "available_capacity": 1500,
+    "is_safe": true,
+    "facilities": [
+      "open_ground",
+      "water",
+      "toilets"
+    ]
+  },
+  {
+    "zone_id": "SZ_M05",
+    "name": "Borivali National Park Entry Ground",
+    "zone_type": "community_hall",
+    "area": "Borivali",
+    "lat": 19.2295,
+    "lng": 72.8694,
+    "capacity": 2500,
+    "current_occupancy": 0,
+    "available_capacity": 2500,
+    "is_safe": true,
+    "facilities": [
+      "open_ground",
+      "water",
+      "toilets"
+    ]
+  },
+  {
+    "zone_id": "SZ_ST01",
+    "name": "Wankhede Stadium",
+    "zone_type": "stadium",
+    "area": "Marine Lines",
+    "lat": 18.9388,
+    "lng": 72.8258,
+    "capacity": 2500,
+    "current_occupancy": 0,
+    "available_capacity": 2500,
+    "is_safe": true,
+    "facilities": [
+      "open_ground",
+      "water",
+      "toilets",
+      "power_backup",
+      "kitchen"
+    ]
+  },
+  {
+    "zone_id": "SZ_ST02",
+    "name": "DY Patil Stadium",
+    "zone_type": "stadium",
+    "area": "Nerul (accessible from Govandi)",
+    "lat": 19.0442,
+    "lng": 73.0155,
+    "capacity": 2000,
+    "current_occupancy": 0,
+    "available_capacity": 2000,
+    "is_safe": true,
+    "facilities": [
+      "open_ground",
+      "water",
+      "toilets",
+      "power_backup"
+    ]
+  },
+  {
+    "zone_id": "SZ_ST03",
+    "name": "Cooperage Football Ground",
+    "zone_type": "stadium",
+    "area": "Colaba",
+    "lat": 18.9268,
+    "lng": 72.8309,
+    "capacity": 1000,
+    "current_occupancy": 0,
+    "available_capacity": 1000,
+    "is_safe": true,
+    "facilities": [
+      "open_ground",
+      "water",
+      "toilets"
+    ]
+  }
+]

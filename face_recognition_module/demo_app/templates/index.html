@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Face Recognition Demo</title>
+  <link rel="stylesheet" href="/static/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- ── Header ──────────────────────────────────────────────────────────── -->
+<header>
+  <div>
+    <div class="logo">&#128065; Face Recognition</div>
+    <div class="subtitle">Interactive demo of the face_recognition_module</div>
+  </div>
+  <span class="badge" id="enrolledCount">0 enrolled</span>
+</header>
+
+<div class="container">
+
+  <!-- ── Tabs ─────────────────────────────────────────────────────────── -->
+  <div class="tabs" role="tablist">
+    <button class="tab-btn active" data-tab="overview">Overview</button>
+    <button class="tab-btn" data-tab="enroll">Enroll</button>
+    <button class="tab-btn" data-tab="identify">Identify</button>
+    <button class="tab-btn" data-tab="verify">Verify</button>
+    <button class="tab-btn" data-tab="enrolled">Enrolled People</button>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════════
+       TAB: Overview
+       ════════════════════════════════════════════════════════════════════ -->
+  <div class="tab-panel active" id="tab-overview">
+    <div class="card">
+      <h2>How it works</h2>
+      <p class="desc">
+        This module wraps <strong>InsightFace</strong> with a pluggable storage backend,
+        exposing four core operations through a clean Python API.
+      </p>
+      <div class="steps">
+        <div class="step">
+          <div class="num">1</div>
+          <h3>Enroll</h3>
+          <p>Upload a single-face photo to register a person. The module extracts a 512-d embedding and stores it.</p>
+        </div>
+        <div class="step">
+          <div class="num">2</div>
+          <h3>Identify (1:N)</h3>
+          <p>Upload any photo. Every face is detected and compared against all enrolled embeddings.</p>
+        </div>
+        <div class="step">
+          <div class="num">3</div>
+          <h3>Verify (1:1)</h3>
+          <p>Upload a photo and pick a person — the module tells you if it's a match with a confidence score.</p>
+        </div>
+        <div class="step">
+          <div class="num">4</div>
+          <h3>Manage</h3>
+          <p>List all enrolled people, inspect metadata, or remove entries from the database.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Module Architecture</h2>
+      <p class="desc">Key components and how they connect.</p>
+      <div style="overflow-x:auto;">
+        <pre style="color:var(--text-muted);font-size:.82rem;line-height:1.5;padding:.75rem;background:var(--surface-2);border-radius:8px;">
+┌─────────────────────────────────────────────────────────────────────┐
+│                        FaceRecognition                              │
+│  .enroll()   .identify()   .verify()   .remove()   .list_enrolled()│
+├────────────────────────┬────────────────────────────────────────────┤
+│   InsightFace Engine   │        StorageBackend (ABC)                │
+│   (buffalo_sc / _l)    │   ┌──────────────┬───────────────┐        │
+│   • face detection     │   │ JSONStorage   │ SQLiteStorage │        │
+│   • 512-d embedding    │   └──────────────┴───────────────┘        │
+└────────────────────────┴────────────────────────────────────────────┘</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════════
+       TAB: Enroll
+       ════════════════════════════════════════════════════════════════════ -->
+  <div class="tab-panel" id="tab-enroll">
+    <div class="card">
+      <h2>&#128100; Enroll a Person</h2>
+      <p class="desc">
+        Upload a photo with <strong>exactly one face</strong>. The module extracts a
+        512-dimensional face embedding and stores it with the given ID and name.
+      </p>
+
+      <form id="enrollForm" onsubmit="return handleEnroll(event)">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="enrollId">Person ID</label>
+            <input type="text" id="enrollId" placeholder="e.g. alice_01" required />
+          </div>
+          <div class="form-group">
+            <label for="enrollName">Display Name</label>
+            <input type="text" id="enrollName" placeholder="e.g. Alice Johnson" required />
+          </div>
+        </div>
+
+        <div class="file-drop" id="enrollDrop">
+          <input type="file" id="enrollFile" accept="image/*" required />
+          <div class="icon">&#128247;</div>
+          <div class="label">Click or drag a photo here</div>
+          <div class="filename" id="enrollFileName"></div>
+          <img class="img-preview" id="enrollPreview" alt="preview" />
+        </div>
+
+        <div style="margin-top:1rem;">
+          <button class="btn btn-primary" type="submit" id="enrollBtn">
+            Enroll Person
+          </button>
+        </div>
+      </form>
+
+      <div class="result-area" id="enrollResult"></div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════════
+       TAB: Identify
+       ════════════════════════════════════════════════════════════════════ -->
+  <div class="tab-panel" id="tab-identify">
+    <div class="card">
+      <h2>&#128269; Identify Faces (1:N)</h2>
+      <p class="desc">
+        Upload a photo containing one or more faces. The module detects every face,
+        compares each against all enrolled embeddings, and returns the best match
+        (or "Unknown" if below the threshold). The output image is annotated with
+        bounding boxes.
+      </p>
+
+      <form id="identifyForm" onsubmit="return handleIdentify(event)">
+        <div class="file-drop" id="identifyDrop">
+          <input type="file" id="identifyFile" accept="image/*" required />
+          <div class="icon">&#128270;</div>
+          <div class="label">Click or drag a photo here</div>
+          <div class="filename" id="identifyFileName"></div>
+          <img class="img-preview" id="identifyPreview" alt="preview" />
+        </div>
+
+        <div style="margin-top:1rem;">
+          <button class="btn btn-primary" type="submit" id="identifyBtn">
+            Identify
+          </button>
+        </div>
+      </form>
+
+      <div class="result-area" id="identifyResult"></div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════════
+       TAB: Verify
+       ════════════════════════════════════════════════════════════════════ -->
+  <div class="tab-panel" id="tab-verify">
+    <div class="card">
+      <h2>&#9989; Verify (1:1)</h2>
+      <p class="desc">
+        Select an enrolled person and upload a <strong>single-face</strong> photo.
+        The module compares the face embedding against the enrolled embedding and
+        tells you whether it's a match, along with the confidence score.
+      </p>
+
+      <form id="verifyForm" onsubmit="return handleVerify(event)">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="verifyPerson">Enrolled Person</label>
+            <select id="verifyPerson" required>
+              <option value="" disabled selected>Loading…</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="file-drop" id="verifyDrop">
+          <input type="file" id="verifyFile" accept="image/*" required />
+          <div class="icon">&#128247;</div>
+          <div class="label">Click or drag a photo here</div>
+          <div class="filename" id="verifyFileName"></div>
+          <img class="img-preview" id="verifyPreview" alt="preview" />
+        </div>
+
+        <div style="margin-top:1rem;">
+          <button class="btn btn-primary" type="submit" id="verifyBtn">
+            Verify
+          </button>
+        </div>
+      </form>
+
+      <div class="result-area" id="verifyResult"></div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════════
+       TAB: Enrolled People
+       ════════════════════════════════════════════════════════════════════ -->
+  <div class="tab-panel" id="tab-enrolled">
+    <div class="card">
+      <h2>&#128101; Enrolled People</h2>
+      <p class="desc">Browse and manage the database of enrolled faces.</p>
+      <button class="btn btn-primary btn-sm" onclick="loadEnrolled()" style="margin-bottom:1rem;">
+        &#128260; Refresh
+      </button>
+      <div id="enrolledList"></div>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+/* ── Helpers ──────────────────────────────────────────────────────────────── */
+
+function $(sel) { return document.querySelector(sel); }
+
+async function apiPost(url, body) {
+  const res = await fetch(url, { method: 'POST', body });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.detail || 'Request failed');
+  return data;
+}
+
+function showResult(el, html, cls = '') {
+  el.innerHTML = `<div class="result-box ${cls}">${html}</div>`;
+}
+
+function setLoading(btn, loading) {
+  if (loading) {
+    btn.disabled = true;
+    btn._origHTML = btn.innerHTML;
+    btn.innerHTML = '<span class="spinner"></span> Processing…';
+  } else {
+    btn.disabled = false;
+    btn.innerHTML = btn._origHTML || btn.innerHTML;
+  }
+}
+
+/* ── File drop wiring ─────────────────────────────────────────────────────── */
+
+function wireFileDrop(dropId, fileId, nameId, previewId) {
+  const drop = document.getElementById(dropId);
+  const input = document.getElementById(fileId);
+  const nameEl = document.getElementById(nameId);
+  const preview = document.getElementById(previewId);
+
+  ['dragenter', 'dragover'].forEach(ev =>
+    drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('dragover'); })
+  );
+  ['dragleave', 'drop'].forEach(ev =>
+    drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('dragover'); })
+  );
+  drop.addEventListener('drop', e => {
+    input.files = e.dataTransfer.files;
+    input.dispatchEvent(new Event('change'));
+  });
+  input.addEventListener('change', () => {
+    if (input.files.length) {
+      nameEl.textContent = input.files[0].name;
+      const url = URL.createObjectURL(input.files[0]);
+      preview.src = url;
+      preview.style.display = 'block';
+    }
+  });
+}
+
+wireFileDrop('enrollDrop',   'enrollFile',   'enrollFileName',   'enrollPreview');
+wireFileDrop('identifyDrop', 'identifyFile', 'identifyFileName', 'identifyPreview');
+wireFileDrop('verifyDrop',   'verifyFile',   'verifyFileName',   'verifyPreview');
+
+/* ── Tabs ─────────────────────────────────────────────────────────────────── */
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+
+    // Refresh data when switching to relevant tabs
+    if (btn.dataset.tab === 'enrolled') loadEnrolled();
+    if (btn.dataset.tab === 'verify') loadVerifySelect();
+  });
+});
+
+/* ── Enroll ────────────────────────────────────────────────────────────────── */
+
+async function handleEnroll(e) {
+  e.preventDefault();
+  const btn = $('#enrollBtn');
+  const result = $('#enrollResult');
+  setLoading(btn, true);
+  result.innerHTML = '';
+
+  const fd = new FormData();
+  fd.append('person_id', $('#enrollId').value.trim());
+  fd.append('name', $('#enrollName').value.trim());
+  fd.append('photo', $('#enrollFile').files[0]);
+
+  try {
+    const data = await apiPost('/api/enroll', fd);
+    showResult(result,
+      `&#9989; <strong>${data.name}</strong> enrolled successfully as <code>${data.person_id}</code>`,
+      'success'
+    );
+    refreshBadge();
+    $('#enrollForm').reset();
+    $('#enrollFileName').textContent = '';
+    $('#enrollPreview').style.display = 'none';
+  } catch (err) {
+    showResult(result, `&#10060; ${err.message}`, 'error');
+  } finally {
+    setLoading(btn, false);
+  }
+}
+
+/* ── Identify ─────────────────────────────────────────────────────────────── */
+
+async function handleIdentify(e) {
+  e.preventDefault();
+  const btn = $('#identifyBtn');
+  const result = $('#identifyResult');
+  setLoading(btn, true);
+  result.innerHTML = '';
+
+  const fd = new FormData();
+  fd.append('photo', $('#identifyFile').files[0]);
+
+  try {
+    const data = await apiPost('/api/identify', fd);
+
+    if (data.faces.length === 0) {
+      showResult(result, '&#128528; No faces detected in this image.', '');
+      return;
+    }
+
+    let html = `<strong>${data.faces.length} face(s) detected</strong>`;
+    html += '<div class="face-list">';
+    for (const f of data.faces) {
+      const pct = (f.confidence * 100).toFixed(1);
+      const cls = f.person_id ? 'high' : 'low';
+      const name = f.name || 'Unknown';
+      html += `
+        <div class="face-item">
+          <span class="name">${name}</span>
+          <span class="conf ${cls}">${pct}%</span>
+        </div>`;
+    }
+    html += '</div>';
+
+    if (data.annotated_image) {
+      html += `<img class="result-img" src="data:image/jpeg;base64,${data.annotated_image}" alt="annotated" />`;
+    }
+
+    showResult(result, html, 'success');
+  } catch (err) {
+    showResult(result, `&#10060; ${err.message}`, 'error');
+  } finally {
+    setLoading(btn, false);
+  }
+}
+
+/* ── Verify ───────────────────────────────────────────────────────────────── */
+
+async function loadVerifySelect() {
+  const sel = $('#verifyPerson');
+  try {
+    const res = await fetch('/api/enrolled');
+    const data = await res.json();
+    sel.innerHTML = '<option value="" disabled selected>— select a person —</option>';
+    for (const p of data.people) {
+      sel.innerHTML += `<option value="${p.person_id}">${p.name} (${p.person_id})</option>`;
+    }
+    if (data.people.length === 0) {
+      sel.innerHTML = '<option value="" disabled selected>No enrolled people yet</option>';
+    }
+  } catch {
+    sel.innerHTML = '<option value="" disabled>Error loading people</option>';
+  }
+}
+
+async function handleVerify(e) {
+  e.preventDefault();
+  const btn = $('#verifyBtn');
+  const result = $('#verifyResult');
+  setLoading(btn, true);
+  result.innerHTML = '';
+
+  const fd = new FormData();
+  fd.append('person_id', $('#verifyPerson').value);
+  fd.append('photo', $('#verifyFile').files[0]);
+
+  try {
+    const data = await apiPost('/api/verify', fd);
+    const pct = (data.confidence * 100).toFixed(1);
+    const badge = data.is_match
+      ? '<span class="match-badge yes">&#9989; MATCH</span>'
+      : '<span class="match-badge no">&#10060; NO MATCH</span>';
+
+    showResult(result,
+      `${badge}<br><br>Confidence: <strong>${pct}%</strong>`,
+      data.is_match ? 'success' : 'error'
+    );
+  } catch (err) {
+    showResult(result, `&#10060; ${err.message}`, 'error');
+  } finally {
+    setLoading(btn, false);
+  }
+}
+
+/* ── Enrolled People ──────────────────────────────────────────────────────── */
+
+async function loadEnrolled() {
+  const container = $('#enrolledList');
+  try {
+    const res = await fetch('/api/enrolled');
+    const data = await res.json();
+    refreshBadge(data.count);
+
+    if (data.count === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="icon">&#128100;</div>
+          <p>No one enrolled yet. Head to the <strong>Enroll</strong> tab to add someone.</p>
+        </div>`;
+      return;
+    }
+
+    let html = '<div class="people-grid">';
+    for (const p of data.people) {
+      const date = p.created_at ? new Date(p.created_at).toLocaleString() : '—';
+      html += `
+        <div class="person-card" id="person-${p.person_id}">
+          <div class="pid">${p.person_id}</div>
+          <div class="pname">${p.name}</div>
+          <div class="pdate">Enrolled: ${date}</div>
+          <div class="actions">
+            <button class="btn btn-danger btn-sm" onclick="removePerson('${p.person_id}')">
+              &#128465; Remove
+            </button>
+          </div>
+        </div>`;
+    }
+    html += '</div>';
+    container.innerHTML = html;
+  } catch (err) {
+    container.innerHTML = `<div class="result-box error">Failed to load: ${err.message}</div>`;
+  }
+}
+
+async function removePerson(pid) {
+  if (!confirm(`Remove "${pid}" from the database?`)) return;
+  try {
+    const res = await fetch(`/api/person/${encodeURIComponent(pid)}`, { method: 'DELETE' });
+    if (!res.ok) throw new Error((await res.json()).detail);
+    loadEnrolled();
+  } catch (err) {
+    alert('Error: ' + err.message);
+  }
+}
+
+/* ── Badge ────────────────────────────────────────────────────────────────── */
+
+async function refreshBadge(count) {
+  if (count === undefined) {
+    const res = await fetch('/api/enrolled');
+    const data = await res.json();
+    count = data.count;
+  }
+  $('#enrolledCount').textContent = `${count} enrolled`;
+}
+
+/* ── Init ────────────────────────────────────────────────────────────────── */
+refreshBadge();
+loadVerifySelect();
+</script>
+
+</body>
+</html>
