@@ -23,13 +23,11 @@ export default function RoleGate({ allowedRole, minRole, redirectTo = '/', child
 
     if (isAuthorized()) return;
 
-    // If not authorized yet, check if there are localStorage credentials
-    // that AuthContext may have missed (operator flow sets them right before navigation)
-    const hasLocalCreds =
-      typeof window !== 'undefined' &&
-      (localStorage.getItem('rakshak_phone') || localStorage.getItem('rakshak_camp_id'));
-
-    if (hasLocalCreds && !retryRef.current) {
+    // Not authorized yet — retry once to handle race conditions.
+    // This covers both:
+    //   - Operator flow: localStorage creds set right before navigation
+    //   - Email login flow: Supabase session exists but profile hasn't loaded yet
+    if (!retryRef.current) {
       retryRef.current = true;
       refreshProfile().then(() => setRetried(true));
       return;
@@ -38,7 +36,7 @@ export default function RoleGate({ allowedRole, minRole, redirectTo = '/', child
     router.replace(redirectTo);
   }, [loading, profile, retried]);
 
-  if (loading || (!isAuthorized() && !retried && typeof window !== 'undefined' && localStorage.getItem('rakshak_phone'))) {
+  if (loading || (!isAuthorized() && !retried)) {
     return (
       <div style={{
         minHeight: '100vh', background: '#0F172A', display: 'flex',

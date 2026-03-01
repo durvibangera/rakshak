@@ -26,6 +26,14 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
+import sys
+from pathlib import Path
+# Ensure the parent directory is on sys.path so `face_recognition_module` is importable
+# regardless of whether we run from inside the package or from the parent.
+_parent = str(Path(__file__).resolve().parent.parent)
+if _parent not in sys.path:
+    sys.path.insert(0, _parent)
+
 from face_recognition_module.core import FaceRecognition
 from face_recognition_module.exceptions import (
     InvalidImageError,

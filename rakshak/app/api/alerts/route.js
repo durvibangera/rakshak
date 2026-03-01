@@ -36,16 +36,17 @@ export async function GET() {
     const { data, error } = await supabaseAdmin
       .from('alerts')
       .select('*')
-      .eq('is_active', true)
-      .order('severity', { ascending: false })
+      .is('resolved_at', null)
       .order('created_at', { ascending: false });
 
     if (error) {
+      console.error('[Alerts] GET error:', error.message);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json({ alerts: data });
+    return NextResponse.json({ alerts: data || [] });
   } catch (err) {
+    console.error('[Alerts] GET exception:', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

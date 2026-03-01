@@ -97,8 +97,8 @@ export async function POST(request) {
 
     // ── Auto-match: cross-check against camp users + unidentified persons ──
     let autoMatch = null;
-    if (face_encoding) {
-      autoMatch = await attemptAutoMatch(supabase, face_encoding, data.id);
+    if (face_encoding || phone_of_missing || name) {
+      autoMatch = await attemptAutoMatch(supabase, face_encoding, data.id, { phone_of_missing, name });
     }
 
     return NextResponse.json({
@@ -246,47 +246,80 @@ export async function PUT(request) {
 
 // Use cosineSimilarity from shared faceRecognition lib
 
-async function attemptAutoMatch(supabase, faceEncoding, reportId) {
+async function attemptAutoMatch(supabase, faceEncoding, reportId, { phone_of_missing, name } = {}) {
   const THRESHOLD = FACE_MATCH_THRESHOLD;
 
-  // 1. Check against all users with face encodings
+  // 1. Check against all users (face + phone + name)
   const { data: users } = await supabase
     .from('users')
-    .select('id, name, phone, face_encoding, assigned_camp_id')
-    .not('face_encoding', 'is', null);
+    .select('id, name, phone, face_encoding, assigned_camp_id');
 
   let bestUserMatch = null;
   let bestUserScore = 0;
+  let bestUserMethod = null;
 
   for (const user of (users || [])) {
-    const score = cosineSimilarity(faceEncoding, user.face_encoding);
-    if (score > bestUserScore) {
+    let score = 0;
+    let method = null;
+
+    // Face match (highest priority)
+    if (faceEncoding && user.face_encoding) {
+      const faceScore = cosineSimilarity(faceEncoding, user.face_encoding);
+      if (faceScore >= THRESHOLD && faceScore > score) {
+        score = faceScore;
+        method = 'face';
+      }
+    }
+
+    // Phone match
+    if (!method && phone_of_missing && user.phone) {
+      const normMissing = phone_of_missing.replace(/\D/g, '').slice(-10);
+      const normUser = user.phone.replace(/\D/g, '').slice(-10);
+      if (normMissing && normUser && normMissing === normUser) {
+        score = 0.95;
+        method = 'phone';
+      }
+    }
+
+    // Name match
+    if (!method && name && user.name) {
+      if (name.toLowerCase().trim() === user.name.toLowerCase().trim()) {
+        score = 0.70;
+        method = 'name';
+      }
+    }
+
+    if (score > bestUserScore && method) {
       bestUserScore = score;
       bestUserMatch = user;
+      bestUserMethod = method;
     }
   }
 
-  // 2. Check against unidentified persons
+  // 2. Check against unidentified persons (face only — they don't have phone/name)
   const { data: unidentified } = await supabase
     .from('unidentified_persons')
     .select('id, camp_id, face_encoding, approximate_age, gender, identifying_marks, status')
-    .not('face_encoding', 'is', null)
     .eq('status', 'unidentified');
 
   let bestUnidentifiedMatch = null;
   let bestUnidentifiedScore = 0;
 
-  for (const person of (unidentified || [])) {
-    const score = cosineSimilarity(faceEncoding, person.face_encoding);
-    if (score > bestUnidentifiedScore) {
-      bestUnidentifiedScore = score;
-      bestUnidentifiedMatch = person;
+  if (faceEncoding) {
+    for (const person of (unidentified || [])) {
+      if (!person.face_encoding) continue;
+      const score = cosineSimilarity(faceEncoding, person.face_encoding);
+      if (score > bestUnidentifiedScore) {
+        bestUnidentifiedScore = score;
+        bestUnidentifiedMatch = person;
+      }
     }
   }
 
   // 3. Determine best overall match
   const bestScore = Math.max(bestUserScore, bestUnidentifiedScore);
-  if (bestScore < THRESHOLD) return null;
+  // For face matching use THRESHOLD, for phone/name matching they already have built-in thresholds
+  if (bestScore < 0.5) return null;
 
   const matchUpdate = {
     status: 'match_found',

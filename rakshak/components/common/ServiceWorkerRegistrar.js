@@ -20,6 +20,16 @@ export default function ServiceWorkerRegistrar() {
     const isDev = window.location.hostname === 'localhost'
       || window.location.hostname === '127.0.0.1';
 
+    if (isDev) {
+      // Unregister any existing SW in development and clear caches
+      navigator.serviceWorker.getRegistrations().then(regs => {
+        regs.forEach(r => r.unregister());
+      });
+      caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
+      console.log('[SW] Skipped registration in development mode');
+      return;
+    }
+
     async function registerSW() {
       try {
         const registration = await navigator.serviceWorker.register('/sw.js', {

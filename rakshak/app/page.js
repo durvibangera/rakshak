@@ -57,15 +57,6 @@ export default function HomePage() {
           <span style={{ fontSize: 24 }}>🗺️</span>
           <span style={p.actionLabel}>Disaster Map</span>
           <span style={p.actionSub}>Live alerts & predictions</span>
-<<<<<<< HEAD
-        </button>
-        <button onClick={() => window.location.href = 'tel:112'} style={p.actionCard}>
-          <span style={{ fontSize: 24 }}>🆘</span>
-          <span style={p.actionLabel}>Emergency SOS</span>
-          <span style={p.actionSub}>Call 112 helpline</span>
-        </button>
-        <button onClick={() => router.push('/track-report')} style={p.actionCard}>
-=======
         </Link>
         <Link href="/register" style={linkCard}>
           <span style={{ fontSize: 24 }}>📱</span>
@@ -73,7 +64,6 @@ export default function HomePage() {
           <span style={p.actionSub}>View your identity card</span>
         </Link>
         <Link href="/track-report" style={linkCard}>
->>>>>>> origin/sahai-feature
           <span style={{ fontSize: 24 }}>📋</span>
           <span style={p.actionLabel}>Track Report</span>
           <span style={p.actionSub}>Check report status</span>
@@ -116,19 +106,11 @@ export default function HomePage() {
       {/* Login section */}
       <div style={p.adminSection}>
         <div style={p.divider} />
-<<<<<<< HEAD
-        <button onClick={() => router.push('/login')} style={{ ...p.primaryBtn, background: 'linear-gradient(135deg, #3B82F6, #2563EB)', marginBottom: 8, fontSize: 15 }}>
-          User Login
-        </button>
-        <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
-          <button onClick={() => router.push('/admin-login')} style={p.adminBtn}>
-=======
         <Link href="/login" style={{ ...linkBtn, marginBottom: 8, fontSize: 15 }}>
           Login (Registered Users)
         </Link>
         <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
           <Link href="/admin-login" style={linkAdmin}>
->>>>>>> origin/sahai-feature
             Admin / Staff Login →
           </Link>
           <Link href="/ngo/login" style={linkAdmin}>

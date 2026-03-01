@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { nanoid } from 'nanoid';
-import { extractFaceEmbedding } from '@/lib/ai/faceRecognition';
+import { extractFaceEmbedding, cosineSimilarity, FACE_MATCH_THRESHOLD } from '@/lib/ai/faceRecognition';
 
 export const maxDuration = 30;
 
@@ -112,7 +112,17 @@ export async function POST(request) {
       });
     }
 
-    return NextResponse.json({ success: true, user, qr_code_id });
+    // ── Reverse auto-match: check this person against active missing reports ──
+    let autoMatch = null;
+    if (user) {
+      try {
+        autoMatch = await reverseMatchMissingReports(supabase, user, camp_id);
+      } catch (matchErr) {
+        console.error('[Victims API] Reverse match error (non-fatal):', matchErr.message);
+      }
+    }
+
+    return NextResponse.json({ success: true, user, qr_code_id, autoMatch });
   } catch (err) {
     console.error('[Victims API] Error:', err);
     return NextResponse.json({ error: 'Registration failed', details: err.message }, { status: 500 });
@@ -178,4 +188,122 @@ export async function GET(request) {
     console.error('[Victims API] Error:', err);
     return NextResponse.json({ error: 'Failed to fetch victims', details: err.message }, { status: 500 });
   }
+}
+
+// ═══════════════════════════════════════════════════════════
+// REVERSE AUTO-MATCH: When a victim registers, check them against
+// all active missing reports (by face, phone, and name).
+// If found, update the missing report status to 'match_found'.
+// ═══════════════════════════════════════════════════════════
+
+async function reverseMatchMissingReports(supabase, registeredUser, campId) {
+  // Fetch all active missing reports
+  const { data: activeReports } = await supabase
+    .from('missing_reports')
+    .select('*')
+    .eq('status', 'active');
+
+  if (!activeReports || activeReports.length === 0) return null;
+
+  // Resolve camp name once
+  let campName = null;
+  if (campId) {
+    const { data: camp } = await supabase
+      .from('camps')
+      .select('name')
+      .eq('id', campId)
+      .single();
+    campName = camp?.name || null;
+  }
+
+  const matches = [];
+
+  for (const report of activeReports) {
+    let confidence = 0;
+    let matchMethod = null;
+
+    // ── Priority 1: Face embedding match ──
+    if (registeredUser.face_encoding && report.face_encoding) {
+      const faceScore = cosineSimilarity(registeredUser.face_encoding, report.face_encoding);
+      if (faceScore >= FACE_MATCH_THRESHOLD) {
+        confidence = faceScore;
+        matchMethod = 'face';
+      }
+    }
+
+    // ── Priority 2: Phone number match ──
+    if (!matchMethod && registeredUser.phone && report.phone_of_missing) {
+      const normRegistered = registeredUser.phone.replace(/\D/g, '').slice(-10);
+      const normMissing = report.phone_of_missing.replace(/\D/g, '').slice(-10);
+      if (normRegistered && normMissing && normRegistered === normMissing) {
+        confidence = 0.95; // Very high confidence for exact phone match
+        matchMethod = 'phone';
+      }
+    }
+
+    // ── Priority 3: Name similarity match ──
+    if (!matchMethod && registeredUser.name && report.name) {
+      const regName = registeredUser.name.toLowerCase().trim();
+      const repName = report.name.toLowerCase().trim();
+      if (regName && repName && regName === repName) {
+        confidence = 0.70; // Moderate confidence for exact name match
+        matchMethod = 'name';
+      }
+    }
+
+    if (matchMethod) {
+      matches.push({ report, confidence, matchMethod });
+    }
+  }
+
+  if (matches.length === 0) return null;
+
+  // Sort by confidence descending, process the best match
+  matches.sort((a, b) => b.confidence - a.confidence);
+  const best = matches[0];
+
+  // Update the missing report with match info
+  const matchUpdate = {
+    status: 'match_found',
+    matched_user_id: registeredUser.id,
+    match_confidence: best.confidence,
+    matched_camp_id: campId || null,
+    matched_camp_name: campName || null,
+    updated_at: new Date().toISOString(),
+  };
+
+  await supabase
+    .from('missing_reports')
+    .update(matchUpdate)
+    .eq('id', best.report.id);
+
+  console.log(`[Victims API] Auto-matched missing report "${best.report.name}" → victim "${registeredUser.name}" (${best.matchMethod}, confidence: ${best.confidence.toFixed(3)})`);
+
+  // Update all other matches as well (less common, but handles cases where
+  // one newly registered person matches multiple missing reports)
+  for (let i = 1; i < matches.length; i++) {
+    const m = matches[i];
+    await supabase
+      .from('missing_reports')
+      .update({
+        status: 'match_found',
+        matched_user_id: registeredUser.id,
+        match_confidence: m.confidence,
+        matched_camp_id: campId || null,
+        matched_camp_name: campName || null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', m.report.id);
+  }
+
+  return {
+    matchCount: matches.length,
+    bestMatch: {
+      reportId: best.report.id,
+      reportName: best.report.name,
+      confidence: best.confidence,
+      method: best.matchMethod,
+      campName,
+    },
+  };
 }

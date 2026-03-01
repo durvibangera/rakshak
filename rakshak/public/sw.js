@@ -9,7 +9,7 @@
  * =============================================================
  */
 
-const CACHE_NAME = 'rakshak-v1';
+const CACHE_NAME = 'rakshak-v2';
 const OFFLINE_URL = '/offline';
 
 // App shell — cached on install for instant offline loading

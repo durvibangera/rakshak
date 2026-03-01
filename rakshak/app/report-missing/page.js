@@ -48,10 +48,6 @@ export default function ReportMissingPage() {
         video: { facingMode: 'environment', width: { ideal: 640 }, height: { ideal: 480 } },
       });
       streamRef.current = stream;
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        videoRef.current.play();
-      }
       setCameraActive(true);
     } catch {
       setError('Camera access denied');
@@ -78,6 +74,14 @@ export default function ReportMissingPage() {
     }
     setCameraActive(false);
   }, []);
+
+  // Attach stream to video element once it's rendered
+  useEffect(() => {
+    if (cameraActive && streamRef.current && videoRef.current) {
+      videoRef.current.srcObject = streamRef.current;
+      videoRef.current.play().catch(() => {});
+    }
+  }, [cameraActive]);
 
   useEffect(() => {
     return () => stopCamera();

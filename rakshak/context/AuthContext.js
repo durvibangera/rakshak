@@ -165,8 +165,20 @@ export function AuthProvider({ children }) {
 
   /**
    * Force-refresh profile from DB (e.g., after role change or registration).
+   * Reads the current Supabase session directly to avoid stale closure issues.
    */
   const refreshProfile = useCallback(async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        setUser(session.user);
+        await loadProfile(session.user);
+        return;
+      }
+    } catch (err) {
+      console.warn('[AuthContext] getSession failed in refreshProfile:', err);
+    }
+    // Fallback to current state / localStorage
     await loadProfile(user);
   }, [user, loadProfile]);
 
