@@ -35,10 +35,25 @@ export async function POST(request) {
       phone_of_missing,
       missing_user_id,
       missing_dependent_id,
+      // Structured attributes
+      age_min,
+      age_max,
+      height,
+      build,
+      skin_tone,
+      hair_color,
+      hair_length,
+      facial_hair,
+      distinguishing_marks,
+      clothing_description,
+      accessories,
     } = body;
 
-    if (!name) {
-      return NextResponse.json({ error: 'Name of missing person is required' }, { status: 400 });
+    // Validate at least one identifying field is provided
+    if (!name && !photo && !phone_of_missing && !identifying_details) {
+      return NextResponse.json({ 
+        error: 'Provide at least one identifying field: name, photo, phone, or description' 
+      }, { status: 400 });
     }
 
     // Upload photo if provided
@@ -70,7 +85,7 @@ export async function POST(request) {
       reported_by: reported_by || null,
       missing_user_id: missing_user_id || null,
       missing_dependent_id: missing_dependent_id || null,
-      name,
+      name: name || null,
       photo_url,
       face_encoding,
       age: age ? parseInt(age) : null,
@@ -82,6 +97,18 @@ export async function POST(request) {
       identifying_details: identifying_details || null,
       phone_of_missing: phone_of_missing || null,
       status: 'active',
+      // Structured attributes
+      age_min: age_min ? parseInt(age_min) : null,
+      age_max: age_max ? parseInt(age_max) : null,
+      height: height || null,
+      build: build || null,
+      skin_tone: skin_tone || null,
+      hair_color: hair_color || null,
+      hair_length: hair_length || null,
+      facial_hair: facial_hair || null,
+      distinguishing_marks: distinguishing_marks || null,
+      clothing_description: clothing_description || null,
+      accessories: accessories || null,
     };
 
     const { data, error: dbErr } = await supabase
@@ -271,7 +298,7 @@ async function attemptAutoMatch(supabase, faceEncoding, reportId, { phone_of_mis
       }
     }
 
-    // Phone match
+    // Phone match (second priority - very reliable)
     if (!method && phone_of_missing && user.phone) {
       const normMissing = phone_of_missing.replace(/\D/g, '').slice(-10);
       const normUser = user.phone.replace(/\D/g, '').slice(-10);
@@ -281,10 +308,11 @@ async function attemptAutoMatch(supabase, faceEncoding, reportId, { phone_of_mis
       }
     }
 
-    // Name match
+    // Name match (lowest priority - only used as weak signal for manual review)
+    // Only consider if name is provided and no better match exists
     if (!method && name && user.name) {
       if (name.toLowerCase().trim() === user.name.toLowerCase().trim()) {
-        score = 0.70;
+        score = 0.60; // Reduced from 0.70 - name alone is unreliable
         method = 'name';
       }
     }

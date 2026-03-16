@@ -11,6 +11,12 @@ import { useRouter } from 'next/navigation';
 
 const RELATIONSHIPS = ['Parent', 'Child', 'Spouse', 'Sibling', 'Grandparent', 'Grandchild', 'Friend', 'Neighbor', 'Other'];
 const GENDERS = ['Male', 'Female', 'Other'];
+const HEIGHT_OPTIONS = ['Short', 'Average', 'Tall'];
+const BUILD_OPTIONS = ['Slim', 'Average', 'Heavy', 'Athletic'];
+const SKIN_TONE_OPTIONS = ['Fair', 'Medium', 'Dark'];
+const HAIR_COLOR_OPTIONS = ['Black', 'Brown', 'Blonde', 'Red', 'Gray', 'White', 'Dyed', 'Other'];
+const HAIR_LENGTH_OPTIONS = ['Bald', 'Short', 'Medium', 'Long'];
+const FACIAL_HAIR_OPTIONS = ['Clean Shaven', 'Beard', 'Mustache', 'Goatee', 'Stubble'];
 
 export default function ReportMissingPage() {
   const router = useRouter();
@@ -36,6 +42,19 @@ export default function ReportMissingPage() {
   const [identifyingDetails, setIdentifyingDetails] = useState('');
   const [phoneOfMissing, setPhoneOfMissing] = useState('');
   const [photo, setPhoto] = useState(null);
+
+  // Structured attributes for hybrid search
+  const [ageMin, setAgeMin] = useState('');
+  const [ageMax, setAgeMax] = useState('');
+  const [height, setHeight] = useState('');
+  const [build, setBuild] = useState('');
+  const [skinTone, setSkinTone] = useState('');
+  const [hairColor, setHairColor] = useState('');
+  const [hairLength, setHairLength] = useState('');
+  const [facialHair, setFacialHair] = useState('');
+  const [distinguishingMarks, setDistinguishingMarks] = useState('');
+  const [clothingDescription, setClothingDescription] = useState('');
+  const [accessories, setAccessories] = useState('');
 
   // Result
   const [report, setReport] = useState(null);
@@ -112,8 +131,9 @@ export default function ReportMissingPage() {
 
   // ── Submit report ──
   const submitReport = async () => {
-    if (!missingName.trim()) {
-      setError('Enter the missing person\'s name');
+    // Validate at least one identifying field is provided
+    if (!missingName.trim() && !phoneOfMissing && !photo && !identifyingDetails.trim()) {
+      setError('Provide at least one: name, photo, phone, or identifying details');
       return;
     }
     setError('');
@@ -131,7 +151,7 @@ export default function ReportMissingPage() {
 
       const payload = {
         reported_by,
-        name: missingName.trim(),
+        name: missingName.trim() || null,
         photo: photo || null,
         age: missingAge || null,
         gender: missingGender || null,
@@ -141,6 +161,18 @@ export default function ReportMissingPage() {
         last_known_lng: geoLng,
         identifying_details: identifyingDetails || null,
         phone_of_missing: phoneOfMissing || null,
+        // Structured attributes
+        age_min: ageMin || null,
+        age_max: ageMax || null,
+        height: height || null,
+        build: build || null,
+        skin_tone: skinTone || null,
+        hair_color: hairColor || null,
+        hair_length: hairLength || null,
+        facial_hair: facialHair || null,
+        distinguishing_marks: distinguishingMarks || null,
+        clothing_description: clothingDescription || null,
+        accessories: accessories || null,
       };
 
       const res = await fetch('/api/missing-reports', {
@@ -251,12 +283,12 @@ export default function ReportMissingPage() {
             <p style={p.photoHint}>A photo greatly increases match chances</p>
           </div>
 
-          <label style={p.label}>Name of Missing Person *</label>
+          <label style={p.label}>Name of Missing Person</label>
           <input
             type="text"
             value={missingName}
             onChange={e => setMissingName(e.target.value)}
-            placeholder="Full name"
+            placeholder="Full name (if known)"
             style={p.input}
           />
 
@@ -304,11 +336,113 @@ export default function ReportMissingPage() {
             style={p.input}
           />
 
-          <label style={p.label}>Identifying Details</label>
+          {/* ═══ Physical Attributes Section ═══ */}
+          <div style={p.sectionDivider}>
+            <h3 style={p.subsectionTitle}>Physical Attributes (Optional but helps matching)</h3>
+          </div>
+
+          <div style={p.row}>
+            <div style={p.halfField}>
+              <label style={p.label}>Age Range</label>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <input
+                  type="number"
+                  value={ageMin}
+                  onChange={e => setAgeMin(e.target.value)}
+                  placeholder="Min"
+                  style={{ ...p.input, width: '100%' }}
+                />
+                <span style={{ color: '#64748B' }}>-</span>
+                <input
+                  type="number"
+                  value={ageMax}
+                  onChange={e => setAgeMax(e.target.value)}
+                  placeholder="Max"
+                  style={{ ...p.input, width: '100%' }}
+                />
+              </div>
+            </div>
+            <div style={p.halfField}>
+              <label style={p.label}>Height</label>
+              <select value={height} onChange={e => setHeight(e.target.value)} style={p.input}>
+                <option value="">Select</option>
+                {HEIGHT_OPTIONS.map(h => <option key={h} value={h.toLowerCase()}>{h}</option>)}
+              </select>
+            </div>
+          </div>
+
+          <div style={p.row}>
+            <div style={p.halfField}>
+              <label style={p.label}>Build</label>
+              <select value={build} onChange={e => setBuild(e.target.value)} style={p.input}>
+                <option value="">Select</option>
+                {BUILD_OPTIONS.map(b => <option key={b} value={b.toLowerCase()}>{b}</option>)}
+              </select>
+            </div>
+            <div style={p.halfField}>
+              <label style={p.label}>Skin Tone</label>
+              <select value={skinTone} onChange={e => setSkinTone(e.target.value)} style={p.input}>
+                <option value="">Select</option>
+                {SKIN_TONE_OPTIONS.map(s => <option key={s} value={s.toLowerCase()}>{s}</option>)}
+              </select>
+            </div>
+          </div>
+
+          <div style={p.row}>
+            <div style={p.halfField}>
+              <label style={p.label}>Hair Color</label>
+              <select value={hairColor} onChange={e => setHairColor(e.target.value)} style={p.input}>
+                <option value="">Select</option>
+                {HAIR_COLOR_OPTIONS.map(h => <option key={h} value={h.toLowerCase()}>{h}</option>)}
+              </select>
+            </div>
+            <div style={p.halfField}>
+              <label style={p.label}>Hair Length</label>
+              <select value={hairLength} onChange={e => setHairLength(e.target.value)} style={p.input}>
+                <option value="">Select</option>
+                {HAIR_LENGTH_OPTIONS.map(h => <option key={h} value={h.toLowerCase()}>{h}</option>)}
+              </select>
+            </div>
+          </div>
+
+          <label style={p.label}>Facial Hair</label>
+          <select value={facialHair} onChange={e => setFacialHair(e.target.value)} style={p.input}>
+            <option value="">Select</option>
+            {FACIAL_HAIR_OPTIONS.map(f => <option key={f} value={f.toLowerCase()}>{f}</option>)}
+          </select>
+
+          <label style={p.label}>Distinguishing Marks</label>
+          <textarea
+            value={distinguishingMarks}
+            onChange={e => setDistinguishingMarks(e.target.value)}
+            placeholder="Scars, tattoos, birthmarks, moles, visible injuries..."
+            rows={2}
+            style={{ ...p.input, resize: 'vertical' }}
+          />
+
+          <label style={p.label}>Clothing Description</label>
+          <textarea
+            value={clothingDescription}
+            onChange={e => setClothingDescription(e.target.value)}
+            placeholder="Last known clothing: shirt color, pants, shoes..."
+            rows={2}
+            style={{ ...p.input, resize: 'vertical' }}
+          />
+
+          <label style={p.label}>Accessories</label>
+          <input
+            type="text"
+            value={accessories}
+            onChange={e => setAccessories(e.target.value)}
+            placeholder="Glasses, jewelry, watch, bag..."
+            style={p.input}
+          />
+
+          <label style={p.label}>Other Identifying Details</label>
           <textarea
             value={identifyingDetails}
             onChange={e => setIdentifyingDetails(e.target.value)}
-            placeholder="Clothing, scars, tattoos, jewelry, any unique features..."
+            placeholder="Any other unique features or information..."
             rows={3}
             style={{ ...p.input, resize: 'vertical' }}
           />
@@ -451,6 +585,20 @@ const p = {
   section: { padding: '0 20px' },
   sectionTitle: { fontSize: 18, fontWeight: 800, color: '#F1F5F9', margin: '0 0 4px' },
   sectionDesc: { fontSize: 13, color: '#64748B', margin: '0 0 20px' },
+  sectionDivider: {
+    marginTop: 24,
+    marginBottom: 16,
+    paddingTop: 20,
+    borderTop: '1px solid #334155',
+  },
+  subsectionTitle: {
+    fontSize: 14,
+    fontWeight: 700,
+    color: '#94A3B8',
+    margin: 0,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
   label: {
     display: 'block', fontSize: 12, fontWeight: 600, color: '#94A3B8',
     marginBottom: 6, marginTop: 14, textTransform: 'uppercase', letterSpacing: 0.4,

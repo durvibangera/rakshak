@@ -16,6 +16,12 @@ const STATES = [
 
 const BLOOD_GROUPS = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 const RELATIONSHIPS = ['Child', 'Spouse', 'Parent', 'Sibling', 'Other'];
+const HEIGHT_OPTIONS = ['Short', 'Average', 'Tall'];
+const BUILD_OPTIONS = ['Slim', 'Average', 'Heavy', 'Athletic'];
+const SKIN_TONE_OPTIONS = ['Fair', 'Medium', 'Dark'];
+const HAIR_COLOR_OPTIONS = ['Black', 'Brown', 'Blonde', 'Red', 'Gray', 'White', 'Dyed', 'Other'];
+const HAIR_LENGTH_OPTIONS = ['Bald', 'Short', 'Medium', 'Long'];
+const FACIAL_HAIR_OPTIONS = ['Clean Shaven', 'Beard', 'Mustache', 'Goatee', 'Stubble'];
 
 const EMPTY_DEPENDENT = {
   name: '', age: '', gender: '', relationship: 'Child',
@@ -41,6 +47,16 @@ export default function RegisterPage() {
   const [selfie, setSelfie] = useState(null);
   const [showCamera, setShowCamera] = useState(false);
   const [consent, setConsent] = useState(false);
+
+  // — Physical attributes for matching —
+  const [height, setHeight] = useState('');
+  const [build, setBuild] = useState('');
+  const [skinTone, setSkinTone] = useState('');
+  const [hairColor, setHairColor] = useState('');
+  const [hairLength, setHairLength] = useState('');
+  const [facialHair, setFacialHair] = useState('');
+  const [distinguishingMarks, setDistinguishingMarks] = useState('');
+  const [accessories, setAccessories] = useState('');
 
   // — Dependents —
   const [dependents, setDependents] = useState([]);
@@ -149,6 +165,15 @@ export default function RegisterPage() {
         consent_given: true,
         consent_timestamp: new Date().toISOString(),
         updated_at: new Date().toISOString(),
+        // Physical attributes for matching
+        height: height || null,
+        build: build || null,
+        skin_tone: skinTone || null,
+        hair_color: hairColor || null,
+        hair_length: hairLength || null,
+        facial_hair: facialHair || null,
+        distinguishing_marks: distinguishingMarks.trim() || null,
+        accessories: accessories.trim() || null,
       }, { onConflict: 'phone' }).select().single();
 
       if (dbError) throw dbError;
@@ -379,8 +404,76 @@ export default function RegisterPage() {
                 </div>
               </div>
 
-              {/* Dependents section */}
+              {/* Physical Attributes */}
               <div style={{ padding: '14px', background: '#0F172A', borderRadius: 10, border: '1px solid #334155' }}>
+                <label style={{ ...styles.label, marginBottom: 2 }}>Physical Attributes</label>
+                <p style={{ fontSize: 11, color: '#64748B', margin: '0 0 10px' }}>Helps match you with missing person reports</p>
+
+                <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+                  <div style={{ flex: 1 }}>
+                    <label style={{ ...styles.label, fontSize: 11 }}>Height</label>
+                    <select value={height} onChange={e => setHeight(e.target.value)} style={{ ...styles.input, fontSize: 13, padding: '8px 10px' }}>
+                      <option value="">Select</option>
+                      {HEIGHT_OPTIONS.map(h => <option key={h} value={h.toLowerCase()}>{h}</option>)}
+                    </select>
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <label style={{ ...styles.label, fontSize: 11 }}>Build</label>
+                    <select value={build} onChange={e => setBuild(e.target.value)} style={{ ...styles.input, fontSize: 13, padding: '8px 10px' }}>
+                      <option value="">Select</option>
+                      {BUILD_OPTIONS.map(b => <option key={b} value={b.toLowerCase()}>{b}</option>)}
+                    </select>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+                  <div style={{ flex: 1 }}>
+                    <label style={{ ...styles.label, fontSize: 11 }}>Skin Tone</label>
+                    <select value={skinTone} onChange={e => setSkinTone(e.target.value)} style={{ ...styles.input, fontSize: 13, padding: '8px 10px' }}>
+                      <option value="">Select</option>
+                      {SKIN_TONE_OPTIONS.map(s => <option key={s} value={s.toLowerCase()}>{s}</option>)}
+                    </select>
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <label style={{ ...styles.label, fontSize: 11 }}>Hair Color</label>
+                    <select value={hairColor} onChange={e => setHairColor(e.target.value)} style={{ ...styles.input, fontSize: 13, padding: '8px 10px' }}>
+                      <option value="">Select</option>
+                      {HAIR_COLOR_OPTIONS.map(h => <option key={h} value={h.toLowerCase()}>{h}</option>)}
+                    </select>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+                  <div style={{ flex: 1 }}>
+                    <label style={{ ...styles.label, fontSize: 11 }}>Hair Length</label>
+                    <select value={hairLength} onChange={e => setHairLength(e.target.value)} style={{ ...styles.input, fontSize: 13, padding: '8px 10px' }}>
+                      <option value="">Select</option>
+                      {HAIR_LENGTH_OPTIONS.map(h => <option key={h} value={h.toLowerCase()}>{h}</option>)}
+                    </select>
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <label style={{ ...styles.label, fontSize: 11 }}>Facial Hair</label>
+                    <select value={facialHair} onChange={e => setFacialHair(e.target.value)} style={{ ...styles.input, fontSize: 13, padding: '8px 10px' }}>
+                      <option value="">Select</option>
+                      {FACIAL_HAIR_OPTIONS.map(f => <option key={f} value={f.toLowerCase()}>{f}</option>)}
+                    </select>
+                  </div>
+                </div>
+
+                <div style={{ marginBottom: 8 }}>
+                  <label style={{ ...styles.label, fontSize: 11 }}>Distinguishing Marks</label>
+                  <input type="text" value={distinguishingMarks} onChange={e => setDistinguishingMarks(e.target.value)}
+                    placeholder="Scars, tattoos, birthmarks, moles..." style={{ ...styles.input, fontSize: 13, padding: '8px 10px' }} />
+                </div>
+
+                <div>
+                  <label style={{ ...styles.label, fontSize: 11 }}>Accessories</label>
+                  <input type="text" value={accessories} onChange={e => setAccessories(e.target.value)}
+                    placeholder="Glasses, jewelry, watch..." style={{ ...styles.input, fontSize: 13, padding: '8px 10px' }} />
+                </div>
+              </div>
+
+              {/* Dependents section */}              <div style={{ padding: '14px', background: '#0F172A', borderRadius: 10, border: '1px solid #334155' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: dependents.length ? 12 : 0 }}>
                   <div>
                     <label style={{ ...styles.label, marginBottom: 2 }}>Family Members / Dependents</label>
