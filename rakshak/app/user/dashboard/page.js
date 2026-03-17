@@ -50,10 +50,7 @@ export default function UserDashboard() {
       <div style={s.page}>
         <div style={s.loadingWrap}>
           <div style={s.loadingLogo}>
-            <svg width="32" height="32" viewBox="0 0 28 28" fill="none">
-              <path d="M14 2L3 8v7c0 5.55 4.7 10.74 11 12 6.3-1.26 11-6.45 11-12V8L14 2z" fill="#2563EB"/>
-              <path d="M10 14l3 3 5-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
+            <img src="/logo-light.png" alt="Sahaay" style={{ height: 64, width: 'auto', objectFit: 'contain' }} />
           </div>
           <div style={s.spinner} />
           <p style={s.loadingText}>Loading your dashboard…</p>
@@ -66,7 +63,7 @@ export default function UserDashboard() {
 
   const STATUS_MAP = {
     active:       { label: 'Searching',    color: '#D97706', bg: '#FEF3C7' },
-    match_found:  { label: 'Match Found',  color: '#2563EB', bg: '#EFF6FF' },
+    match_found:  { label: 'Match Found',  color: '#1B3676', bg: '#EEF2FF' },
     under_review: { label: 'Under Review', color: '#7C3AED', bg: '#F5F3FF' },
     reunited:     { label: 'Reunited',     color: '#059669', bg: '#D1FAE5' },
     closed:       { label: 'Closed',       color: '#6B7280', bg: '#F3F4F6' },
@@ -91,11 +88,7 @@ export default function UserDashboard() {
       <header style={s.nav}>
         <div style={s.navLeft}>
           <div style={s.navLogo}>
-            <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
-              <path d="M14 2L3 8v7c0 5.55 4.7 10.74 11 12 6.3-1.26 11-6.45 11-12V8L14 2z" fill="#2563EB"/>
-              <path d="M10 14l3 3 5-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            <span style={s.navLogoText}>Sahaay</span>
+            <img src="/logo-light.png" alt="Sahaay" style={{ height: 46, width: 'auto', objectFit: 'contain' }} />
           </div>
         </div>
         <button onClick={handleLogout} style={s.logoutBtn}>
@@ -133,7 +126,7 @@ export default function UserDashboard() {
       <div style={s.tabBar}>
         {TABS.map(tab => (
           <button key={tab.key} onClick={() => setActiveTab(tab.key)} style={{ ...s.tab, ...(activeTab === tab.key ? s.tabActive : {}) }}>
-            <span style={{ color: activeTab === tab.key ? '#2563EB' : '#9CA3AF' }}>{tab.icon}</span>
+            <span style={{ color: activeTab === tab.key ? '#1B3676' : '#6B7280' }}>{tab.icon}</span>
             <span>{tab.label}</span>
           </button>
         ))}
@@ -149,12 +142,12 @@ export default function UserDashboard() {
               <div style={s.campCard}>
                 <div style={s.campCardTop}>
                   <div style={s.campIconWrap}>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1B3676" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
                   </div>
                   <div style={s.campInfo}>
                     <p style={s.campName}>{camp.name}</p>
                     <div style={s.campStatusRow}>
-                      <span style={{ ...s.campDot, background: camp.status === 'active' ? '#22C55E' : camp.status === 'full' ? '#EF4444' : '#9CA3AF' }} />
+                      <span style={{ ...s.campDot, background: camp.status === 'active' ? '#22C55E' : camp.status === 'full' ? '#EF4444' : '#6B7280' }} />
                       <span style={s.campStatusText}>
                         {camp.status === 'active' ? 'Open & Operational' : camp.status === 'full' ? 'At Capacity' : 'Inactive'}
                       </span>
@@ -171,7 +164,7 @@ export default function UserDashboard() {
             ) : (
               <div style={s.emptyCard}>
                 <div style={s.emptyIcon}>
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6B7280" strokeWidth="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
                 </div>
                 <p style={s.emptyCardTitle}>No Camp Assigned</p>
                 <p style={s.emptyCardSub}>You&apos;ll be assigned when you check into a relief camp</p>
@@ -223,10 +216,10 @@ export default function UserDashboard() {
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#DC2626" strokeWidth="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
               } label="Report Missing" urgent />
               <ActionBtn onClick={() => router.push('/track-report')} icon={
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2.2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1B3676" strokeWidth="2.2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
               } label="Track Report" />
               <ActionBtn onClick={() => router.push('/flood-prediction')} icon={
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2.2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/></svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1B3676" strokeWidth="2.2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/></svg>
               } label="Disaster Map" />
               <ActionBtn onClick={() => window.location.href = 'tel:112'} icon={
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#DC2626" strokeWidth="2.2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 8.81a19.79 19.79 0 01-3.07-8.7A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
@@ -253,7 +246,7 @@ export default function UserDashboard() {
           {reports.length === 0 ? (
             <div style={s.emptyState}>
               <div style={s.emptyStateIcon}>
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#6B7280" strokeWidth="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
               </div>
               <p style={s.emptyStateTitle}>No Reports Filed</p>
               <p style={s.emptyStateSub}>You haven&apos;t filed any missing person reports yet.</p>
@@ -271,7 +264,7 @@ export default function UserDashboard() {
                           <img src={report.photo_url} alt="" style={s.reportPhoto} />
                         ) : (
                           <div style={s.reportPhotoEmpty}>
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="1.8"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6B7280" strokeWidth="1.8"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                           </div>
                         )}
                         <div>
@@ -288,7 +281,7 @@ export default function UserDashboard() {
 
                     {report.matched_camp_name && (
                       <div style={s.matchBanner}>
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1B3676" strokeWidth="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
                         Located at <strong>{report.matched_camp_name}</strong>
                         {report.match_confidence && (
                           <span style={s.matchConfidence}>{Math.round(report.match_confidence * 100)}% match</span>
@@ -329,7 +322,7 @@ export default function UserDashboard() {
               <div style={s.campCard}>
                 <div style={s.campCardTop}>
                   <div style={s.campIconWrap}>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1B3676" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
                   </div>
                   <div style={s.campInfo}>
                     <p style={s.campName}>{camp.name}</p>
@@ -381,7 +374,7 @@ const s = {
   page: {
     minHeight: '100vh',
     background: '#F1F5F9',
-    maxWidth: 520,
+    maxWidth: 800,
     margin: '0 auto',
     fontFamily: FONT,
     color: '#111827',
@@ -390,9 +383,9 @@ const s = {
 
   /* Loading */
   loadingWrap: { display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', gap: 16 },
-  loadingLogo: { width: 56, height: 56, borderRadius: 14, background: '#EFF6FF', border: '1px solid #BFDBFE', display: 'flex', alignItems: 'center', justifyContent: 'center' },
-  spinner: { width: 32, height: 32, border: '3px solid #DBEAFE', borderTopColor: '#2563EB', borderRadius: '50%', animation: 'spin 0.8s linear infinite' },
-  loadingText: { fontSize: 14, color: '#9CA3AF', margin: 0 },
+  loadingLogo: { width: 56, height: 56, borderRadius: 14, background: '#EEF2FF', border: '1px solid #C7D2FE', display: 'flex', alignItems: 'center', justifyContent: 'center' },
+  spinner: { width: 32, height: 32, border: '3px solid #E2E8F0', borderTopColor: '#1B3676', borderRadius: '50%', animation: 'spin 0.8s linear infinite' },
+  loadingText: { fontSize: 14, color: '#6B7280', margin: 0 },
 
   /* Nav */
   nav: { background: 'white', borderBottom: '1px solid #E2E8F0', padding: '0 18px', height: 52, display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 200, boxShadow: '0 1px 3px rgba(0,0,0,0.06)' },
@@ -403,13 +396,13 @@ const s = {
 
   /* Profile Banner */
   profileBanner: { background: 'white', borderBottom: '1px solid #E2E8F0', padding: '20px 18px 20px', position: 'relative', overflow: 'hidden' },
-  profileBannerBg: { position: 'absolute', top: 0, left: 0, right: 0, height: 4, background: 'linear-gradient(90deg, #2563EB, #3B82F6, #60A5FA)' },
+  profileBannerBg: { position: 'absolute', top: 0, left: 0, right: 0, height: 4, background: 'linear-gradient(90deg, #1B3676, #2A5298, #60A5FA)' },
   profileInner: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
   profileLeft: { display: 'flex', gap: 14, alignItems: 'center' },
   avatar: { width: 52, height: 52, borderRadius: 12, objectFit: 'cover', border: '2px solid #E2E8F0' },
-  avatarPlaceholder: { width: 52, height: 52, borderRadius: 12, background: 'linear-gradient(135deg, #2563EB, #3B82F6)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: 20, fontWeight: 800, flexShrink: 0 },
+  avatarPlaceholder: { width: 52, height: 52, borderRadius: 12, background: 'linear-gradient(135deg, #1B3676, #2A5298)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: 20, fontWeight: 800, flexShrink: 0 },
   profileMeta: {},
-  profileEyebrow: { fontSize: 11, fontWeight: 600, color: '#2563EB', textTransform: 'uppercase', letterSpacing: '0.7px', margin: '0 0 3px' },
+  profileEyebrow: { fontSize: 11, fontWeight: 600, color: '#1B3676', textTransform: 'uppercase', letterSpacing: '0.7px', margin: '0 0 3px' },
   profileName: { fontSize: 19, fontWeight: 800, color: '#0F172A', margin: '0 0 2px', letterSpacing: '-0.4px' },
   profilePhone: { fontSize: 12.5, color: '#6B7280', margin: 0 },
   profileBadge: { display: 'flex', alignItems: 'center', gap: 5, fontSize: 11.5, fontWeight: 600, color: '#059669', background: '#ECFDF5', border: '1px solid #A7F3D0', padding: '4px 10px', borderRadius: 20 },
@@ -417,35 +410,35 @@ const s = {
 
   /* Tabs */
   tabBar: { background: 'white', borderBottom: '1px solid #E2E8F0', display: 'flex', padding: '0 8px', position: 'sticky', top: 52, zIndex: 100 },
-  tab: { flex: 1, display: 'flex', gap: 5, alignItems: 'center', justifyContent: 'center', padding: '12px 8px', background: 'transparent', border: 'none', borderBottom: '2px solid transparent', fontSize: 13, fontWeight: 600, color: '#9CA3AF', cursor: 'pointer', transition: 'all 0.15s' },
-  tabActive: { color: '#2563EB', borderBottomColor: '#2563EB' },
+  tab: { flex: 1, display: 'flex', gap: 5, alignItems: 'center', justifyContent: 'center', padding: '12px 8px', background: 'transparent', border: 'none', borderBottom: '2px solid transparent', fontSize: 13, fontWeight: 600, color: '#6B7280', cursor: 'pointer', transition: 'all 0.15s' },
+  tabActive: { color: '#1B3676', borderBottomColor: '#1B3676' },
 
   /* Tab Content */
   tabContent: { padding: '16px 16px 0' },
 
   /* Reports Header */
   reportsHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 14 },
-  reportsEyebrow: { fontSize: 11, fontWeight: 600, color: '#2563EB', textTransform: 'uppercase', letterSpacing: '0.7px', margin: '0 0 3px' },
+  reportsEyebrow: { fontSize: 11, fontWeight: 600, color: '#1B3676', textTransform: 'uppercase', letterSpacing: '0.7px', margin: '0 0 3px' },
   reportsTitle: { fontSize: 17, fontWeight: 700, color: '#0F172A', margin: 0, letterSpacing: '-0.3px' },
   newReportBtn: { display: 'flex', alignItems: 'center', gap: 5, fontSize: 13, fontWeight: 600, color: '#DC2626', background: '#FEF2F2', border: '1px solid #FECACA', padding: '7px 13px', borderRadius: 8, cursor: 'pointer' },
 
   /* Camp Card */
   campCard: { background: 'white', border: '1px solid #E2E8F0', borderRadius: 12, padding: '16px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' },
   campCardTop: { display: 'flex', gap: 12, alignItems: 'center', marginBottom: 12 },
-  campIconWrap: { width: 40, height: 40, borderRadius: 9, background: '#EFF6FF', border: '1px solid #BFDBFE', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+  campIconWrap: { width: 40, height: 40, borderRadius: 9, background: '#EEF2FF', border: '1px solid #C7D2FE', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
   campInfo: {},
   campName: { fontSize: 15, fontWeight: 700, color: '#0F172A', margin: 0 },
   campStatusRow: { display: 'flex', gap: 5, alignItems: 'center', marginTop: 4 },
   campDot: { width: 7, height: 7, borderRadius: '50%' },
   campStatusText: { fontSize: 12, color: '#6B7280' },
-  directionsBtn: { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '10px', background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: 8, color: '#2563EB', fontSize: 13.5, fontWeight: 600, textDecoration: 'none' },
+  directionsBtn: { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '10px', background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: 8, color: '#1B3676', fontSize: 13.5, fontWeight: 600, textDecoration: 'none' },
 
   /* QR Card */
   qrCard: { background: 'white', border: '1px solid #E2E8F0', borderRadius: 12, padding: '16px', display: 'flex', gap: 16, alignItems: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' },
   qrLeft: { flexShrink: 0 },
   qrBox: { background: 'white', border: '1px solid #E2E8F0', borderRadius: 8, padding: 4, display: 'inline-flex' },
   qrRight: { flex: 1 },
-  qrEyebrow: { fontSize: 11, fontWeight: 600, color: '#2563EB', textTransform: 'uppercase', letterSpacing: '0.7px', margin: '0 0 4px' },
+  qrEyebrow: { fontSize: 11, fontWeight: 600, color: '#1B3676', textTransform: 'uppercase', letterSpacing: '0.7px', margin: '0 0 4px' },
   qrId: { fontSize: 13, fontWeight: 700, color: '#0F172A', fontFamily: 'monospace', margin: '0 0 6px', wordBreak: 'break-all' },
   qrHint: { fontSize: 12, color: '#6B7280', lineHeight: 1.5, margin: '0 0 10px' },
   qrBadge: { display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 11.5, fontWeight: 600, color: '#059669', background: '#ECFDF5', border: '1px solid #A7F3D0', padding: '3px 9px', borderRadius: 20 },
@@ -465,18 +458,18 @@ const s = {
   reportPhoto: { width: 38, height: 38, borderRadius: 8, objectFit: 'cover', border: '1px solid #E2E8F0' },
   reportPhotoEmpty: { width: 38, height: 38, borderRadius: 8, background: '#F1F5F9', border: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'center' },
   reportName: { fontSize: 14, fontWeight: 700, color: '#0F172A', margin: 0 },
-  reportMeta: { fontSize: 12, color: '#9CA3AF', margin: '2px 0 0' },
+  reportMeta: { fontSize: 12, color: '#6B7280', margin: '2px 0 0' },
   statusPill: { fontSize: 11.5, fontWeight: 700, padding: '4px 10px', borderRadius: 20, whiteSpace: 'nowrap' },
-  matchBanner: { display: 'flex', alignItems: 'center', gap: 6, padding: '8px 10px', background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: 8, fontSize: 12.5, color: '#1D4ED8', marginBottom: 10 },
+  matchBanner: { display: 'flex', alignItems: 'center', gap: 6, padding: '8px 10px', background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: 8, fontSize: 12.5, color: '#1D4ED8', marginBottom: 10 },
   matchConfidence: { marginLeft: 'auto', fontSize: 11, fontWeight: 700, color: '#059669', background: '#ECFDF5', padding: '2px 7px', borderRadius: 12 },
   reportFooter: { display: 'flex', justifyContent: 'space-between' },
-  reportFooterText: { fontSize: 11.5, color: '#9CA3AF' },
+  reportFooterText: { fontSize: 11.5, color: '#6B7280' },
 
   /* Empty states */
   emptyCard: { background: 'white', border: '1px solid #E2E8F0', borderRadius: 12, padding: '28px 16px', textAlign: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' },
   emptyIcon: { width: 48, height: 48, borderRadius: 12, background: '#F1F5F9', border: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' },
   emptyCardTitle: { fontSize: 14.5, fontWeight: 700, color: '#374151', margin: '0 0 4px' },
-  emptyCardSub: { fontSize: 13, color: '#9CA3AF', margin: 0, lineHeight: 1.5 },
+  emptyCardSub: { fontSize: 13, color: '#6B7280', margin: 0, lineHeight: 1.5 },
   emptyState: { background: 'white', border: '1px solid #E2E8F0', borderRadius: 12, padding: '36px 20px', textAlign: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' },
   emptyStateIcon: { width: 56, height: 56, borderRadius: 14, background: '#F1F5F9', border: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' },
   emptyStateTitle: { fontSize: 16, fontWeight: 700, color: '#0F172A', margin: '0 0 6px' },

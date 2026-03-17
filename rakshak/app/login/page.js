@@ -55,13 +55,7 @@ export default function LoginPage() {
           </svg>
           Back to Sahaay
         </button>
-        <div style={s.topLogo}>
-          <svg width="20" height="20" viewBox="0 0 28 28" fill="none">
-            <path d="M14 2L3 8v7c0 5.55 4.7 10.74 11 12 6.3-1.26 11-6.45 11-12V8L14 2z" fill="#2563EB"/>
-            <path d="M10 14l3 3 5-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-          <span style={s.topLogoText}>Sahaay</span>
-        </div>
+
       </header>
 
       {/* Card */}
@@ -73,10 +67,7 @@ export default function LoginPage() {
           {/* Header */}
           <div style={s.header}>
             <div style={s.logoWrap}>
-              <svg width="24" height="24" viewBox="0 0 28 28" fill="none">
-                <path d="M14 2L3 8v7c0 5.55 4.7 10.74 11 12 6.3-1.26 11-6.45 11-12V8L14 2z" fill="#2563EB"/>
-                <path d="M10 14l3 3 5-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
+              <img src="/logo-light.png" alt="Sahaay" style={{ height: 72, width: 'auto', objectFit: 'contain' }} />
             </div>
             <div>
               <p style={s.eyebrow}>Civilian Access</p>
@@ -223,7 +214,7 @@ const s = {
   bgRing: {
     position: 'absolute',
     borderRadius: '50%',
-    border: '1px solid #2563EB',
+    border: '1px solid #1B3676',
     opacity: 0.04,
     transform: 'translate(-50%, -50%)',
   },
@@ -253,26 +244,28 @@ const s = {
   },
   cardStripe: {
     height: 4,
-    background: 'linear-gradient(90deg, #2563EB, #3B82F6, #60A5FA)',
+    background: 'linear-gradient(90deg, #1B3676, #2A5298, #4169C4)',
   },
   cardBody: { padding: '28px 28px 24px' },
 
-  header: { display: 'flex', gap: 14, alignItems: 'flex-start', marginBottom: 22 },
   logoWrap: {
-    width: 48, height: 48, borderRadius: 12,
-    background: '#EFF6FF', border: '1px solid #BFDBFE',
+    width: 84, height: 84, borderRadius: 18,
+    background: 'linear-gradient(135deg, #EEF2FF 0%, #E8EEFF 100%)',
+    border: '1.5px solid #C7D2FE',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     flexShrink: 0,
+    boxShadow: '0 2px 8px rgba(27,54,118,0.08)',
   },
-  eyebrow: { fontSize: 11, fontWeight: 600, color: '#2563EB', textTransform: 'uppercase', letterSpacing: '0.8px', margin: '0 0 4px' },
+  header: { display: 'flex', gap: 18, alignItems: 'center', marginBottom: 22 },
+  eyebrow: { fontSize: 11, fontWeight: 600, color: '#1B3676', textTransform: 'uppercase', letterSpacing: '0.8px', margin: '0 0 4px' },
   title: { fontSize: 22, fontWeight: 800, color: '#0F172A', margin: '0 0 4px', letterSpacing: '-0.4px' },
   subtitle: { fontSize: 13, color: '#6B7280', margin: 0 },
 
   switchBanner: {
     width: '100%', display: 'flex', alignItems: 'center', gap: 8,
     padding: '10px 14px', marginBottom: 22,
-    background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: 9,
-    fontSize: 13, fontWeight: 500, color: '#1D4ED8',
+    background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: 9,
+    fontSize: 13, fontWeight: 500, color: '#152C62',
     cursor: 'pointer', fontFamily: FONT,
   },
 
@@ -310,7 +303,7 @@ const s = {
 
   submitBtn: {
     width: '100%', height: 48,
-    background: '#2563EB', color: 'white', border: 'none',
+    background: '#1B3676', color: 'white', border: 'none',
     borderRadius: 10, fontSize: 15, fontWeight: 700,
     cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
     boxShadow: '0 2px 10px rgba(37,99,235,0.25)',
@@ -348,5 +341,5 @@ const s = {
     marginTop: 18, fontSize: 12.5, color: '#6B7280',
     position: 'relative', zIndex: 1,
   },
-  helplineNum: { fontWeight: 700, color: '#2563EB', textDecoration: 'none' },
+  helplineNum: { fontWeight: 700, color: '#1B3676', textDecoration: 'none' },
 };

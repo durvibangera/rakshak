@@ -56,9 +56,9 @@ const DISASTER_TYPES = {
 };
 
 const RISK_STYLES = {
-  HIGH: { bg: 'rgba(239,68,68,0.15)', border: '#EF4444', text: '#FCA5A5', fill: 'rgba(239,68,68,0.25)', glow: '0 0 20px rgba(239,68,68,0.4)' },
-  MEDIUM: { bg: 'rgba(249,115,22,0.12)', border: '#F97316', text: '#FDBA74', fill: 'rgba(249,115,22,0.2)', glow: '0 0 15px rgba(249,115,22,0.3)' },
-  LOW: { bg: 'rgba(34,197,94,0.1)', border: '#22C55E', text: '#86EFAC', fill: 'rgba(34,197,94,0.08)', glow: 'none' },
+  HIGH: { bg: 'rgba(239,68,68,0.15)', border: '#EF4444', text: '#991B1B', fill: 'rgba(239,68,68,0.25)', glow: '0 0 20px rgba(239,68,68,0.4)' },
+  MEDIUM: { bg: 'rgba(249,115,22,0.12)', border: '#F97316', text: '#9A3412', fill: 'rgba(249,115,22,0.2)', glow: '0 0 15px rgba(249,115,22,0.3)' },
+  LOW: { bg: 'rgba(34,197,94,0.1)', border: '#22C55E', text: '#166534', fill: 'rgba(34,197,94,0.08)', glow: 'none' },
 };
 
 export default function DisasterDashboard() {
@@ -168,15 +168,15 @@ export default function DisasterDashboard() {
         style: {
           version: 8,
           sources: {
-            'carto-dark': {
+            'carto-voyager': {
               type: 'raster',
-              tiles: ['https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png'],
+              tiles: ['https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png'],
               tileSize: 256,
               attribution: '© CARTO © OpenStreetMap',
               maxzoom: 19,
             },
           },
-          layers: [{ id: 'carto-dark', type: 'raster', source: 'carto-dark' }],
+          layers: [{ id: 'carto-voyager', type: 'raster', source: 'carto-voyager' }],
         },
         center: [78, 22],
         zoom: 4.5,
@@ -316,9 +316,9 @@ export default function DisasterDashboard() {
               <p style="font-weight:700;font-size:14px;margin:0 0 4px;color:#111827;">🏕️ ${c.name}</p>
               <p style="font-size:11px;color:#6B7280;margin:0 0 6px;">${c.area || ''}</p>
               <div style="display:flex;gap:12px;margin-bottom:6px;">
-                <div><span style="font-size:10px;color:#9CA3AF;">People</span><br/><strong style="color:#111827;">${c.current_headcount || 0}</strong></div>
-                <div><span style="font-size:10px;color:#9CA3AF;">Capacity</span><br/><strong style="color:#111827;">${c.capacity}</strong></div>
-                <div><span style="font-size:10px;color:#9CA3AF;">Fill</span><br/><strong style="color:${pct > 80 ? '#EF4444' : pct > 50 ? '#F97316' : '#22C55E'};">${pct}%</strong></div>
+                <div><span style="font-size:10px;color:#6B7280;">People</span><br/><strong style="color:#111827;">${c.current_headcount || 0}</strong></div>
+                <div><span style="font-size:10px;color:#6B7280;">Capacity</span><br/><strong style="color:#111827;">${c.capacity}</strong></div>
+                <div><span style="font-size:10px;color:#6B7280;">Fill</span><br/><strong style="color:${pct > 80 ? '#EF4444' : pct > 50 ? '#F97316' : '#22C55E'};">${pct}%</strong></div>
               </div>
               <span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;background:${isEvac ? '#FEE2E2' : '#DCFCE7'};color:${isEvac ? '#DC2626' : '#16A34A'};">${c.status || 'ACTIVE'}</span>
               ${c.danger_reason ? `<p style="font-size:11px;color:#DC2626;margin:6px 0 0;">⚠ ${c.danger_reason}</p>` : ''}
@@ -343,8 +343,8 @@ export default function DisasterDashboard() {
               <p style="font-weight:700;font-size:13px;margin:0 0 4px;color:#111827;">${z.name}</p>
               <p style="font-size:11px;color:#6B7280;margin:0 0 6px;">${z.zone_type} · ${z.area || ''}</p>
               <div style="display:flex;gap:12px;">
-                <div><span style="font-size:10px;color:#9CA3AF;">Capacity</span><br/><strong style="color:#111827;">${z.capacity}</strong></div>
-                <div><span style="font-size:10px;color:#9CA3AF;">Available</span><br/><strong style="color:${avail > 100 ? '#22C55E' : avail > 0 ? '#F97316' : '#EF4444'};">${avail}</strong></div>
+                <div><span style="font-size:10px;color:#6B7280;">Capacity</span><br/><strong style="color:#111827;">${z.capacity}</strong></div>
+                <div><span style="font-size:10px;color:#6B7280;">Available</span><br/><strong style="color:${avail > 100 ? '#22C55E' : avail > 0 ? '#F97316' : '#EF4444'};">${avail}</strong></div>
               </div>
             </div>`);
 
@@ -379,7 +379,7 @@ export default function DisasterDashboard() {
             <div style="font-family:system-ui;padding:2px;">
               <p style="font-weight:700;font-size:14px;margin:0 0 6px;color:#111827;">${loc.name}</p>
               ${rows}
-              ${highest.description ? `<p style="font-size:10px;color:#9CA3AF;margin:6px 0 0;line-height:1.4;">${highest.description}</p>` : ''}
+              ${highest.description ? `<p style="font-size:10px;color:#6B7280;margin:6px 0 0;line-height:1.4;">${highest.description}</p>` : ''}
             </div>`);
 
           const marker = new mgl.Marker({ element: el }).setLngLat([loc.lon, loc.lat]).setPopup(popup).addTo(map);
@@ -418,12 +418,12 @@ export default function DisasterDashboard() {
         @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
         @keyframes slideUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
         @keyframes spin { to { transform:rotate(360deg); } }
-        .glass { background:rgba(15,23,42,0.82); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,0.08); }
+        .glass { background:#FFFFFF; backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,0.08); }
         .btn { border:none; cursor:pointer; font-weight:600; font-size:13px; border-radius:8px; padding:8px 18px; transition:all 0.2s; }
         .btn:hover { transform:translateY(-1px); }
         .btn-primary { background:linear-gradient(135deg,#3B82F6,#2563EB); color:white; box-shadow:0 4px 14px rgba(59,130,246,0.3); }
-        .btn-ghost { background:rgba(255,255,255,0.05); color:#CBD5E1; border:1px solid rgba(255,255,255,0.1); }
-        .btn-ghost:hover { background:rgba(255,255,255,0.1); color:white; }
+        .btn-ghost { background:#F8FAFC; color:#64748B; border:1px solid #E2E8F0; }
+        .btn-ghost:hover { background:#E2E8F0; color:#0F172A; }
         .filter-pill { border:none; cursor:pointer; padding:6px 14px; border-radius:20px; font-size:12px; font-weight:600; transition:all 0.2s; }
         .alert-card { animation: slideUp 0.3s ease-out; transition: transform 0.2s, box-shadow 0.2s; }
         .alert-card:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,0,0,0.3); }
@@ -432,15 +432,15 @@ export default function DisasterDashboard() {
         .maplibregl-popup-content { border-radius:12px !important; padding:12px 14px !important; box-shadow:0 12px 40px rgba(0,0,0,0.25) !important; }
       `}</style>
 
-      <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', background: '#0B1120', color: '#E2E8F0', fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden' }}>
+      <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', background: '#F1F5F9', color: '#0F172A', fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden' }}>
 
         {/* ── Navbar ── */}
-        <nav className="glass" style={{ padding: '10px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 20, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <nav className="glass" style={{ padding: '10px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 20, borderBottom: '1px solid #E2E8F0' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <a href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div style={{ width: 32, height: 32, borderRadius: 10, background: 'linear-gradient(135deg,#3B82F6,#8B5CF6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 16, color: 'white' }}>R</div>
+              <div style={{ width: 32, height: 32, borderRadius: 10, background: 'linear-gradient(135deg, #1B3676, #2A5298)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 16, color: 'white' }}>R</div>
               <div>
-                <h1 style={{ fontSize: 16, fontWeight: 700, margin: 0, color: '#F1F5F9', letterSpacing: '-0.3px' }}>Sahaay</h1>
+                <h1 style={{ fontSize: 16, fontWeight: 700, margin: 0, color: '#0F172A', letterSpacing: '-0.3px' }}>Sahaay</h1>
                 <p style={{ fontSize: 10, color: '#64748B', margin: 0 }}>Natural Disaster Command Map</p>
               </div>
             </a>
@@ -449,20 +449,20 @@ export default function DisasterDashboard() {
           {/* Stats bar */}
           <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
             <div style={{ textAlign: 'center' }}>
-              <p style={{ fontSize: 18, fontWeight: 800, color: '#F1F5F9', margin: 0 }}>{camps.length}</p>
-              <p style={{ fontSize: 9, color: '#64748B', margin: 0, textTransform: 'uppercase', letterSpacing: 0.5 }}>Camps</p>
+              <p style={{ fontSize: 18, fontWeight: 800, color: '#0F172A', margin: 0 }}>{camps.length}</p>
+              <p style={{ fontSize: 9, color: '#475569', margin: 0, textTransform: 'uppercase', letterSpacing: 0.5 }}>Camps</p>
             </div>
             <div style={{ textAlign: 'center' }}>
-              <p style={{ fontSize: 18, fontWeight: 800, color: totalPeople > 0 ? '#3B82F6' : '#64748B', margin: 0 }}>{totalPeople.toLocaleString()}</p>
-              <p style={{ fontSize: 9, color: '#64748B', margin: 0, textTransform: 'uppercase', letterSpacing: 0.5 }}>People</p>
+              <p style={{ fontSize: 18, fontWeight: 800, color: totalPeople > 0 ? '#3B82F6' : '#475569', margin: 0 }}>{totalPeople.toLocaleString()}</p>
+              <p style={{ fontSize: 9, color: '#475569', margin: 0, textTransform: 'uppercase', letterSpacing: 0.5 }}>People</p>
             </div>
             <div style={{ textAlign: 'center' }}>
               <p style={{ fontSize: 18, fontWeight: 800, color: dangerCamps.length > 0 ? '#EF4444' : '#22C55E', margin: 0 }}>{dangerCamps.length}</p>
-              <p style={{ fontSize: 9, color: '#64748B', margin: 0, textTransform: 'uppercase', letterSpacing: 0.5 }}>Danger</p>
+              <p style={{ fontSize: 9, color: '#475569', margin: 0, textTransform: 'uppercase', letterSpacing: 0.5 }}>Danger</p>
             </div>
             <div style={{ textAlign: 'center' }}>
               <p style={{ fontSize: 18, fontWeight: 800, color: '#22C55E', margin: 0 }}>{safeZones.length}</p>
-              <p style={{ fontSize: 9, color: '#64748B', margin: 0, textTransform: 'uppercase', letterSpacing: 0.5 }}>Safe Zones</p>
+              <p style={{ fontSize: 9, color: '#475569', margin: 0, textTransform: 'uppercase', letterSpacing: 0.5 }}>Safe Zones</p>
             </div>
           </div>
 
@@ -475,13 +475,13 @@ export default function DisasterDashboard() {
         </nav>
 
         {/* ── Filter Bar ── */}
-        <div className="glass" style={{ padding: '6px 20px', display: 'flex', gap: 6, alignItems: 'center', zIndex: 20, borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+        <div className="glass" style={{ padding: '6px 20px', display: 'flex', gap: 6, alignItems: 'center', zIndex: 20, borderBottom: '1px solid #E2E8F0' }}>
           {filters.map(f => (
             <button key={f.key} className="filter-pill"
               onClick={() => setFilter(f.key)}
               style={{
-                background: filter === f.key ? `${DISASTER_TYPES[f.key]?.color || '#3B82F6'}25` : 'rgba(255,255,255,0.04)',
-                color: filter === f.key ? DISASTER_TYPES[f.key]?.color || '#93C5FD' : '#94A3B8',
+                background: filter === f.key ? `${DISASTER_TYPES[f.key]?.color || '#3B82F6'}25` : '#E2E8F0',
+                color: filter === f.key ? DISASTER_TYPES[f.key]?.color || '#1B3676' : '#475569',
                 border: `1px solid ${filter === f.key ? `${DISASTER_TYPES[f.key]?.color || '#3B82F6'}40` : 'transparent'}`,
               }}>
               {f.label}
@@ -501,10 +501,10 @@ export default function DisasterDashboard() {
 
           {/* Side panel */}
           {showPanel && (
-            <div className="glass" style={{ width: 360, height: '100%', overflowY: 'auto', borderLeft: '1px solid rgba(255,255,255,0.06)', zIndex: 10, display: 'flex', flexDirection: 'column' }}>
+            <div className="glass" style={{ width: 360, height: '100%', overflowY: 'auto', borderLeft: '1px solid #E2E8F0', zIndex: 10, display: 'flex', flexDirection: 'column' }}>
 
               {/* Layer toggles */}
-              <div style={{ padding: '12px 14px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+              <div style={{ padding: '12px 14px', borderBottom: '1px solid #E2E8F0' }}>
                 <p style={{ fontSize: 10, fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: 1, margin: '0 0 8px' }}>Map Layers</p>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4 }}>
                   {[
@@ -517,7 +517,7 @@ export default function DisasterDashboard() {
                     <button key={l.key} className="layer-toggle"
                       onClick={() => toggleLayer(l.key)}
                       style={{
-                        background: layers[l.key] ? `${l.color}15` : 'rgba(255,255,255,0.03)',
+                        background: layers[l.key] ? `${l.color}15` : '#F8FAFC',
                         color: layers[l.key] ? l.color : '#475569',
                       }}>
                       <span style={{ width: 8, height: 8, borderRadius: '50%', background: layers[l.key] ? l.color : '#334155', flexShrink: 0 }} />
@@ -528,7 +528,7 @@ export default function DisasterDashboard() {
               </div>
 
               {/* Tab bar */}
-              <div style={{ display: 'flex', gap: 4, padding: '10px 14px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+              <div style={{ display: 'flex', gap: 4, padding: '10px 14px', borderBottom: '1px solid #E2E8F0' }}>
                 {[
                   { key: 'alerts', label: `Alerts (${predAlerts.length})` },
                   { key: 'camps', label: `Camps (${camps.length})` },
@@ -538,8 +538,8 @@ export default function DisasterDashboard() {
                     onClick={() => setTab(t2.key)}
                     style={{
                       flex: 1,
-                      background: tab === t2.key ? 'rgba(59,130,246,0.2)' : 'rgba(255,255,255,0.03)',
-                      color: tab === t2.key ? '#93C5FD' : '#64748B',
+                      background: tab === t2.key ? 'rgba(59,130,246,0.2)' : '#F8FAFC',
+                      color: tab === t2.key ? '#1B3676' : '#64748B',
                     }}>
                     {t2.label}
                   </button>
@@ -564,12 +564,12 @@ export default function DisasterDashboard() {
                             borderLeft: '3px solid #EF4444', marginBottom: 8,
                           }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                              <span style={{ fontSize: 13, fontWeight: 700, color: '#F1F5F9' }}>🏕️ {c.name}</span>
-                              <span style={{ fontSize: 10, fontWeight: 700, color: '#FCA5A5', background: 'rgba(239,68,68,0.2)', padding: '2px 8px', borderRadius: 4 }}>
+                              <span style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>🏕️ {c.name}</span>
+                              <span style={{ fontSize: 10, fontWeight: 700, color: '#991B1B', background: 'rgba(239,68,68,0.2)', padding: '2px 8px', borderRadius: 4 }}>
                                 {c.status}
                               </span>
                             </div>
-                            <p style={{ fontSize: 11, color: '#FCA5A5', margin: '4px 0 0' }}>{c.danger_reason}</p>
+                            <p style={{ fontSize: 11, color: '#991B1B', margin: '4px 0 0' }}>{c.danger_reason}</p>
                             <p style={{ fontSize: 10, color: '#64748B', margin: '4px 0 0' }}>{c.current_headcount} people · {c.area}</p>
                           </div>
                         ))}
@@ -593,12 +593,12 @@ export default function DisasterDashboard() {
                                 borderLeft: `3px solid ${cfg.color}`, boxShadow: rs.glow,
                               }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                                  <span style={{ fontSize: 13, fontWeight: 700, color: '#F1F5F9' }}>{a.city}</span>
+                                  <span style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>{a.city}</span>
                                   <span style={{ fontSize: 10, fontWeight: 700, color: rs.text, background: `${rs.border}20`, border: `1px solid ${rs.border}50`, padding: '2px 10px', borderRadius: 12 }}>{a.risk}</span>
                                 </div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
                                   <span style={{ fontSize: 14 }}>{cfg.icon}</span>
-                                  <span style={{ fontSize: 12, color: '#94A3B8', fontWeight: 500 }}>{cfg.label}</span>
+                                  <span style={{ fontSize: 12, color: '#475569', fontWeight: 500 }}>{cfg.label}</span>
                                 </div>
                                 <p style={{ fontSize: 11, color: '#64748B', margin: 0, lineHeight: 1.4 }}>{a.description}</p>
                               </div>
@@ -631,7 +631,7 @@ export default function DisasterDashboard() {
                       const isEvac = c.status === 'EVACUATED';
                       return (
                         <div key={c.id} className="alert-card" style={{
-                          background: isEvac ? 'rgba(239,68,68,0.08)' : 'rgba(255,255,255,0.03)',
+                          background: isEvac ? 'rgba(239,68,68,0.08)' : '#F8FAFC',
                           borderRadius: 10, padding: '12px 14px',
                           borderLeft: `3px solid ${isEvac ? '#EF4444' : pct > 80 ? '#F97316' : '#22C55E'}`,
                           cursor: 'pointer',
@@ -640,23 +640,23 @@ export default function DisasterDashboard() {
                           if (mapInstance.current) mapInstance.current.flyTo({ center: [c.lng, c.lat], zoom: 13, duration: 1200 });
                         }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <span style={{ fontSize: 13, fontWeight: 700, color: '#F1F5F9' }}>🏕️ {c.name}</span>
+                            <span style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>🏕️ {c.name}</span>
                             <span style={{
                               fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 4,
                               background: isEvac ? 'rgba(239,68,68,0.2)' : 'rgba(34,197,94,0.2)',
-                              color: isEvac ? '#FCA5A5' : '#86EFAC',
+                              color: isEvac ? '#991B1B' : '#166534',
                             }}>{c.status || 'ACTIVE'}</span>
                           </div>
-                          <div style={{ display: 'flex', gap: 16, marginTop: 6, fontSize: 12, color: '#94A3B8' }}>
+                          <div style={{ display: 'flex', gap: 16, marginTop: 6, fontSize: 12, color: '#475569' }}>
                             <span>👥 {c.current_headcount || 0}/{c.capacity}</span>
                             <span style={{ color: pct > 80 ? '#EF4444' : pct > 50 ? '#F97316' : '#22C55E' }}>{pct}% full</span>
                             {c.area && <span>{c.area}</span>}
                           </div>
                           {/* capacity bar */}
-                          <div style={{ marginTop: 6, height: 3, background: 'rgba(255,255,255,0.06)', borderRadius: 2 }}>
+                          <div style={{ marginTop: 6, height: 3, background: '#E2E8F0', borderRadius: 2 }}>
                             <div style={{ height: '100%', borderRadius: 2, background: pct > 80 ? '#EF4444' : pct > 50 ? '#F97316' : '#22C55E', width: `${Math.min(pct, 100)}%`, transition: 'width 0.6s' }} />
                           </div>
-                          {c.danger_reason && <p style={{ fontSize: 11, color: '#FCA5A5', margin: '6px 0 0' }}>⚠ {c.danger_reason}</p>}
+                          {c.danger_reason && <p style={{ fontSize: 11, color: '#991B1B', margin: '6px 0 0' }}>⚠ {c.danger_reason}</p>}
                         </div>
                       );
                     })}
@@ -679,9 +679,9 @@ export default function DisasterDashboard() {
                           if (mapInstance.current) mapInstance.current.flyTo({ center: [z.lng, z.lat], zoom: 14, duration: 1200 });
                         }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <span style={{ fontSize: 13, fontWeight: 700, color: '#F1F5F9' }}>{typeIcon} {z.name}</span>
+                            <span style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>{typeIcon} {z.name}</span>
                           </div>
-                          <div style={{ display: 'flex', gap: 16, marginTop: 6, fontSize: 12, color: '#94A3B8' }}>
+                          <div style={{ display: 'flex', gap: 16, marginTop: 6, fontSize: 12, color: '#475569' }}>
                             <span>Cap: {z.capacity}</span>
                             <span style={{ color: avail > 100 ? '#22C55E' : avail > 0 ? '#F97316' : '#EF4444' }}>
                               Available: {avail}
@@ -696,15 +696,15 @@ export default function DisasterDashboard() {
               </div>
 
               {/* Legend */}
-              <div style={{ padding: '12px 14px', borderTop: '1px solid rgba(255,255,255,0.06)', flexShrink: 0 }}>
+              <div style={{ padding: '12px 14px', borderTop: '1px solid #E2E8F0', flexShrink: 0 }}>
                 <p style={{ fontSize: 9, fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: 1, margin: '0 0 8px' }}>Legend</p>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, color: '#94A3B8' }}><span style={{ width: 8, height: 8, borderRadius: '50%', background: '#22C55E' }} />Active Camp</span>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, color: '#94A3B8' }}><span style={{ width: 8, height: 8, borderRadius: '50%', background: '#EF4444' }} />Evacuated</span>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, color: '#94A3B8' }}><span style={{ width: 8, height: 8, borderRadius: '50%', background: '#F97316' }} />At Risk</span>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, color: '#94A3B8' }}>🏥 Hospital</span>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, color: '#94A3B8' }}>🏫 School</span>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, color: '#94A3B8' }}><span style={{ width: 14, height: 6, borderRadius: 2, background: 'linear-gradient(90deg, #3B82F6, #F97316, #EF4444)' }} />Heatmap</span>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, color: '#475569' }}><span style={{ width: 8, height: 8, borderRadius: '50%', background: '#22C55E' }} />Active Camp</span>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, color: '#475569' }}><span style={{ width: 8, height: 8, borderRadius: '50%', background: '#EF4444' }} />Evacuated</span>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, color: '#475569' }}><span style={{ width: 8, height: 8, borderRadius: '50%', background: '#F97316' }} />At Risk</span>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, color: '#475569' }}>🏥 Hospital</span>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, color: '#475569' }}>🏫 School</span>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, color: '#475569' }}><span style={{ width: 14, height: 6, borderRadius: 2, background: 'linear-gradient(90deg, #3B82F6, #F97316, #EF4444)' }} />Heatmap</span>
                 </div>
               </div>
             </div>
@@ -713,10 +713,10 @@ export default function DisasterDashboard() {
           {/* Toggle panel */}
           <button onClick={() => setShowPanel(!showPanel)} style={{
             position: 'absolute', right: showPanel ? 360 : 0, top: '50%', transform: 'translateY(-50%)',
-            width: 24, height: 48, background: 'rgba(15,23,42,0.85)', border: '1px solid rgba(255,255,255,0.1)',
+            width: 24, height: 48, background: '#FFFFFF', border: '1px solid #E2E8F0',
             borderRight: showPanel ? 'none' : undefined, borderLeft: showPanel ? undefined : 'none',
             borderRadius: showPanel ? '6px 0 0 6px' : '0 6px 6px 0',
-            color: '#94A3B8', cursor: 'pointer', zIndex: 15, fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: '#475569', cursor: 'pointer', zIndex: 15, fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
             {showPanel ? '›' : '‹'}
           </button>

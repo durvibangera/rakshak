@@ -102,11 +102,7 @@ function NGOContent() {
       {/* Nav */}
       <header style={s.nav}>
         <div style={s.navLogo}>
-          <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
-            <path d="M14 2L3 8v7c0 5.55 4.7 10.74 11 12 6.3-1.26 11-6.45 11-12V8L14 2z" fill="#2563EB"/>
-            <path d="M10 14l3 3 5-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-          <span style={s.navLogoText}>Sahaay</span>
+          <img src="/logo-light.png" alt="Sahaay" style={{ height: 46, width: 'auto', objectFit: 'contain' }} />
           <span style={s.navRoleBadge}>Super Admin</span>
         </div>
         <div style={s.navRight}>

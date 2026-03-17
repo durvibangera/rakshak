@@ -27,18 +27,19 @@ export const metadata = {
   description: "Real-time earthquake, flood, landslide, and cyclone prediction with automated voice call alerts in Hindi and regional Indian languages.",
   keywords: "disaster, prediction, flood, earthquake, landslide, cyclone, India, alert, voice call",
   manifest: "/manifest.json",
-  themeColor: "#3B82F6",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
     title: "Rakshak",
   },
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
-  },
+};
+
+export const viewport = {
+  themeColor: "#1B3676",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({ children }) {

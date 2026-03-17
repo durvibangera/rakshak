@@ -198,11 +198,7 @@ export default function RegisterPage() {
       {/* Top bar */}
       <div style={s.topBar}>
         <div style={s.topBarBrand}>
-          <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
-            <path d="M14 2L3 8v7c0 5.55 4.7 10.74 11 12 6.3-1.26 11-6.45 11-12V8L14 2z" fill="#2563EB"/>
-            <path d="M10 14l3 3 5-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-          <span style={s.topBarName}>Sahaay</span>
+          <img src="/logo-light.png" alt="Sahaay" style={{ height: 52, width: 'auto', objectFit: 'contain' }} />
         </div>
         <Link href="/" style={s.topBarBack}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -219,10 +215,7 @@ export default function RegisterPage() {
           {/* Header */}
           <div style={s.cardHeader}>
             <div style={s.logoWrap}>
-              <svg width="26" height="26" viewBox="0 0 28 28" fill="none">
-                <path d="M14 2L3 8v7c0 5.55 4.7 10.74 11 12 6.3-1.26 11-6.45 11-12V8L14 2z" fill="#2563EB"/>
-                <path d="M10 14l3 3 5-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
+              <img src="/logo-light.png" alt="Sahaay" style={{ height: 60, width: 'auto', objectFit: 'contain' }} />
             </div>
             <div>
               <p style={s.eyebrow}>Civilian Registration</p>

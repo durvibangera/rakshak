@@ -35,17 +35,23 @@ if (!hasEnvVars) {
 }
 
 /** @type {import('@supabase/supabase-js').SupabaseClient} */
-export const supabase = createClient(
-  supabaseUrl  || 'https://placeholder.supabase.co',
-  supabaseAnonKey || 'placeholder-anon-key',
-  {
-    auth: {
-      // Disable session storage and Web Lock acquisition when env vars are
-      // absent (local dev without .env.local). Prevents the race condition:
-      //   AbortError: Lock broken by another request with the 'steal' option
-      persistSession:    hasEnvVars,
-      autoRefreshToken:  hasEnvVars,
-      detectSessionInUrl: false,
-    },
+export const supabase = (() => {
+  // Singleton guard — prevents duplicate clients during Next.js hot reloads
+  if (typeof globalThis !== 'undefined' && globalThis.__sahaay_supabase) {
+    return globalThis.__sahaay_supabase;
   }
-);
+  const client = createClient(
+    supabaseUrl  || 'https://placeholder.supabase.co',
+    supabaseAnonKey || 'placeholder-anon-key',
+    {
+      auth: {
+        persistSession:     hasEnvVars,
+        autoRefreshToken:   hasEnvVars,
+        detectSessionInUrl: false,
+        storageKey:         'sahaay-auth-v1', // unique key avoids Web Lock conflicts
+      },
+    }
+  );
+  if (typeof globalThis !== 'undefined') globalThis.__sahaay_supabase = client;
+  return client;
+})();

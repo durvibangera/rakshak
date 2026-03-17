@@ -95,18 +95,22 @@ export function AuthProvider({ children }) {
 
       if (prof) {
         setProfile(prof);
-        setRole(isValidRole(prof.role) ? prof.role : ROLES.VERIFIED_USER);
+        const newRole = isValidRole(prof.role) ? prof.role : ROLES.VERIFIED_USER;
+        setRole(newRole);
         setCampId(prof.assigned_camp_id || lsCampId || null);
+        return { profile: prof, role: newRole };
       } else {
         // No profile found — user might be new or localStorage-only
         setProfile(null);
         setRole(null);
         setCampId(lsCampId || null);
+        return { profile: null, role: null };
       }
     } catch (err) {
       console.error('[AuthContext] Failed to load profile:', err);
       setProfile(null);
       setRole(null);
+      return { profile: null, role: null };
     }
   }, []);
 
@@ -172,14 +176,13 @@ export function AuthProvider({ children }) {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
         setUser(session.user);
-        await loadProfile(session.user);
-        return;
+        return await loadProfile(session.user);
       }
     } catch (err) {
       console.warn('[AuthContext] getSession failed in refreshProfile:', err);
     }
     // Fallback to current state / localStorage
-    await loadProfile(user);
+    return await loadProfile(user);
   }, [user, loadProfile]);
 
   /**

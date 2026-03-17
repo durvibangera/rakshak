@@ -113,8 +113,8 @@ function CampDashboardContent() {
     return (
       <div style={s.page}>
         <div style={{ ...s.card, maxWidth: 440, textAlign: 'center' }}>
-          <h2 style={{ fontSize: 22, fontWeight: 700, color: '#F1F5F9', margin: '0 0 8px' }}>No Camp Registered</h2>
-          <p style={{ color: '#94A3B8', fontSize: 14, margin: '0 0 20px' }}>
+          <h2 style={{ fontSize: 22, fontWeight: 700, color: '#0F172A', margin: '0 0 8px' }}>No Camp Registered</h2>
+          <p style={{ color: '#475569', fontSize: 14, margin: '0 0 20px' }}>
             Register a relief camp first to access the dashboard.
           </p>
           <a href="/camp/register" style={s.primaryBtn}>Register a Camp</a>
@@ -139,10 +139,10 @@ function CampDashboardContent() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <div style={s.logo}>R</div>
               <div>
-                <h1 style={{ fontSize: 17, fontWeight: 700, margin: 0, color: '#F1F5F9' }}>
+                <h1 style={{ fontSize: 17, fontWeight: 700, margin: 0, color: '#0F172A' }}>
                   {campData?.name || 'Camp Dashboard'}
                 </h1>
-                <p style={{ fontSize: 11, color: '#64748B', margin: 0 }}>
+                <p style={{ fontSize: 11, color: '#6B7280', margin: 0 }}>
                   {campData ? `${campData.radius_km}km radius • ${campData.victim_count || victims.length} victims` : 'Loading...'}
                 </p>
               </div>
@@ -154,8 +154,8 @@ function CampDashboardContent() {
                 ...s.statusBadge,
                 background: connectionStatus === 'online' ? 'rgba(34,197,94,0.15)' :
                   connectionStatus === 'syncing' ? 'rgba(59,130,246,0.15)' : 'rgba(239,68,68,0.15)',
-                color: connectionStatus === 'online' ? '#86EFAC' :
-                  connectionStatus === 'syncing' ? '#93C5FD' : '#FCA5A5',
+                color: connectionStatus === 'online' ? '#166534' :
+                  connectionStatus === 'syncing' ? '#1E3A8A' : '#991B1B',
                 borderColor: connectionStatus === 'online' ? 'rgba(34,197,94,0.3)' :
                   connectionStatus === 'syncing' ? 'rgba(59,130,246,0.3)' : 'rgba(239,68,68,0.3)',
               }}>
@@ -176,9 +176,9 @@ function CampDashboardContent() {
                 </div>
               )}
 
-              <a href="/flood-prediction" style={{ color: '#64748B', fontSize: 12, textDecoration: 'none' }}>Map</a>
+              <a href="/flood-prediction" style={{ color: '#6B7280', fontSize: 12, textDecoration: 'none' }}>Map</a>
               <button onClick={async () => { await supabase.auth.signOut(); localStorage.removeItem('sahaay_camp_id'); localStorage.removeItem('sahaay_camp_name'); window.location.href = '/'; }}
-                style={{ background: '#334155', border: 'none', color: '#94A3B8', padding: '6px 12px', borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
+                style={{ background: '#E2E8F0', border: 'none', color: '#475569', padding: '6px 12px', borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
                 Logout
               </button>
             </div>
@@ -272,10 +272,10 @@ function VictimsTab({ victims, searchQuery, setSearchQuery, loading, selectedVic
       {loading ? (
         <div style={{ textAlign: 'center', padding: 40 }}>
           <div style={s.spinner} />
-          <p style={{ color: '#64748B', fontSize: 13 }}>Loading victims...</p>
+          <p style={{ color: '#6B7280', fontSize: 13 }}>Loading victims...</p>
         </div>
       ) : victims.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: 40, color: '#64748B' }}>
+        <div style={{ textAlign: 'center', padding: 40, color: '#6B7280' }}>
           <p style={{ fontSize: 40, margin: '0 0 8px' }}>0</p>
           <p style={{ fontSize: 14 }}>No victims registered yet</p>
         </div>
@@ -290,14 +290,14 @@ function VictimsTab({ victims, searchQuery, setSearchQuery, loading, selectedVic
                   <div style={s.victimThumbPlaceholder}>{(v.name || '?')[0].toUpperCase()}</div>
                 )}
                 <div style={{ flex: 1 }}>
-                  <p style={{ fontSize: 14, fontWeight: 600, color: '#F1F5F9', margin: 0 }}>{v.name || 'Unknown'}</p>
-                  <p style={{ fontSize: 12, color: '#64748B', margin: '2px 0 0' }}>{v.phone || 'No phone'}</p>
+                  <p style={{ fontSize: 14, fontWeight: 600, color: '#0F172A', margin: 0 }}>{v.name || 'Unknown'}</p>
+                  <p style={{ fontSize: 12, color: '#6B7280', margin: '2px 0 0' }}>{v.phone || 'No phone'}</p>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <span style={{
                     ...s.regTypeBadge,
                     background: v.registration_type === 'self' ? 'rgba(34,197,94,0.12)' : 'rgba(59,130,246,0.12)',
-                    color: v.registration_type === 'self' ? '#86EFAC' : '#93C5FD',
+                    color: v.registration_type === 'self' ? '#166534' : '#1E3A8A',
                   }}>
                     {v.registration_type === 'self' ? 'Self' : 'Camp'}
                   </span>
@@ -313,9 +313,9 @@ function VictimsTab({ victims, searchQuery, setSearchQuery, loading, selectedVic
                 </div>
               </div>
               {showQrFor === v.qr_code_id && (
-                <div style={{ marginTop: 12, padding: 16, background: '#0F172A', borderRadius: 10, textAlign: 'center' }}>
-                  <QRCodeSVG value={JSON.stringify({ phone: v.phone })} size={120} bgColor="#FFFFFF" fgColor="#0F172A" level="M" />
-                  <p style={{ fontSize: 11, color: '#64748B', margin: '8px 0 0' }}>{v.phone}</p>
+                <div style={{ marginTop: 12, padding: 16, background: '#FFFFFF', borderRadius: 10, textAlign: 'center' }}>
+                  <QRCodeSVG value={JSON.stringify({ phone: v.phone })} size={120} bgColor="#FFFFFF" fgColor="#FFFFFF" level="M" />
+                  <p style={{ fontSize: 11, color: '#6B7280', margin: '8px 0 0' }}>{v.phone}</p>
                 </div>
               )}
             </div>
@@ -345,11 +345,11 @@ function VictimProfile({ victim, onBack }) {
             </div>
           )}
           <div>
-            <h3 style={{ fontSize: 20, fontWeight: 700, color: '#F1F5F9', margin: '0 0 4px' }}>{victim.name || 'Unknown'}</h3>
+            <h3 style={{ fontSize: 20, fontWeight: 700, color: '#0F172A', margin: '0 0 4px' }}>{victim.name || 'Unknown'}</h3>
             <span style={{
               ...s.regTypeBadge,
               background: victim.registration_type === 'self' ? 'rgba(34,197,94,0.12)' : 'rgba(59,130,246,0.12)',
-              color: victim.registration_type === 'self' ? '#86EFAC' : '#93C5FD',
+              color: victim.registration_type === 'self' ? '#166534' : '#1E3A8A',
             }}>
               {victim.registration_type === 'self' ? 'Self Registered' : 'Camp Registered'}
             </span>
@@ -372,9 +372,9 @@ function VictimProfile({ victim, onBack }) {
         </div>
 
         {victim.phone && (
-          <div style={{ marginTop: 20, padding: 16, background: '#0F172A', borderRadius: 10, textAlign: 'center' }}>
-            <QRCodeSVG value={JSON.stringify({ phone: victim.phone })} size={140} bgColor="#FFFFFF" fgColor="#0F172A" level="M" />
-            <p style={{ fontSize: 11, color: '#64748B', margin: '8px 0 0' }}>{victim.phone}</p>
+          <div style={{ marginTop: 20, padding: 16, background: '#FFFFFF', borderRadius: 10, textAlign: 'center' }}>
+            <QRCodeSVG value={JSON.stringify({ phone: victim.phone })} size={140} bgColor="#FFFFFF" fgColor="#FFFFFF" level="M" />
+            <p style={{ fontSize: 11, color: '#6B7280', margin: '8px 0 0' }}>{victim.phone}</p>
           </div>
         )}
       </div>
@@ -385,9 +385,9 @@ function VictimProfile({ victim, onBack }) {
 function DetailRow({ label, value }) {
   if (!value) return null;
   return (
-    <div style={{ padding: '8px 0', borderBottom: '1px solid #1E293B' }}>
-      <p style={{ fontSize: 11, color: '#64748B', margin: '0 0 2px', fontWeight: 600 }}>{label}</p>
-      <p style={{ fontSize: 14, color: '#E2E8F0', margin: 0 }}>{value}</p>
+    <div style={{ padding: '8px 0', borderBottom: '1px solid #F8FAFC' }}>
+      <p style={{ fontSize: 11, color: '#6B7280', margin: '0 0 2px', fontWeight: 600 }}>{label}</p>
+      <p style={{ fontSize: 14, color: '#0F172A', margin: 0 }}>{value}</p>
     </div>
   );
 }
@@ -464,16 +464,16 @@ function RegisterTab({ campId, isOnline, onRegistered }) {
         <div style={{ ...s.successIcon, margin: '0 auto 16px' }}>
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
         </div>
-        <h3 style={{ fontSize: 18, fontWeight: 700, color: '#F1F5F9', margin: '0 0 4px' }}>
+        <h3 style={{ fontSize: 18, fontWeight: 700, color: '#0F172A', margin: '0 0 4px' }}>
           {result.offline ? 'Saved Offline' : 'Victim Registered'}
         </h3>
-        <p style={{ color: '#94A3B8', fontSize: 13, margin: '0 0 16px' }}>
+        <p style={{ color: '#475569', fontSize: 13, margin: '0 0 16px' }}>
           {result.offline ? 'Will sync when internet is available' : 'Added to camp database'}
         </p>
         {result.phone && (
-          <div style={{ padding: 16, background: '#0F172A', borderRadius: 10, display: 'inline-block', marginBottom: 16 }}>
-            <QRCodeSVG value={JSON.stringify({ phone: result.phone })} size={140} bgColor="#FFFFFF" fgColor="#0F172A" level="M" />
-            <p style={{ fontSize: 11, color: '#64748B', margin: '8px 0 0' }}>{result.phone}</p>
+          <div style={{ padding: 16, background: '#FFFFFF', borderRadius: 10, display: 'inline-block', marginBottom: 16 }}>
+            <QRCodeSVG value={JSON.stringify({ phone: result.phone })} size={140} bgColor="#FFFFFF" fgColor="#FFFFFF" level="M" />
+            <p style={{ fontSize: 11, color: '#6B7280', margin: '8px 0 0' }}>{result.phone}</p>
           </div>
         )}
         <br />
@@ -486,7 +486,7 @@ function RegisterTab({ campId, isOnline, onRegistered }) {
 
   return (
     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-      <p style={{ fontSize: 12, color: '#64748B', margin: 0 }}>
+      <p style={{ fontSize: 12, color: '#6B7280', margin: 0 }}>
         Only photo is required. All other fields are optional.
       </p>
 
@@ -554,7 +554,7 @@ function FormField({ label, value, onChange, placeholder, type = 'text' }) {
 function FaceScanTab({ campId, onDone }) {
   return (
     <div>
-      <p style={{ fontSize: 14, color: '#94A3B8', margin: '0 0 16px' }}>
+      <p style={{ fontSize: 14, color: '#475569', margin: '0 0 16px' }}>
         Capture a person&apos;s face to check if they are pre-registered in the system.
       </p>
       <FaceScanner
@@ -610,16 +610,16 @@ function QRScanTab({ campId, isOnline, onDone }) {
             <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 12 }}>
               {result.user.selfie_url && <img src={result.user.selfie_url} alt="" style={{ width: 56, height: 56, borderRadius: 10, objectFit: 'cover' }} />}
               <div>
-                <p style={{ fontSize: 16, fontWeight: 700, color: '#F1F5F9', margin: 0 }}>{result.user.name}</p>
-                <p style={{ fontSize: 12, color: '#94A3B8', margin: '2px 0' }}>{result.user.phone || 'No phone'}</p>
-                <p style={{ fontSize: 12, color: '#64748B', margin: 0 }}>{result.user.state}</p>
+                <p style={{ fontSize: 16, fontWeight: 700, color: '#0F172A', margin: 0 }}>{result.user.name}</p>
+                <p style={{ fontSize: 12, color: '#475569', margin: '2px 0' }}>{result.user.phone || 'No phone'}</p>
+                <p style={{ fontSize: 12, color: '#6B7280', margin: 0 }}>{result.user.state}</p>
               </div>
             </div>
             <button onClick={() => { setResult(null); setScanning(true); onDone?.(); }} style={s.secondaryBtn}>Done</button>
           </div>
         ) : (
           <div style={{ textAlign: 'center', padding: 20 }}>
-            <p style={{ color: '#FDBA74', fontSize: 14, fontWeight: 600 }}>Saved offline — will sync later</p>
+            <p style={{ color: '#9A3412', fontSize: 14, fontWeight: 600 }}>Saved offline — will sync later</p>
             <button onClick={() => { setResult(null); setScanning(true); }} style={s.secondaryBtn}>Scan Another</button>
           </div>
         )}
@@ -629,7 +629,7 @@ function QRScanTab({ campId, isOnline, onDone }) {
 
   return (
     <div>
-      <p style={{ fontSize: 14, color: '#94A3B8', margin: '0 0 16px' }}>
+      <p style={{ fontSize: 14, color: '#475569', margin: '0 0 16px' }}>
         Scan a victim&apos;s Sahaay QR code to retrieve their profile and add them to this camp.
       </p>
       {error && <p style={{ color: '#EF4444', fontSize: 13, margin: '0 0 12px' }}>{error}</p>}
@@ -679,24 +679,24 @@ function AlertsTab({ alerts, campId, isOnline, onUpdate }) {
   };
 
   const SEVERITY_COLORS = {
-    HIGH: { bg: 'rgba(239,68,68,0.12)', border: '#EF4444', text: '#FCA5A5' },
-    MEDIUM: { bg: 'rgba(249,115,22,0.12)', border: '#F97316', text: '#FDBA74' },
-    LOW: { bg: 'rgba(34,197,94,0.1)', border: '#22C55E', text: '#86EFAC' },
+    HIGH: { bg: 'rgba(239,68,68,0.12)', border: '#EF4444', text: '#991B1B' },
+    MEDIUM: { bg: 'rgba(249,115,22,0.12)', border: '#F97316', text: '#9A3412' },
+    LOW: { bg: 'rgba(34,197,94,0.1)', border: '#22C55E', text: '#166534' },
   };
 
   const STATUS_COLORS = {
-    pending: { bg: 'rgba(249,115,22,0.12)', color: '#FDBA74' },
-    approved: { bg: 'rgba(59,130,246,0.12)', color: '#93C5FD' },
-    rejected: { bg: 'rgba(100,116,139,0.12)', color: '#94A3B8' },
-    calls_sent: { bg: 'rgba(34,197,94,0.12)', color: '#86EFAC' },
+    pending: { bg: 'rgba(249,115,22,0.12)', color: '#9A3412' },
+    approved: { bg: 'rgba(59,130,246,0.12)', color: '#1E3A8A' },
+    rejected: { bg: 'rgba(100,116,139,0.12)', color: '#475569' },
+    calls_sent: { bg: 'rgba(34,197,94,0.12)', color: '#166534' },
   };
 
   return (
     <div>
       {/* Simulate disaster */}
       {isOnline && (
-        <div style={{ padding: 16, background: '#0F172A', borderRadius: 10, marginBottom: 16, border: '1px solid #334155' }}>
-          <p style={{ fontSize: 12, fontWeight: 700, color: '#64748B', margin: '0 0 8px', textTransform: 'uppercase', letterSpacing: 1 }}>
+        <div style={{ padding: 16, background: '#FFFFFF', borderRadius: 10, marginBottom: 16, border: '1px solid #E2E8F0' }}>
+          <p style={{ fontSize: 12, fontWeight: 700, color: '#6B7280', margin: '0 0 8px', textTransform: 'uppercase', letterSpacing: 1 }}>
             Simulate Disaster (Demo)
           </p>
           <div style={{ display: 'flex', gap: 8 }}>
@@ -714,7 +714,7 @@ function AlertsTab({ alerts, campId, isOnline, onUpdate }) {
       )}
 
       {alerts.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: 40, color: '#64748B' }}>
+        <div style={{ textAlign: 'center', padding: 40, color: '#6B7280' }}>
           <p style={{ fontSize: 14 }}>No alerts yet</p>
         </div>
       ) : (
@@ -726,13 +726,13 @@ function AlertsTab({ alerts, campId, isOnline, onUpdate }) {
               <div key={alert.id} style={{ ...s.alertCard, borderLeftColor: sev.border }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
                   <div>
-                    <span style={{ fontSize: 14, fontWeight: 700, color: '#F1F5F9' }}>{alert.disaster_type}</span>
+                    <span style={{ fontSize: 14, fontWeight: 700, color: '#0F172A' }}>{alert.disaster_type}</span>
                     <span style={{ ...s.severityBadge, background: sev.bg, color: sev.text, marginLeft: 8 }}>{alert.severity}</span>
                   </div>
                   <span style={{ ...s.statusBadgeSmall, background: stat.bg, color: stat.color }}>{alert.status.toUpperCase()}</span>
                 </div>
-                <p style={{ fontSize: 12, color: '#94A3B8', margin: '0 0 4px' }}>{alert.description}</p>
-                <p style={{ fontSize: 11, color: '#64748B', margin: 0 }}>
+                <p style={{ fontSize: 12, color: '#475569', margin: '0 0 4px' }}>{alert.description}</p>
+                <p style={{ fontSize: 11, color: '#6B7280', margin: 0 }}>
                   {alert.location_name} • {new Date(alert.created_at).toLocaleString()}
                 </p>
 
@@ -756,7 +756,7 @@ function AlertsTab({ alerts, campId, isOnline, onUpdate }) {
                 )}
 
                 {alert.status === 'calls_sent' && (
-                  <p style={{ fontSize: 12, color: '#86EFAC', margin: '8px 0 0', fontWeight: 600 }}>
+                  <p style={{ fontSize: 12, color: '#166534', margin: '8px 0 0', fontWeight: 600 }}>
                     Evacuation calls sent
                   </p>
                 )}
@@ -837,17 +837,17 @@ function MapTab({ campData, alerts }) {
   }, [campData, alerts]);
 
   if (!campData) {
-    return <p style={{ color: '#64748B', textAlign: 'center', padding: 40 }}>Loading camp data...</p>;
+    return <p style={{ color: '#6B7280', textAlign: 'center', padding: 40 }}>Loading camp data...</p>;
   }
 
   return (
     <div>
       <div style={{ marginBottom: 12 }}>
-        <p style={{ fontSize: 13, color: '#94A3B8', margin: 0 }}>
+        <p style={{ fontSize: 13, color: '#475569', margin: 0 }}>
           {campData.name} — {campData.radius_km}km coverage at {campData.lat?.toFixed(4)}, {campData.lng?.toFixed(4)}
         </p>
       </div>
-      <div ref={mapRef} style={{ width: '100%', height: 400, borderRadius: 12, overflow: 'hidden', border: '1px solid #334155' }} />
+      <div ref={mapRef} style={{ width: '100%', height: 400, borderRadius: 12, overflow: 'hidden', border: '1px solid #E2E8F0' }} />
     </div>
   );
 }
@@ -998,15 +998,15 @@ function UnidentifiedTab({ campId, isOnline }) {
         <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(34,197,94,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
         </div>
-        <h3 style={{ fontSize: 16, fontWeight: 700, color: '#86EFAC', margin: '0 0 8px' }}>
+        <h3 style={{ fontSize: 16, fontWeight: 700, color: '#166534', margin: '0 0 8px' }}>
           Unknown Person Registered
         </h3>
         {success.autoMatch && (
           <div style={{ padding: 12, background: 'rgba(234,179,8,0.1)', borderRadius: 10, border: '1px solid rgba(234,179,8,0.2)', marginTop: 12 }}>
-            <p style={{ fontSize: 14, fontWeight: 700, color: '#FDE68A', margin: '0 0 4px' }}>
+            <p style={{ fontSize: 14, fontWeight: 700, color: '#854D0E', margin: '0 0 4px' }}>
               🎯 Possible Match Found!
             </p>
-            <p style={{ fontSize: 13, color: '#E2E8F0', margin: 0 }}>
+            <p style={{ fontSize: 13, color: '#0F172A', margin: 0 }}>
               Matches missing report for <strong>{success.autoMatch.missing_name}</strong>
               {' '}({Math.round(success.autoMatch.confidence * 100)}% confidence)
             </p>
@@ -1020,11 +1020,11 @@ function UnidentifiedTab({ campId, isOnline }) {
     return (
       <div>
         <canvas ref={canvasRef} style={{ display: 'none' }} />
-        <button onClick={resetForm} style={{ background: 'none', border: 'none', color: '#93C5FD', fontSize: 13, fontWeight: 600, cursor: 'pointer', marginBottom: 12, padding: 0 }}>
+        <button onClick={resetForm} style={{ background: 'none', border: 'none', color: '#1E3A8A', fontSize: 13, fontWeight: 600, cursor: 'pointer', marginBottom: 12, padding: 0 }}>
           ← Back to List
         </button>
 
-        <h3 style={{ fontSize: 16, fontWeight: 700, color: '#F1F5F9', margin: '0 0 16px' }}>
+        <h3 style={{ fontSize: 16, fontWeight: 700, color: '#0F172A', margin: '0 0 16px' }}>
           Register Unknown Person
         </h3>
 
@@ -1032,16 +1032,16 @@ function UnidentifiedTab({ campId, isOnline }) {
         <div style={{ marginBottom: 14 }}>
           {photo ? (
             <div style={{ position: 'relative', display: 'inline-block' }}>
-              <img src={photo} alt="Person" style={{ width: '100%', maxHeight: 200, objectFit: 'cover', borderRadius: 10, border: '1px solid #334155' }} />
+              <img src={photo} alt="Person" style={{ width: '100%', maxHeight: 200, objectFit: 'cover', borderRadius: 10, border: '1px solid #E2E8F0' }} />
               <button onClick={() => setPhoto(null)} style={{ position: 'absolute', top: 6, right: 6, width: 28, height: 28, borderRadius: '50%', background: 'rgba(239,68,68,0.9)', color: 'white', border: 'none', fontSize: 14, cursor: 'pointer' }}>✕</button>
             </div>
           ) : cameraActive ? (
             <div>
-              <video ref={videoRef} style={{ width: '100%', borderRadius: 10, border: '1px solid #334155', maxHeight: 200 }} autoPlay playsInline muted />
+              <video ref={videoRef} style={{ width: '100%', borderRadius: 10, border: '1px solid #E2E8F0', maxHeight: 200 }} autoPlay playsInline muted />
               <button onClick={capturePhoto} style={{ width: '100%', padding: 10, marginTop: 6, background: '#22C55E', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>📸 Capture</button>
             </div>
           ) : (
-            <button onClick={startCamera} style={{ width: '100%', padding: 16, background: '#1E293B', border: '2px dashed #334155', borderRadius: 10, color: '#94A3B8', fontSize: 13, cursor: 'pointer' }}>
+            <button onClick={startCamera} style={{ width: '100%', padding: 16, background: '#F8FAFC', border: '2px dashed #E2E8F0', borderRadius: 10, color: '#475569', fontSize: 13, cursor: 'pointer' }}>
               📷 Take Photo
             </button>
           )}
@@ -1049,11 +1049,11 @@ function UnidentifiedTab({ campId, isOnline }) {
 
         <div style={{ display: 'flex', gap: 10, marginBottom: 10 }}>
           <div style={{ flex: 1 }}>
-            <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#94A3B8', marginBottom: 4 }}>Approx Age</label>
+            <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#475569', marginBottom: 4 }}>Approx Age</label>
             <input type="number" value={approxAge} onChange={e => setApproxAge(e.target.value)} placeholder="Age" style={s.fieldInput} />
           </div>
           <div style={{ flex: 1 }}>
-            <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#94A3B8', marginBottom: 4 }}>Gender</label>
+            <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#475569', marginBottom: 4 }}>Gender</label>
             <select value={gender} onChange={e => setGender(e.target.value)} style={s.fieldInput}>
               <option value="">Select</option>
               <option value="Male">Male</option>
@@ -1064,31 +1064,31 @@ function UnidentifiedTab({ campId, isOnline }) {
         </div>
 
         <div style={{ marginBottom: 10 }}>
-          <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#94A3B8', marginBottom: 4 }}>Wristband ID (if assigned)</label>
+          <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#475569', marginBottom: 4 }}>Wristband ID (if assigned)</label>
           <input type="text" value={wristbandId} onChange={e => setWristbandId(e.target.value)} placeholder="WB-001" style={s.fieldInput} />
         </div>
 
         <div style={{ marginBottom: 10 }}>
-          <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#94A3B8', marginBottom: 4 }}>Injuries</label>
+          <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#475569', marginBottom: 4 }}>Injuries</label>
           <input type="text" value={injuries} onChange={e => setInjuries(e.target.value)} placeholder="Describe any injuries" style={s.fieldInput} />
         </div>
 
         <div style={{ marginBottom: 10 }}>
-          <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#94A3B8', marginBottom: 4 }}>Clothing Description</label>
+          <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#475569', marginBottom: 4 }}>Clothing Description</label>
           <input type="text" value={clothing} onChange={e => setClothing(e.target.value)} placeholder="What are they wearing?" style={s.fieldInput} />
         </div>
 
         <div style={{ marginBottom: 10 }}>
-          <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#94A3B8', marginBottom: 4 }}>Identifying Marks</label>
+          <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#475569', marginBottom: 4 }}>Identifying Marks</label>
           <input type="text" value={marks} onChange={e => setMarks(e.target.value)} placeholder="Scars, tattoos, birthmarks..." style={s.fieldInput} />
         </div>
 
         <div style={{ marginBottom: 14 }}>
-          <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#94A3B8', marginBottom: 4 }}>Notes</label>
+          <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#475569', marginBottom: 4 }}>Notes</label>
           <textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Any other observations..." rows={2} style={{ ...s.fieldInput, resize: 'vertical' }} />
         </div>
 
-        {error && <p style={{ color: '#FCA5A5', fontSize: 13, margin: '0 0 10px' }}>{error}</p>}
+        {error && <p style={{ color: '#991B1B', fontSize: 13, margin: '0 0 10px' }}>{error}</p>}
 
         <button onClick={handleSubmit} disabled={formLoading} style={{
           ...s.submitBtn,
@@ -1106,10 +1106,10 @@ function UnidentifiedTab({ campId, isOnline }) {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
         <div>
-          <h3 style={{ fontSize: 16, fontWeight: 700, color: '#F1F5F9', margin: 0 }}>
+          <h3 style={{ fontSize: 16, fontWeight: 700, color: '#0F172A', margin: 0 }}>
             Unidentified Persons
           </h3>
-          <p style={{ fontSize: 12, color: '#64748B', margin: '2px 0 0' }}>
+          <p style={{ fontSize: 12, color: '#6B7280', margin: '2px 0 0' }}>
             {persons.length} person{persons.length !== 1 ? 's' : ''} registered
           </p>
         </div>
@@ -1126,7 +1126,7 @@ function UnidentifiedTab({ campId, isOnline }) {
       {!loading && persons.length === 0 && (
         <div style={{ textAlign: 'center', padding: 40 }}>
           <p style={{ fontSize: 28, margin: '0 0 8px' }}>👤</p>
-          <p style={{ color: '#64748B', fontSize: 14, margin: 0 }}>No unidentified persons registered</p>
+          <p style={{ color: '#6B7280', fontSize: 14, margin: 0 }}>No unidentified persons registered</p>
           <p style={{ color: '#475569', fontSize: 12, margin: '4px 0 0' }}>
             Use &quot;+ Add Person&quot; to register someone who cannot identify themselves
           </p>
@@ -1135,21 +1135,21 @@ function UnidentifiedTab({ campId, isOnline }) {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         {persons.map(p => (
-          <div key={p.id} style={{ padding: 14, background: '#1E293B', borderRadius: 10, border: '1px solid #334155' }}>
+          <div key={p.id} style={{ padding: 14, background: '#F8FAFC', borderRadius: 10, border: '1px solid #E2E8F0' }}>
             <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
               {p.photo_url ? (
                 <img src={p.photo_url} alt="" style={{ width: 48, height: 48, borderRadius: 10, objectFit: 'cover' }} />
               ) : (
-                <div style={{ width: 48, height: 48, borderRadius: 10, background: '#334155', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94A3B8', fontWeight: 700, fontSize: 18 }}>?</div>
+                <div style={{ width: 48, height: 48, borderRadius: 10, background: '#E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#475569', fontWeight: 700, fontSize: 18 }}>?</div>
               )}
 
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <div>
-                    <p style={{ fontSize: 14, fontWeight: 600, color: '#E2E8F0', margin: 0 }}>
+                    <p style={{ fontSize: 14, fontWeight: 600, color: '#0F172A', margin: 0 }}>
                       {p.temp_wristband_id ? `Wristband: ${p.temp_wristband_id}` : `ID: ${p.id.slice(0, 8)}`}
                     </p>
-                    <p style={{ fontSize: 12, color: '#64748B', margin: '2px 0 0' }}>
+                    <p style={{ fontSize: 12, color: '#6B7280', margin: '2px 0 0' }}>
                       {p.approximate_age ? `~${p.approximate_age}y` : '?'} • {p.gender || '?'}
                       {p.injuries && ` • ${p.injuries}`}
                     </p>
@@ -1157,21 +1157,21 @@ function UnidentifiedTab({ campId, isOnline }) {
                   <span style={{
                     padding: '2px 8px', borderRadius: 6, fontSize: 10, fontWeight: 600,
                     background: p.status === 'unidentified' ? 'rgba(234,179,8,0.15)' : p.status === 'matched' ? 'rgba(34,197,94,0.15)' : 'rgba(59,130,246,0.15)',
-                    color: p.status === 'unidentified' ? '#FDE68A' : p.status === 'matched' ? '#86EFAC' : '#93C5FD',
+                    color: p.status === 'unidentified' ? '#854D0E' : p.status === 'matched' ? '#166534' : '#1E3A8A',
                   }}>
                     {p.status}
                   </span>
                 </div>
 
-                {p.clothing_description && <p style={{ fontSize: 11, color: '#94A3B8', margin: '4px 0 0' }}>Clothing: {p.clothing_description}</p>}
-                {p.identifying_marks && <p style={{ fontSize: 11, color: '#94A3B8', margin: '2px 0 0' }}>Marks: {p.identifying_marks}</p>}
+                {p.clothing_description && <p style={{ fontSize: 11, color: '#475569', margin: '4px 0 0' }}>Clothing: {p.clothing_description}</p>}
+                {p.identifying_marks && <p style={{ fontSize: 11, color: '#475569', margin: '2px 0 0' }}>Marks: {p.identifying_marks}</p>}
 
                 {p.status === 'unidentified' && (
                   <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
-                    <button onClick={() => updateStatus(p.id, 'claimed')} style={{ padding: '4px 10px', background: 'rgba(34,197,94,0.15)', border: 'none', borderRadius: 6, color: '#86EFAC', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
+                    <button onClick={() => updateStatus(p.id, 'claimed')} style={{ padding: '4px 10px', background: 'rgba(34,197,94,0.15)', border: 'none', borderRadius: 6, color: '#166534', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
                       Mark Claimed
                     </button>
-                    <button onClick={() => updateStatus(p.id, 'transferred')} style={{ padding: '4px 10px', background: 'rgba(59,130,246,0.15)', border: 'none', borderRadius: 6, color: '#93C5FD', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
+                    <button onClick={() => updateStatus(p.id, 'transferred')} style={{ padding: '4px 10px', background: 'rgba(59,130,246,0.15)', border: 'none', borderRadius: 6, color: '#1E3A8A', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
                       Transfer
                     </button>
                   </div>
@@ -1287,7 +1287,7 @@ function ResourcesTab({ campId, isOnline, victimCount }) {
 
   const StatusSelector = ({ label, icon, value, onChange, options }) => (
     <div style={{ marginBottom: 14 }}>
-      <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#94A3B8', marginBottom: 6 }}>
+      <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 6 }}>
         {icon} {label}
       </label>
       <div style={{ display: 'flex', gap: 6 }}>
@@ -1297,9 +1297,9 @@ function ResourcesTab({ campId, isOnline, victimCount }) {
             onClick={() => onChange(opt.value)}
             style={{
               flex: 1, padding: '8px 4px',
-              background: value === opt.value ? opt.bg : '#0F172A',
-              border: value === opt.value ? `1px solid ${opt.color}` : '1px solid #334155',
-              borderRadius: 8, color: value === opt.value ? opt.color : '#64748B',
+              background: value === opt.value ? opt.bg : '#FFFFFF',
+              border: value === opt.value ? `1px solid ${opt.color}` : '1px solid #E2E8F0',
+              borderRadius: 8, color: value === opt.value ? opt.color : '#6B7280',
               fontSize: 11, fontWeight: 600, cursor: 'pointer',
               transition: 'all 0.2s',
             }}
@@ -1323,25 +1323,25 @@ function ResourcesTab({ campId, isOnline, victimCount }) {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
         <div>
-          <h3 style={{ fontSize: 16, fontWeight: 700, color: '#F1F5F9', margin: 0 }}>Camp Resources</h3>
-          <p style={{ fontSize: 12, color: '#64748B', margin: '2px 0 0' }}>
+          <h3 style={{ fontSize: 16, fontWeight: 700, color: '#0F172A', margin: 0 }}>Camp Resources</h3>
+          <p style={{ fontSize: 12, color: '#6B7280', margin: '2px 0 0' }}>
             {isNew ? 'Set up initial resource tracking' : `Last updated: ${res?.updated_at ? new Date(res.updated_at).toLocaleString() : 'Never'}`}
           </p>
         </div>
         {saved && (
-          <span style={{ padding: '4px 12px', borderRadius: 20, fontSize: 11, fontWeight: 600, background: 'rgba(34,197,94,0.15)', color: '#86EFAC' }}>Saved!</span>
+          <span style={{ padding: '4px 12px', borderRadius: 20, fontSize: 11, fontWeight: 600, background: 'rgba(34,197,94,0.15)', color: '#166534' }}>Saved!</span>
         )}
       </div>
 
       {/* Occupancy overview */}
-      <div style={{ padding: 16, background: '#1E293B', borderRadius: 12, border: '1px solid #334155', marginBottom: 16 }}>
+      <div style={{ padding: 16, background: '#F8FAFC', borderRadius: 12, border: '1px solid #E2E8F0', marginBottom: 16 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-          <span style={{ fontSize: 13, fontWeight: 600, color: '#E2E8F0' }}>Camp Occupancy</span>
+          <span style={{ fontSize: 13, fontWeight: 600, color: '#0F172A' }}>Camp Occupancy</span>
           <span style={{ fontSize: 13, fontWeight: 700, color: occupancyPct > 90 ? '#EF4444' : occupancyPct > 70 ? '#F59E0B' : '#22C55E' }}>
             {victimCount} / {totalCapacity || '?'}
           </span>
         </div>
-        <div style={{ width: '100%', height: 8, background: '#0F172A', borderRadius: 4, overflow: 'hidden' }}>
+        <div style={{ width: '100%', height: 8, background: '#FFFFFF', borderRadius: 4, overflow: 'hidden' }}>
           <div style={{
             height: '100%', borderRadius: 4, transition: 'width 0.5s',
             width: `${Math.min(occupancyPct, 100)}%`,
@@ -1350,17 +1350,17 @@ function ResourcesTab({ campId, isOnline, victimCount }) {
         </div>
         <div style={{ display: 'flex', gap: 12, marginTop: 10 }}>
           <div style={{ flex: 1 }}>
-            <label style={{ display: 'block', fontSize: 11, color: '#64748B', marginBottom: 4 }}>Total Capacity</label>
+            <label style={{ display: 'block', fontSize: 11, color: '#6B7280', marginBottom: 4 }}>Total Capacity</label>
             <input type="number" value={totalCapacity} onChange={e => setTotalCapacity(parseInt(e.target.value) || 0)}
               style={s.fieldInput} />
           </div>
           <div style={{ flex: 1 }}>
-            <label style={{ display: 'block', fontSize: 11, color: '#64748B', marginBottom: 4 }}>Available Beds</label>
+            <label style={{ display: 'block', fontSize: 11, color: '#6B7280', marginBottom: 4 }}>Available Beds</label>
             <input type="number" value={availableBeds} onChange={e => setAvailableBeds(parseInt(e.target.value) || 0)}
               style={s.fieldInput} />
           </div>
           <div style={{ flex: 1 }}>
-            <label style={{ display: 'block', fontSize: 11, color: '#64748B', marginBottom: 4 }}>Special Needs</label>
+            <label style={{ display: 'block', fontSize: 11, color: '#6B7280', marginBottom: 4 }}>Special Needs</label>
             <input type="number" value={specialNeeds} onChange={e => setSpecialNeeds(parseInt(e.target.value) || 0)}
               style={s.fieldInput} />
           </div>
@@ -1376,7 +1376,7 @@ function ResourcesTab({ campId, isOnline, victimCount }) {
 
       {/* Critical flag */}
       <div style={{ marginBottom: 16 }}>
-        <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#94A3B8', marginBottom: 6 }}>
+        <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 6 }}>
           🚨 Critical Alert (optional)
         </label>
         <input
@@ -1389,8 +1389,8 @@ function ResourcesTab({ campId, isOnline, victimCount }) {
 
       {hasCritical && (
         <div style={{ padding: 12, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 10, marginBottom: 16 }}>
-          <p style={{ fontSize: 13, fontWeight: 700, color: '#FCA5A5', margin: '0 0 4px' }}>⚠️ Critical Resource Levels</p>
-          <p style={{ fontSize: 12, color: '#94A3B8', margin: 0 }}>Saving will auto-alert Super Admins about critical supply levels.</p>
+          <p style={{ fontSize: 13, fontWeight: 700, color: '#991B1B', margin: '0 0 4px' }}>⚠️ Critical Resource Levels</p>
+          <p style={{ fontSize: 12, color: '#475569', margin: 0 }}>Saving will auto-alert Super Admins about critical supply levels.</p>
         </div>
       )}
 
@@ -1463,24 +1463,24 @@ function EvacuateTab({ campId, campData, victims, isOnline }) {
             <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(34,197,94,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
             </div>
-            <h3 style={{ fontSize: 18, fontWeight: 700, color: '#86EFAC', margin: '0 0 8px' }}>
+            <h3 style={{ fontSize: 18, fontWeight: 700, color: '#166534', margin: '0 0 8px' }}>
               Evacuation Initiated
             </h3>
-            <p style={{ fontSize: 14, color: '#94A3B8', margin: 0 }}>
+            <p style={{ fontSize: 14, color: '#475569', margin: 0 }}>
               {result.moved} people being shifted to {result.targetName}
             </p>
           </>
         ) : (
           <>
-            <h3 style={{ fontSize: 18, fontWeight: 700, color: '#FCA5A5', margin: '0 0 8px' }}>
+            <h3 style={{ fontSize: 18, fontWeight: 700, color: '#991B1B', margin: '0 0 8px' }}>
               Evacuation Failed
             </h3>
-            <p style={{ fontSize: 14, color: '#94A3B8', margin: 0 }}>{result.error}</p>
+            <p style={{ fontSize: 14, color: '#475569', margin: 0 }}>{result.error}</p>
           </>
         )}
         <button onClick={() => setResult(null)} style={{
-          marginTop: 16, padding: '10px 24px', background: '#334155', border: 'none',
-          borderRadius: 8, color: '#E2E8F0', fontSize: 13, fontWeight: 600, cursor: 'pointer',
+          marginTop: 16, padding: '10px 24px', background: '#E2E8F0', border: 'none',
+          borderRadius: 8, color: '#0F172A', fontSize: 13, fontWeight: 600, cursor: 'pointer',
         }}>
           Back
         </button>
@@ -1490,38 +1490,38 @@ function EvacuateTab({ campId, campData, victims, isOnline }) {
 
   return (
     <div>
-      <h3 style={{ fontSize: 16, fontWeight: 700, color: '#F1F5F9', margin: '0 0 4px' }}>
+      <h3 style={{ fontSize: 16, fontWeight: 700, color: '#0F172A', margin: '0 0 4px' }}>
         Evacuate / Shift Camp
       </h3>
-      <p style={{ fontSize: 13, color: '#64748B', margin: '0 0 16px' }}>
+      <p style={{ fontSize: 13, color: '#6B7280', margin: '0 0 16px' }}>
         Transfer all {victims.length} victims to another camp if this location is no longer safe.
       </p>
 
       <div style={{ padding: 16, background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 12, marginBottom: 16 }}>
-        <p style={{ fontSize: 13, fontWeight: 700, color: '#FCA5A5', margin: '0 0 4px' }}>⚠️ Warning</p>
-        <p style={{ fontSize: 12, color: '#94A3B8', margin: 0 }}>
+        <p style={{ fontSize: 13, fontWeight: 700, color: '#991B1B', margin: '0 0 4px' }}>⚠️ Warning</p>
+        <p style={{ fontSize: 12, color: '#475569', margin: 0 }}>
           This will move ALL checked-in victims to the target camp and mark this camp as evacuated.
           This action should only be used when the current location is unsafe.
         </p>
       </div>
 
       <div style={{ marginBottom: 14 }}>
-        <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#94A3B8', marginBottom: 6 }}>
+        <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 6 }}>
           Reason for Evacuation
         </label>
         <input
           type="text" value={reason} onChange={e => setReason(e.target.value)}
           placeholder="e.g. Flood water rising, structural damage"
-          style={{ width: '100%', padding: '12px 14px', background: '#0F172A', border: '1px solid #334155', borderRadius: 10, color: '#E2E8F0', fontSize: 14, outline: 'none', boxSizing: 'border-box' }}
+          style={{ width: '100%', padding: '12px 14px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 10, color: '#0F172A', fontSize: 14, outline: 'none', boxSizing: 'border-box' }}
         />
       </div>
 
       <div style={{ marginBottom: 14 }}>
-        <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#94A3B8', marginBottom: 6 }}>
+        <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 6 }}>
           Transfer To
         </label>
         {targetCamps.length === 0 ? (
-          <p style={{ fontSize: 13, color: '#64748B' }}>No other active camps available</p>
+          <p style={{ fontSize: 13, color: '#6B7280' }}>No other active camps available</p>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {targetCamps.map(camp => (
@@ -1530,14 +1530,14 @@ function EvacuateTab({ campId, campData, victims, isOnline }) {
                 onClick={() => setSelectedTarget(camp.id)}
                 style={{
                   display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                  padding: 14, background: selectedTarget === camp.id ? 'rgba(59,130,246,0.1)' : '#1E293B',
-                  border: selectedTarget === camp.id ? '1px solid #3B82F6' : '1px solid #334155',
+                  padding: 14, background: selectedTarget === camp.id ? 'rgba(59,130,246,0.1)' : '#F8FAFC',
+                  border: selectedTarget === camp.id ? '1px solid #3B82F6' : '1px solid #E2E8F0',
                   borderRadius: 10, cursor: 'pointer', textAlign: 'left',
                 }}
               >
                 <div>
-                  <p style={{ fontSize: 14, fontWeight: 600, color: '#E2E8F0', margin: 0 }}>{camp.name}</p>
-                  <p style={{ fontSize: 11, color: '#64748B', margin: '2px 0 0' }}>
+                  <p style={{ fontSize: 14, fontWeight: 600, color: '#0F172A', margin: 0 }}>{camp.name}</p>
+                  <p style={{ fontSize: 11, color: '#6B7280', margin: '2px 0 0' }}>
                     {camp.operator_name} • {camp.radius_km}km radius
                   </p>
                 </div>
@@ -1555,7 +1555,7 @@ function EvacuateTab({ campId, campData, victims, isOnline }) {
         disabled={!selectedTarget || loading}
         style={{
           width: '100%', padding: 14,
-          background: selectedTarget ? 'linear-gradient(135deg, #EF4444, #DC2626)' : '#334155',
+          background: selectedTarget ? 'linear-gradient(135deg, #EF4444, #DC2626)' : '#E2E8F0',
           color: 'white', border: 'none', borderRadius: 10, fontSize: 15, fontWeight: 700,
           cursor: selectedTarget && !loading ? 'pointer' : 'not-allowed',
           opacity: selectedTarget && !loading ? 1 : 0.5,
@@ -1569,123 +1569,125 @@ function EvacuateTab({ campId, campData, victims, isOnline }) {
 
 const s = {
   page: {
-    minHeight: '100vh', background: '#0B1120', display: 'flex', justifyContent: 'center',
-    fontFamily: "'Inter', system-ui, sans-serif", color: '#E2E8F0',
+    minHeight: '100vh', background: '#F1F5F9', display: 'flex', flexDirection: 'column', alignItems: 'center',
+    fontFamily: "'Inter', system-ui, sans-serif", color: '#0F172A',
   },
   card: {
-    background: '#1E293B', border: '1px solid #334155', borderRadius: 16, padding: 32, color: '#E2E8F0',
+    background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 16, padding: 32, color: '#0F172A',
   },
   header: {
-    padding: '12px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-    background: 'rgba(15,23,42,0.85)', backdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(255,255,255,0.06)',
+    padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+    background: '#FFFFFF', borderBottom: '1px solid #E2E8F0', width: '100%', maxWidth: '1320px',
   },
   logo: {
-    width: 32, height: 32, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center',
-    fontWeight: 800, fontSize: 16, color: 'white', background: 'linear-gradient(135deg, #3B82F6, #8B5CF6)',
+    width: 36, height: 36, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center',
+    fontWeight: 800, fontSize: 18, color: 'white', background: 'linear-gradient(135deg, #1B3676, #2A5298)',
   },
   statusBadge: {
     display: 'flex', alignItems: 'center', gap: 6, padding: '4px 12px', borderRadius: 20,
-    fontSize: 11, fontWeight: 600, border: '1px solid',
+    fontSize: 12, fontWeight: 700, border: '1px solid',
   },
   alertBadge: {
     padding: '4px 12px', borderRadius: 20, fontSize: 11, fontWeight: 700,
-    background: 'rgba(239,68,68,0.15)', color: '#FCA5A5', border: '1px solid rgba(239,68,68,0.3)',
+    background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA',
     animation: 'pulse 2s infinite',
   },
   tabBar: {
-    display: 'flex', gap: 2, padding: '0 20px', background: 'rgba(15,23,42,0.6)',
-    borderBottom: '1px solid rgba(255,255,255,0.06)', overflowX: 'auto',
+    display: 'flex', gap: 4, padding: '0 24px', background: 'transparent', width: '100%', maxWidth: '1320px',
+    borderBottom: '1px solid #E2E8F0', overflowX: 'auto', marginTop: 16,
   },
   tab: {
-    padding: '12px 16px', border: 'none', background: 'none', color: '#64748B', fontSize: 13,
-    fontWeight: 600, cursor: 'pointer', borderBottom: '2px solid transparent', whiteSpace: 'nowrap',
+    padding: '14px 20px', border: '1px solid transparent', background: 'transparent', color: '#6B7280', fontSize: 14,
+    fontWeight: 600, cursor: 'pointer', borderBottom: '3px solid transparent', whiteSpace: 'nowrap',
     position: 'relative', display: 'flex', alignItems: 'center', gap: 6,
+    transition: 'all 0.15s ease',
   },
-  tabActive: { color: '#93C5FD', borderBottomColor: '#3B82F6' },
+  tabActive: { color: '#1B3676', borderBottomColor: '#1B3676' },
   tabBadge: {
-    padding: '1px 6px', borderRadius: 10, fontSize: 10, fontWeight: 700,
-    background: 'rgba(239,68,68,0.2)', color: '#FCA5A5',
+    padding: '2px 8px', borderRadius: 12, fontSize: 11, fontWeight: 700,
+    background: '#FEF2F2', color: '#DC2626',
   },
-  content: { flex: 1, overflowY: 'auto', padding: 20 },
+  content: { flex: 1, overflowY: 'auto', padding: '24px', background: 'white', borderTop: 'none', margin: '0 0 24px 0', borderRadius: '0 0 12px 12px', border: '1px solid #E2E8F0', boxShadow: '0 4px 12px rgba(0,0,0,0.03)', width: '100%', maxWidth: '1320px' },
   searchInput: {
-    width: '100%', padding: '10px 14px', background: '#1E293B', border: '1px solid #334155',
-    borderRadius: 10, color: '#E2E8F0', fontSize: 14, outline: 'none', boxSizing: 'border-box',
+    width: '100%', padding: '12px 16px', background: '#F8FAFC', border: '1px solid #E2E8F0',
+    borderRadius: 10, color: '#0F172A', fontSize: 14, outline: 'none', boxSizing: 'border-box',
+    transition: 'border-color 0.2s',
   },
   spinner: {
-    width: 32, height: 32, border: '3px solid rgba(59,130,246,0.2)', borderTopColor: '#3B82F6',
-    borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto',
+    width: 36, height: 36, border: '3px solid #E2E8F0', borderTopColor: '#1B3676',
+    borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '20px auto',
   },
   victimCard: {
-    padding: '12px 16px', background: '#1E293B', borderRadius: 10, border: '1px solid #334155',
-    cursor: 'pointer', transition: 'border-color 0.2s',
+    padding: '14px 20px', background: '#F8FAFC', borderRadius: 10, border: '1px solid #E2E8F0',
+    cursor: 'pointer', transition: 'border-color 0.2s, background 0.2s',
   },
-  victimThumb: { width: 40, height: 40, borderRadius: 10, objectFit: 'cover' },
+  victimThumb: { width: 44, height: 44, borderRadius: 10, objectFit: 'cover' },
   victimThumbPlaceholder: {
-    width: 40, height: 40, borderRadius: 10, background: '#334155', display: 'flex',
-    alignItems: 'center', justifyContent: 'center', color: '#94A3B8', fontWeight: 700, fontSize: 16,
+    width: 44, height: 44, borderRadius: 10, background: '#E2E8F0', display: 'flex',
+    alignItems: 'center', justifyContent: 'center', color: '#6B7280', fontWeight: 700, fontSize: 16,
   },
-  regTypeBadge: { padding: '2px 8px', borderRadius: 10, fontSize: 10, fontWeight: 600 },
-  checkinBadge: { padding: '2px 8px', borderRadius: 10, fontSize: 10, fontWeight: 600, background: 'rgba(100,116,139,0.12)', color: '#94A3B8' },
+  regTypeBadge: { padding: '4px 10px', borderRadius: 6, fontSize: 11, fontWeight: 700 },
+  checkinBadge: { padding: '4px 10px', borderRadius: 6, fontSize: 11, fontWeight: 600, background: '#F1F5F9', color: '#64748B' },
   qrBtn: {
-    padding: '4px 8px', background: 'rgba(59,130,246,0.12)', border: '1px solid rgba(59,130,246,0.3)',
-    borderRadius: 6, color: '#93C5FD', fontSize: 10, fontWeight: 700, cursor: 'pointer',
+    padding: '6px 12px', background: '#EEF2FF', border: '1px solid #C7D2FE',
+    borderRadius: 6, color: '#4F46E5', fontSize: 11, fontWeight: 700, cursor: 'pointer',
   },
   backBtn: {
-    padding: '8px 0', border: 'none', background: 'none', color: '#93C5FD', fontSize: 13,
-    fontWeight: 600, cursor: 'pointer', marginBottom: 12, display: 'block',
+    padding: '8px 0', border: 'none', background: 'none', color: '#4F46E5', fontSize: 14,
+    fontWeight: 600, cursor: 'pointer', marginBottom: 16, display: 'block',
   },
-  profileCard: { padding: 20, background: '#1E293B', borderRadius: 12, border: '1px solid #334155' },
+  profileCard: { padding: 24, background: '#F8FAFC', borderRadius: 12, border: '1px solid #E2E8F0' },
   detailGrid: { display: 'flex', flexDirection: 'column' },
-  fieldLabel: { display: 'block', fontSize: 12, fontWeight: 600, color: '#94A3B8', marginBottom: 4 },
+  fieldLabel: { display: 'block', fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 6 },
   fieldInput: {
-    width: '100%', padding: '10px 12px', background: '#0F172A', border: '1px solid #334155',
-    borderRadius: 8, color: '#E2E8F0', fontSize: 14, outline: 'none', boxSizing: 'border-box',
+    width: '100%', padding: '12px 14px', background: '#FFFFFF', border: '1px solid #E2E8F0',
+    borderRadius: 8, color: '#0F172A', fontSize: 14, outline: 'none', boxSizing: 'border-box',
   },
   cameraOpenBtn: {
-    width: '100%', padding: 12, background: '#0F172A', border: '2px dashed #334155',
-    borderRadius: 10, color: '#94A3B8', fontSize: 13, cursor: 'pointer', textAlign: 'center',
+    width: '100%', padding: 14, background: '#F8FAFC', border: '2px dashed #CBD5E1',
+    borderRadius: 10, color: '#64748B', fontSize: 14, fontWeight: 600, cursor: 'pointer', textAlign: 'center',
   },
   submitBtn: {
-    width: '100%', padding: 12, background: 'linear-gradient(135deg, #3B82F6, #2563EB)',
+    width: '100%', padding: '14px 20px', background: 'linear-gradient(135deg, #1B3676, #2A5298)',
     color: 'white', border: 'none', borderRadius: 10, fontSize: 15, fontWeight: 700, cursor: 'pointer',
   },
   secondaryBtn: {
-    padding: '10px 24px', background: '#334155', border: 'none', borderRadius: 8,
-    color: '#E2E8F0', fontSize: 13, fontWeight: 600, cursor: 'pointer',
+    padding: '10px 24px', background: '#F1F5F9', border: '1px solid #E2E8F0', borderRadius: 8,
+    color: '#0F172A', fontSize: 14, fontWeight: 600, cursor: 'pointer',
   },
   primaryBtn: {
-    display: 'inline-block', padding: '12px 28px', background: 'linear-gradient(135deg, #3B82F6, #2563EB)',
+    display: 'inline-block', padding: '12px 28px', background: 'linear-gradient(135deg, #1B3676, #2A5298)',
     color: 'white', borderRadius: 10, fontWeight: 700, textDecoration: 'none', fontSize: 14,
   },
   successIcon: {
-    width: 56, height: 56, borderRadius: '50%', background: 'rgba(34,197,94,0.15)',
+    width: 64, height: 64, borderRadius: '50%', background: '#D1FAE5',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
   },
   successBadge: {
-    display: 'inline-block', padding: '8px 16px', background: 'rgba(34,197,94,0.15)',
-    color: '#86EFAC', borderRadius: 20, fontSize: 13, fontWeight: 700,
-    border: '1px solid rgba(34,197,94,0.3)',
+    display: 'inline-block', padding: '8px 16px', background: '#D1FAE5',
+    color: '#065F46', borderRadius: 20, fontSize: 13, fontWeight: 700,
+    border: '1px solid #A7F3D0',
   },
   alertCard: {
-    padding: '14px 16px', background: '#1E293B', borderRadius: 10,
-    border: '1px solid #334155', borderLeft: '3px solid',
+    padding: '16px 20px', background: '#FFFFFF', borderRadius: 10,
+    border: '1px solid #E2E8F0', borderLeft: '3px solid',
   },
   severityBadge: {
-    display: 'inline-block', padding: '2px 8px', borderRadius: 10, fontSize: 10, fontWeight: 700,
+    display: 'inline-block', padding: '3px 10px', borderRadius: 10, fontSize: 11, fontWeight: 700,
   },
   statusBadgeSmall: {
-    display: 'inline-block', padding: '2px 8px', borderRadius: 10, fontSize: 10, fontWeight: 700,
+    display: 'inline-block', padding: '3px 10px', borderRadius: 10, fontSize: 11, fontWeight: 700,
   },
   approveBtn: {
-    flex: 1, padding: '10px', background: 'rgba(34,197,94,0.15)', border: '1px solid rgba(34,197,94,0.3)',
-    borderRadius: 8, color: '#86EFAC', fontSize: 13, fontWeight: 700, cursor: 'pointer',
+    flex: 1, padding: '12px', background: '#DCFCE7', border: '1px solid #166534',
+    borderRadius: 8, color: '#166534', fontSize: 13, fontWeight: 700, cursor: 'pointer',
   },
   rejectBtn: {
-    padding: '10px 16px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)',
-    borderRadius: 8, color: '#FCA5A5', fontSize: 13, fontWeight: 600, cursor: 'pointer',
+    padding: '12px 18px', background: '#FEE2E2', border: '1px solid #991B1B',
+    borderRadius: 8, color: '#991B1B', fontSize: 13, fontWeight: 600, cursor: 'pointer',
   },
   dangerBtn: {
-    padding: '10px 16px', background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)',
-    borderRadius: 8, color: '#FCA5A5', fontSize: 13, fontWeight: 700, cursor: 'pointer',
+    padding: '12px 18px', background: '#FEF2F2', border: '1px solid #FECACA',
+    borderRadius: 8, color: '#DC2626', fontSize: 13, fontWeight: 700, cursor: 'pointer',
   },
 };

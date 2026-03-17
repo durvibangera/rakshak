@@ -6,7 +6,8 @@ import RoleGate from '@/components/common/RoleGate';
 
 const TABS = [
   { id: 'qr', label: 'QR Check-in' },
-  { id: 'inventory', label: 'Inventory' },
+  { id: 'missing', label: 'Missing Report' },
+  { id: 'inventory', label: 'Resources' },
 ];
 
 export default function OperatorDashboard() {
@@ -40,12 +41,29 @@ function OperatorContent() {
 
   return (
     <div style={s.page}>
-      <div style={s.header}>
-        <div>
-          <h1 style={s.title}>Operator Panel</h1>
-          <p style={s.campLabel}>{campName}</p>
+      {/* Navbar */}
+      <header style={s.navbar}>
+        <div style={s.navBrand}>
+          <img src="/logo-light.png" alt="Sahaay" style={{ height: 52, width: 'auto', objectFit: 'contain' }} />
         </div>
-        <button onClick={handleLogout} style={s.logoutBtn}>Logout</button>
+        <div style={s.navMeta}>
+          <div style={s.campChip}>
+            <span style={s.campDot} />
+            <span style={s.campChipLabel}>{campName || 'Camp'}</span>
+          </div>
+        </div>
+        <div style={s.navActions}>
+          <a href="/" style={s.homeLink}>← Home</a>
+          <button onClick={handleLogout} style={s.logoutBtn}>Logout</button>
+        </div>
+      </header>
+
+      {/* Page title */}
+      <div style={s.pageHead}>
+        <div>
+          <h1 style={s.pageTitle}>Operator Panel</h1>
+          <p style={s.pageSubtitle}>QR check-ins, missing reports, and resources</p>
+        </div>
       </div>
 
       <div style={s.tabs}>
@@ -63,6 +81,9 @@ function OperatorContent() {
       <div style={s.content}>
         {activeTab === 'qr' && (
           <QRCheckinTab campId={campId} onCheckin={refreshVictims} refreshKey={refreshKey} />
+        )}
+        {activeTab === 'missing' && (
+          <MissingReportTab campId={campId} />
         )}
         {activeTab === 'inventory' && (
           <InventoryTab campId={campId} />
@@ -138,16 +159,16 @@ function QRCheckinTab({ campId, onCheckin, refreshKey }) {
           <div style={s.successCircle}>
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
           </div>
-          <h3 style={{ fontSize: 18, fontWeight: 700, color: '#F1F5F9', margin: '0 0 4px' }}>Checked In Successfully</h3>
-          <p style={{ fontSize: 12, color: '#22C55E', fontWeight: 600, margin: '2px 0 0' }}>Added to Camp Database</p>
-          <p style={{ fontSize: 12, color: '#64748B', margin: '2px 0 0' }}>at {result.time}</p>
+          <h3 style={{ fontSize: 18, fontWeight: 700, color: '#0F172A', margin: '0 0 4px' }}>Checked In Successfully</h3>
+          <p style={{ fontSize: 12, color: '#059669', fontWeight: 600, margin: '2px 0 0' }}>Added to Camp Database</p>
+          <p style={{ fontSize: 12, color: '#6B7280', margin: '2px 0 0' }}>at {result.time}</p>
         </div>
 
         <div style={s.profileCard}>
           {u.selfie_url && <img src={u.selfie_url} alt="" style={s.profileImg} />}
           <div>
-            <p style={{ fontSize: 16, fontWeight: 700, color: '#F1F5F9', margin: 0 }}>{u.name}</p>
-            <p style={{ fontSize: 13, color: '#94A3B8', margin: '2px 0 0' }}>{u.phone}</p>
+            <p style={{ fontSize: 16, fontWeight: 700, color: '#0F172A', margin: 0 }}>{u.name}</p>
+            <p style={{ fontSize: 13, color: '#6B7280', margin: '2px 0 0' }}>{u.phone}</p>
             {u.blood_group && <span style={s.badge}>{u.blood_group}</span>}
           </div>
         </div>
@@ -192,10 +213,10 @@ function QRCheckinTab({ campId, onCheckin, refreshKey }) {
             {victims.map((v) => (
               <div key={v.camp_victim_id || v.id} style={s.recentRow}>
                 <div>
-                  <p style={{ fontSize: 14, fontWeight: 600, color: '#E2E8F0', margin: 0 }}>{v.name}</p>
-                  <p style={{ fontSize: 12, color: '#64748B', margin: '2px 0 0' }}>{v.phone || '—'}</p>
+                  <p style={{ fontSize: 14, fontWeight: 600, color: '#0F172A', margin: 0 }}>{v.name}</p>
+                  <p style={{ fontSize: 12, color: '#6B7280', margin: '2px 0 0' }}>{v.phone || '—'}</p>
                 </div>
-                <span style={{ fontSize: 12, color: '#64748B' }}>
+                <span style={{ fontSize: 12, color: '#9CA3AF' }}>
                   {v.checked_in_at ? new Date(v.checked_in_at).toLocaleTimeString() : ''}
                 </span>
               </div>
@@ -209,6 +230,131 @@ function QRCheckinTab({ campId, onCheckin, refreshKey }) {
 
 // ═══════════════════════════════════════════════════════════
 // INVENTORY TAB
+// ═══════════════════════════════════════════════════════════
+
+// ═══════════════════════════════════════════════════════════
+// MISSING REPORT TAB
+// ═══════════════════════════════════════════════════════════
+
+function MissingReportTab({ campId }) {
+  const [form, setForm] = useState({ name: '', age: '', gender: 'M', lastSeenDetails: '', relation: '', reporterPhone: '', contactInfo: '' });
+  const [photo, setPhoto] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState('');
+
+  const submitReport = async (e) => {
+    e.preventDefault();
+    setError('');
+    const repPhone = localStorage.getItem('sahaay_phone') || '';
+    if (!form.name || !form.lastSeenDetails) return setError('Name and last seen details are required');
+    setLoading(true);
+    try {
+      let photoUrl = null;
+      if (photo) {
+        const ext = photo.name.split('.').pop();
+        const fileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.${ext}`;
+        const { error: uploadErr } = await supabase.storage.from('missing_persons').upload(fileName, photo);
+        if (uploadErr) throw new Error('Photo upload failed: ' + uploadErr.message);
+        const { data: pubData } = supabase.storage.from('missing_persons').getPublicUrl(fileName);
+        photoUrl = pubData.publicUrl;
+      }
+      const { error: dbErr } = await supabase.from('missing_reports').insert({
+        person_name: form.name,
+        age_approx: form.age || null,
+        gender: form.gender,
+        last_seen_details: form.lastSeenDetails,
+        reporter_phone: form.reporterPhone || repPhone,
+        contact_info: form.contactInfo,
+        relation_to_person: form.relation || 'Operator filed',
+        photo_url: photoUrl,
+        status: 'open',
+        camp_id_reported_at: campId,
+      });
+      if (dbErr) throw dbErr;
+      setSuccess(true);
+      setForm({ name: '', age: '', gender: 'M', lastSeenDetails: '', relation: '', reporterPhone: '', contactInfo: '' });
+      setPhoto(null);
+      setTimeout(() => setSuccess(false), 4000);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div>
+      <h2 style={s.tabTitle}>File Missing Report</h2>
+      <p style={s.tabDesc}>Create a verifiable missing person record to instantly alert all active camps and field agents.</p>
+
+      {success && (
+        <div style={{ padding: 16, background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: 10, marginBottom: 16, display: 'flex', gap: 10, alignItems: 'center' }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          <div>
+            <p style={{ margin: 0, fontWeight: 700, color: '#065F46', fontSize: 13.5 }}>Report Filed Successfully</p>
+            <p style={{ margin: '2px 0 0', color: '#047857', fontSize: 12 }}>Added to the national tracing database.</p>
+          </div>
+        </div>
+      )}
+
+      {error && <p style={{ color: '#DC2626', fontSize: 13, background: '#FEF2F2', padding: 10, borderRadius: 8, margin: '0 0 16px' }}>{error}</p>}
+
+      <form onSubmit={submitReport} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <div style={s.section}>
+          <div style={{ display: 'flex', gap: 12 }}>
+            <div style={{ flex: 2 }}>
+              <label style={s.fieldLabel}>Person's Full Name *</label>
+              <input type="text" value={form.name} onChange={e => setForm({...form, name: e.target.value})} style={{ ...s.textarea, height: 44, resize: 'none' }} placeholder="E.g. Ramesh Kumar" required />
+            </div>
+            <div style={{ flex: 1 }}>
+              <label style={s.fieldLabel}>Age</label>
+              <input type="number" value={form.age} onChange={e => setForm({...form, age: e.target.value})} style={{ ...s.numberInput, padding: '10px 8px', height: 44, textAlign: 'left', fontSize: 14, fontWeight: 400 }} placeholder="Approx." />
+            </div>
+            <div style={{ width: 80 }}>
+              <label style={s.fieldLabel}>Gender</label>
+              <select value={form.gender} onChange={e => setForm({...form, gender: e.target.value})} style={{ ...s.textarea, height: 44, padding: '0 8px' }}>
+                <option value="M">M</option>
+                <option value="F">F</option>
+                <option value="O">O</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div style={s.section}>
+          <label style={s.fieldLabel}>Recent Photo (Highly Recommended)</label>
+          <input type="file" accept="image/*" onChange={e => setPhoto(e.target.files[0])} style={{ fontSize: 13, color: '#6B7280', marginTop: 4 }} />
+        </div>
+
+        <div style={s.section}>
+          <label style={s.fieldLabel}>Last Known Location & Details *</label>
+          <textarea value={form.lastSeenDetails} onChange={e => setForm({...form, lastSeenDetails: e.target.value})} style={{ ...s.textarea, height: 80 }} placeholder="Where were they last seen? What were they wearing? Any distinguishing marks?" required />
+        </div>
+
+        <div style={s.section}>
+          <div style={{ display: 'flex', gap: 12 }}>
+            <div style={{ flex: 1 }}>
+              <label style={s.fieldLabel}>Contact (Finder to call)</label>
+              <input type="text" value={form.reporterPhone} onChange={e => setForm({...form, reporterPhone: e.target.value})} style={{ ...s.textarea, height: 44, resize: 'none' }} placeholder="+91..." />
+            </div>
+            <div style={{ flex: 1 }}>
+              <label style={s.fieldLabel}>Relation</label>
+              <input type="text" value={form.relation} onChange={e => setForm({...form, relation: e.target.value})} style={{ ...s.textarea, height: 44, resize: 'none' }} placeholder="E.g. Father/Wife" />
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" disabled={loading} style={{ ...s.primaryBtn, opacity: loading ? 0.7 : 1 }}>
+          {loading ? 'Filing Report...' : 'File Missing Person Report'}
+        </button>
+      </form>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════
+// RESOURCES TAB
 // ═══════════════════════════════════════════════════════════
 
 const STATUS_OPTIONS = [
@@ -383,9 +529,9 @@ function StatusPicker({ label, value, options, onChange }) {
               style={{
                 padding: '6px 12px',
                 borderRadius: 8,
-                border: active ? `1.5px solid ${opt.color}` : '1.5px solid #334155',
-                background: active ? `${opt.color}18` : 'transparent',
-                color: active ? opt.color : '#64748B',
+                border: active ? `1.5px solid ${opt.color}` : '1.5px solid #E2E8F0',
+                background: active ? `${opt.color}18` : 'white',
+                color: active ? opt.color : '#6B7280',
                 fontSize: 12,
                 fontWeight: 600,
                 cursor: 'pointer',
@@ -404,86 +550,148 @@ function StatusPicker({ label, value, options, onChange }) {
 // STYLES
 // ═══════════════════════════════════════════════════════════
 
+const FONT = '"DM Sans", "Instrument Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+
 const s = {
   page: {
-    minHeight: '100vh', background: '#0F172A', fontFamily: 'system-ui, sans-serif',
-    maxWidth: 520, margin: '0 auto',
+    minHeight: '100vh', background: '#F1F5F9', fontFamily: FONT,
   },
-  header: {
-    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-    padding: '20px 20px 12px', borderBottom: '1px solid #1E293B',
+
+  // ── Navbar ──────────────────────────────────────
+  navbar: {
+    display: 'flex', alignItems: 'center', gap: 12,
+    padding: '0 20px', height: 72,
+    background: 'white', borderBottom: '1px solid #E2E8F0',
+    boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
+    position: 'sticky', top: 0, zIndex: 20,
   },
-  title: { fontSize: 20, fontWeight: 800, color: '#F1F5F9', margin: 0 },
-  campLabel: { fontSize: 12, color: '#64748B', margin: '2px 0 0' },
+  navBrand: { display: 'flex', alignItems: 'center' },
+  navMeta: { flex: 1, display: 'flex', alignItems: 'center', paddingLeft: 12 },
+  campChip: {
+    display: 'flex', alignItems: 'center', gap: 6,
+    background: '#EEF2FF', border: '1px solid #C7D2FE',
+    borderRadius: 20, padding: '4px 10px',
+  },
+  campDot: {
+    width: 7, height: 7, borderRadius: '50%', background: '#1B3676', flexShrink: 0,
+  },
+  campChipLabel: { fontSize: 12, fontWeight: 700, color: '#1B3676' },
+  navActions: { display: 'flex', gap: 8, alignItems: 'center' },
+  homeLink: {
+    fontSize: 13, fontWeight: 500, color: '#6B7280',
+    textDecoration: 'none', padding: '6px 10px',
+    borderRadius: 8, border: '1px solid #E2E8F0',
+    background: 'white',
+  },
   logoutBtn: {
-    background: '#334155', border: 'none', color: '#94A3B8', padding: '8px 14px',
-    borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer',
+    background: '#FEF2F2', border: '1px solid #FECACA', color: '#DC2626',
+    padding: '6px 14px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer',
   },
+
+  // ── Page heading ────────────────────────────────
+  pageHead: {
+    padding: '30px 20px 10px',
+    maxWidth: 1320, margin: '0 auto',
+  },
+  pageTitle: { fontSize: 24, fontWeight: 800, color: '#0F172A', margin: '0 0 4px', letterSpacing: '-0.3px' },
+  pageSubtitle: { fontSize: 13, color: '#6B7280', margin: 0 },
+
+  // ── Tabs ────────────────────────────────────────
   tabs: {
-    display: 'flex', gap: 0, borderBottom: '1px solid #1E293B',
-    padding: '0 12px', background: '#0F172A', position: 'sticky', top: 0, zIndex: 10,
+    display: 'flex', gap: 0,
+    padding: '14px 20px 0', background: 'transparent',
+    maxWidth: 1320, margin: '0 auto',
   },
   tab: {
-    flex: 1, padding: '14px 8px', background: 'none', border: 'none',
-    borderBottom: '2px solid transparent', color: '#64748B', fontSize: 14,
-    fontWeight: 600, cursor: 'pointer', textAlign: 'center',
+    padding: '12px 24px', background: 'white',
+    border: '1px solid #E2E8F0', borderBottom: 'none',
+    borderRadius: '10px 10px 0 0',
+    color: '#6B7280', fontSize: 14, fontWeight: 600,
+    cursor: 'pointer', textAlign: 'center',
+    marginRight: 6, transition: 'all 0.15s',
   },
-  tabActive: { color: '#3B82F6', borderBottomColor: '#3B82F6' },
-  content: { padding: 20 },
-  tabTitle: { fontSize: 16, fontWeight: 700, color: '#F1F5F9', margin: '0 0 4px' },
-  tabDesc: { fontSize: 13, color: '#64748B', margin: '0 0 16px' },
+  tabActive: {
+    color: '#1B3676', background: 'white',
+    borderTopColor: '#1B3676', borderTopWidth: 3,
+    borderLeftColor: '#E2E8F0', borderRightColor: '#E2E8F0',
+  },
+  content: {
+    padding: 32,
+    background: 'white', borderTop: '1px solid #E2E8F0', border: '1px solid #E2E8F0',
+    borderRadius: '0 12px 12px 12px',
+    maxWidth: 1320, margin: '0 auto 40px',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.03)',
+  },
+
+  // ── Tab content ─────────────────────────────────
+  tabTitle: { fontSize: 16, fontWeight: 700, color: '#0F172A', margin: '0 0 4px' },
+  tabDesc: { fontSize: 13, color: '#6B7280', margin: '0 0 16px' },
+
+  // ── QR Check-in result ──────────────────────────
   successCircle: {
-    width: 56, height: 56, borderRadius: '50%', background: 'rgba(34,197,94,0.15)',
+    width: 56, height: 56, borderRadius: '50%', background: '#D1FAE5',
     display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px',
   },
   profileCard: {
     display: 'flex', gap: 14, alignItems: 'center', padding: 16,
-    background: '#1E293B', borderRadius: 12, border: '1px solid #334155', marginBottom: 12,
+    background: '#F8FAFC', borderRadius: 12, border: '1px solid #E2E8F0', marginBottom: 12,
   },
   profileImg: { width: 52, height: 52, borderRadius: 12, objectFit: 'cover' },
   badge: {
-    display: 'inline-block', marginTop: 4, padding: '2px 8px', background: 'rgba(239,68,68,0.15)',
-    color: '#FCA5A5', borderRadius: 6, fontSize: 11, fontWeight: 600,
+    display: 'inline-block', marginTop: 4, padding: '2px 8px',
+    background: '#FEE2E2', color: '#DC2626',
+    borderRadius: 6, fontSize: 11, fontWeight: 600,
   },
   infoRow: {
     display: 'flex', justifyContent: 'space-between', padding: '10px 0',
-    borderBottom: '1px solid #1E293B',
+    borderBottom: '1px solid #F1F5F9',
   },
-  infoLabel: { fontSize: 12, color: '#64748B', fontWeight: 600 },
-  infoVal: { fontSize: 13, color: '#E2E8F0', textAlign: 'right' },
+  infoLabel: { fontSize: 12, color: '#6B7280', fontWeight: 600 },
+  infoVal: { fontSize: 13, color: '#0F172A', textAlign: 'right' },
+
   primaryBtn: {
-    width: '100%', padding: 14, background: 'linear-gradient(135deg, #3B82F6, #2563EB)',
-    color: 'white', border: 'none', borderRadius: 10, fontSize: 15, fontWeight: 700,
-    cursor: 'pointer', marginTop: 16,
+    width: '100%', padding: 14,
+    background: 'linear-gradient(135deg, #1B3676, #2A5298)',
+    color: 'white', border: 'none', borderRadius: 10,
+    fontSize: 15, fontWeight: 700, cursor: 'pointer', marginTop: 16,
+    boxShadow: '0 2px 8px rgba(27,54,118,0.25)',
   },
+
+  // ── Victims list ────────────────────────────────
   recentRow: {
     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-    padding: 12, background: '#1E293B', borderRadius: 10, border: '1px solid #334155',
+    padding: 12, background: '#F8FAFC', borderRadius: 10, border: '1px solid #E2E8F0',
   },
+
+  // ── Inventory ───────────────────────────────────
   section: {
-    marginBottom: 20, padding: 16, background: '#1E293B', borderRadius: 12,
-    border: '1px solid #334155',
+    marginBottom: 16, padding: 16, background: '#F8FAFC', borderRadius: 12,
+    border: '1px solid #E2E8F0',
   },
   sectionTitle: {
-    fontSize: 12, fontWeight: 700, color: '#64748B', textTransform: 'uppercase',
-    letterSpacing: 0.5, margin: '0 0 12px',
+    fontSize: 11, fontWeight: 700, color: '#1B3676', textTransform: 'uppercase',
+    letterSpacing: '0.6px', margin: '0 0 12px',
   },
   fieldLabel: {
-    display: 'block', fontSize: 11, color: '#64748B', fontWeight: 600, marginBottom: 4,
+    display: 'block', fontSize: 11, color: '#6B7280', fontWeight: 600, marginBottom: 4,
   },
   numberInput: {
-    width: '100%', padding: '10px 8px', background: '#0F172A', border: '1px solid #334155',
-    borderRadius: 8, color: '#E2E8F0', fontSize: 16, fontWeight: 700, textAlign: 'center',
-    outline: 'none', boxSizing: 'border-box',
+    width: '100%', padding: '10px 8px', background: 'white',
+    border: '1.5px solid #E2E8F0', borderRadius: 8,
+    color: '#0F172A', fontSize: 16, fontWeight: 700,
+    textAlign: 'center', outline: 'none', boxSizing: 'border-box',
+    fontFamily: FONT,
   },
   statusRow: {
     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-    padding: '10px 0', borderBottom: '1px solid rgba(51,65,85,0.5)',
+    padding: '10px 0', borderBottom: '1px solid #F1F5F9',
   },
-  statusLabel: { fontSize: 14, fontWeight: 600, color: '#E2E8F0' },
+  statusLabel: { fontSize: 14, fontWeight: 600, color: '#374151' },
   textarea: {
-    width: '100%', padding: 12, background: '#0F172A', border: '1px solid #334155',
-    borderRadius: 8, color: '#E2E8F0', fontSize: 14, outline: 'none', resize: 'vertical',
-    boxSizing: 'border-box', fontFamily: 'inherit',
+    width: '100%', padding: 12, background: 'white',
+    border: '1.5px solid #E2E8F0', borderRadius: 8,
+    color: '#0F172A', fontSize: 14, outline: 'none',
+    resize: 'vertical', boxSizing: 'border-box', fontFamily: FONT,
   },
 };
+

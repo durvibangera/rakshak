@@ -31,11 +31,11 @@ const ROLE_OPTIONS = [
     desc: 'Manage your camp — victims, resources, evacuations',
     authType: 'email',
     redirect: '/camp/dashboard',
-    color: '#2563EB',
-    bg: '#EFF6FF',
-    border: '#BFDBFE',
+    color: '#1B3676',
+    bg: '#EEF2FF',
+    border: '#C7D2FE',
     icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1B3676" strokeWidth="2">
         <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
         <polyline points="9 22 9 12 15 12 15 22"/>
       </svg>
@@ -78,19 +78,43 @@ export default function AdminLoginPage() {
     setError('');
     if (!email || !password) return setError('Enter email and password');
     setLoading(true);
-    try {
+
+    const doEmailLogin = async () => {
       const { data, error: authErr } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
       if (authErr) throw authErr;
-      const { data: profile } = await supabase.from('users').select('role, assigned_camp_id').eq('auth_uid', data.user.id).single();
-      if (!profile) throw new Error('No profile found for this account');
-      const role = selectedRole;
-      if (profile.role !== role.id) { await supabase.auth.signOut(); throw new Error(`This account is a ${profile.role}, not a ${role.label}`); }
-      if (role.id === 'camp_admin' && profile.assigned_camp_id) localStorage.setItem('sahaay_camp_id', profile.assigned_camp_id);
-      await refreshProfile();
-      router.push(role.redirect);
-    } catch (err) { setError(err.message); }
-    setLoading(false);
+
+      // Quick role check — skip if it takes too long
+      const roleCheck = supabase.from('users')
+        .select('role, assigned_camp_id')
+        .eq('auth_uid', data.user.id)
+        .single();
+      const { data: profile } = await Promise.race([
+        roleCheck,
+        new Promise(res => setTimeout(() => res({ data: null }), 5000)),
+      ]);
+
+      if (profile && profile.role && profile.role !== selectedRole.id) {
+        await supabase.auth.signOut();
+        throw new Error(`This account is a ${profile.role}, not a ${selectedRole.label}`);
+      }
+      if (profile?.assigned_camp_id && selectedRole.id === 'camp_admin') {
+        localStorage.setItem('sahaay_camp_id', profile.assigned_camp_id);
+      }
+      router.push(selectedRole.redirect);
+    };
+
+    try {
+      await Promise.race([
+        doEmailLogin(),
+        new Promise((_, rej) => setTimeout(() => rej(new Error('Supabase is not responding. Check your internet or try again.')), 12000)),
+      ]);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
+
 
   const handleOperatorLogin = async (e) => {
     e.preventDefault();
@@ -98,21 +122,32 @@ export default function AdminLoginPage() {
     if (!campCode || !operatorPhone) return setError('Enter camp code and your phone number');
     setLoading(true);
     try {
-      const res = await fetch(`/api/camps?code=${campCode.trim().toUpperCase()}`);
+      // Only validate camp code via local API — skip Supabase user lookup entirely
+      const controller = new AbortController();
+      const fetchTimer = setTimeout(() => controller.abort(), 8000);
+      let res;
+      try {
+        res = await fetch(`/api/camps?code=${campCode.trim().toUpperCase()}`, { signal: controller.signal });
+      } catch (fetchErr) {
+        throw new Error('Could not reach server. Check your connection.');
+      } finally {
+        clearTimeout(fetchTimer);
+      }
+
       const campData = await res.json();
       if (!campData.camp) throw new Error('Invalid camp code');
+
       const fullPhone = operatorPhone.startsWith('+91') ? operatorPhone : `+91${operatorPhone.replace(/\D/g, '')}`;
-      const { data: profile } = await supabase.from('users').select('id, role, assigned_camp_id').eq('phone', fullPhone).single();
-      if (!profile) throw new Error('Phone not registered. Ask your camp admin to add you.');
-      if (profile.role !== 'operator') throw new Error('This phone is not registered as an operator');
-      if (profile.assigned_camp_id && profile.assigned_camp_id !== campData.camp.id) throw new Error('You are assigned to a different camp');
+      // Store credentials and navigate — RoleGate will verify role from AuthContext
       localStorage.setItem('sahaay_phone', fullPhone);
       localStorage.setItem('sahaay_camp_id', campData.camp.id);
       localStorage.setItem('sahaay_camp_name', campData.camp.name);
-      await refreshProfile();
       router.push('/operator/dashboard');
-    } catch (err) { setError(err.message); }
-    setLoading(false);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const role = selectedRole;
@@ -123,13 +158,6 @@ export default function AdminLoginPage() {
 
       {/* Top bar */}
       <div style={s.topBar}>
-        <div style={s.topBarBrand}>
-          <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
-            <path d="M14 2L3 8v7c0 5.55 4.7 10.74 11 12 6.3-1.26 11-6.45 11-12V8L14 2z" fill="#2563EB"/>
-            <path d="M10 14l3 3 5-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-          <span style={s.topBarName}>Sahaay</span>
-        </div>
         <Link href="/" style={s.topBarBack}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
             <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
@@ -145,10 +173,7 @@ export default function AdminLoginPage() {
           {/* Header */}
           <div style={s.cardHeader}>
             <div style={s.logoWrap}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                <path d="M7 11V7a5 5 0 0110 0v4"/>
-              </svg>
+              <img src="/logo-light.png" alt="Sahaay" style={{ height: 68, width: 'auto', objectFit: 'contain' }} />
             </div>
             <div>
               <p style={s.eyebrow}>Staff & Admin Portal</p>
@@ -334,12 +359,12 @@ const s = {
   topBarBack: { display: 'flex', alignItems: 'center', gap: 5, fontSize: 13, color: '#6B7280', textDecoration: 'none' },
 
   card: { width: '100%', maxWidth: 460, background: 'white', border: '1px solid #E2E8F0', borderRadius: 16, boxShadow: '0 4px 24px rgba(0,0,0,0.07)', overflow: 'hidden', position: 'relative', zIndex: 1 },
-  cardStripe: { height: 4, background: 'linear-gradient(90deg, #1D4ED8, #2563EB, #60A5FA)' },
+  cardStripe: { height: 4, background: 'linear-gradient(90deg, #152C62, #1B3676, #4169C4)' },
   cardBody: { padding: '24px 28px 28px' },
 
-  cardHeader: { display: 'flex', alignItems: 'center', gap: 14, marginBottom: 10 },
-  logoWrap: { width: 50, height: 50, borderRadius: 12, background: '#EFF6FF', border: '1px solid #BFDBFE', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
-  eyebrow: { fontSize: 11, fontWeight: 600, color: '#2563EB', textTransform: 'uppercase', letterSpacing: '0.8px', margin: '0 0 3px' },
+  cardHeader: { display: 'flex', alignItems: 'center', gap: 18, marginBottom: 10 },
+  logoWrap: { width: 80, height: 80, borderRadius: 16, background: 'linear-gradient(135deg, #EEF2FF 0%, #E8EEFF 100%)', border: '1.5px solid #C7D2FE', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 2px 8px rgba(27,54,118,0.08)' },
+  eyebrow: { fontSize: 11, fontWeight: 600, color: '#1B3676', textTransform: 'uppercase', letterSpacing: '0.8px', margin: '0 0 3px' },
   heading: { fontSize: 22, fontWeight: 800, color: '#0F172A', margin: 0, letterSpacing: '-0.5px' },
   subheading: { fontSize: 13.5, color: '#6B7280', lineHeight: 1.6, margin: '0 0 20px' },
 
@@ -382,7 +407,7 @@ const s = {
   footer: { marginTop: 22 },
   footerDivider: { height: 1, background: '#F1F5F9', marginBottom: 16 },
   footerText: { fontSize: 13.5, color: '#6B7280', margin: 0, textAlign: 'center' },
-  footerLink: { color: '#2563EB', fontWeight: 700, textDecoration: 'none' },
+  footerLink: { color: '#1B3676', fontWeight: 700, textDecoration: 'none' },
 };
 
 const sc = {

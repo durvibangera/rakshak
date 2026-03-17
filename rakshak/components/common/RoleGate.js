@@ -18,23 +18,53 @@ export default function RoleGate({ allowedRole, minRole, redirectTo = '/', child
     return false;
   };
 
+  // 2. Wrap auth check in a stable ref so we don't need it in dependency arrays
+  const checkAuthRef = useRef(() => {
+    if (!profile?.role) return false;
+    if (allowedRole) return profile.role === allowedRole;
+    if (minRole) return hasMinRole(profile.role, minRole);
+    return false;
+  });
+
+  // Keep ref up to date
+  useEffect(() => {
+    checkAuthRef.current = () => {
+      if (!profile?.role) return false;
+      if (allowedRole) return profile.role === allowedRole;
+      if (minRole) return hasMinRole(profile.role, minRole);
+      return false;
+    };
+  }, [profile, allowedRole, minRole]);
+
   useEffect(() => {
     if (loading) return;
 
-    if (isAuthorized()) return;
+    if (checkAuthRef.current()) return; // Already authorized
 
     // Not authorized yet — retry once to handle race conditions.
-    // This covers both:
-    //   - Operator flow: localStorage creds set right before navigation
-    //   - Email login flow: Supabase session exists but profile hasn't loaded yet
     if (!retryRef.current) {
       retryRef.current = true;
-      refreshProfile().then(() => setRetried(true));
+      const refreshWithTimeout = Promise.race([
+        refreshProfile(),
+        new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 6000)),
+      ]);
+      
+      refreshWithTimeout
+        .then((res) => {
+          if (res?.role) {
+            const ok = allowedRole ? res.role === allowedRole : (minRole ? hasMinRole(res.role, minRole) : false);
+            if (!ok) router.replace(redirectTo);
+          } else {
+            router.replace(redirectTo);
+          }
+        })
+        .catch(() => router.replace(redirectTo))
+        .finally(() => setRetried(true));
       return;
     }
 
     router.replace(redirectTo);
-  }, [loading, profile, retried]);
+  }, [loading, router, redirectTo, refreshProfile, allowedRole, minRole]);
 
   if (loading || (!isAuthorized() && !retried)) {
     return (

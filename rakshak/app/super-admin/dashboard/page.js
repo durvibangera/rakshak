@@ -3,19 +3,21 @@
 import { useState, useEffect, useCallback } from 'react';
 import RoleGate from '@/components/common/RoleGate';
 import { supabase } from '@/lib/supabase/client';
+import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
 
 const FONT = '"DM Sans", "Instrument Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
 
 export default function SuperAdminDashboard() {
+  const { handleLogout } = useAuth();
   return (
     <RoleGate allowedRole="super_admin">
-      <DashboardContent />
+      <DashboardContent handleLogout={handleLogout} />
     </RoleGate>
   );
 }
 
-function DashboardContent() {
+function DashboardContent({ handleLogout }) {
   const [camps, setCamps] = useState([]);
   const [requests, setRequests] = useState([]);
   const [inventory, setInventory] = useState({ balance: 0, total_in: 0, total_out: 0 });
@@ -116,7 +118,7 @@ function DashboardContent() {
   };
   const PHASE = {
     SURGE:     { bg: '#FEF2F2', text: '#DC2626' },
-    PLATEAU:   { bg: '#EFF6FF', text: '#2563EB' },
+    PLATEAU:   { bg: '#EEF2FF', text: '#1B3676' },
     DEPLETION: { bg: '#F3F4F6', text: '#6B7280' },
   };
   const URGENCY = {
@@ -136,13 +138,9 @@ function DashboardContent() {
       <header style={s.nav}>
         <div style={s.navLeft}>
           <div style={s.navLogo}>
-            <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
-              <path d="M14 2L3 8v7c0 5.55 4.7 10.74 11 12 6.3-1.26 11-6.45 11-12V8L14 2z" fill="#2563EB"/>
-              <path d="M10 14l3 3 5-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            <span style={s.navLogoText}>Sahaay</span>
-            <span style={s.navRoleBadge}>Super Admin</span>
+            <img src="/logo-light.png" alt="Sahaay" style={{ height: 52, width: 'auto', objectFit: 'contain' }} />
           </div>
+          <span style={s.navRoleBadge}>Super Admin</span>
           <button onClick={() => setDrawerOpen(true)} style={s.modulesBtn}>
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
             All Modules
@@ -159,6 +157,11 @@ function DashboardContent() {
               {requests.length} Pending
             </div>
           )}
+          <div style={{ width: 1, height: 24, background: '#E2E8F0', margin: '0 8px' }} />
+          <div style={s.navActions}>
+            <a href="/" style={s.homeLink}>← Home</a>
+            <button onClick={handleLogout} style={s.logoutBtn}>Logout</button>
+          </div>
         </div>
       </header>
 
@@ -195,7 +198,7 @@ function DashboardContent() {
           <>
             {/* Stats row */}
             <div style={s.statsRow}>
-              <StatCard icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>} value={inventory.balance.toLocaleString('en-IN')} label="Kit Inventory" bg="#EFF6FF" accent="#2563EB" />
+              <StatCard icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1B3676" strokeWidth="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>} value={inventory.balance.toLocaleString('en-IN')} label="Kit Inventory" bg="#EEF2FF" accent="#1B3676" />
               <StatCard icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>} value={camps.length} label="Active Camps" bg="#F5F3FF" accent="#7C3AED" />
               <StatCard icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>} value={totalPeople.toLocaleString('en-IN')} label="Total People" bg="#ECFDF5" accent="#059669" />
               <StatCard icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={requests.length > 0 ? '#DC2626' : '#6B7280'} strokeWidth="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>} value={requests.length} label="Pending Requests" bg={requests.length > 0 ? '#FEF2F2' : '#F3F4F6'} accent={requests.length > 0 ? '#DC2626' : '#6B7280'} urgent={requests.length > 0} />
@@ -297,7 +300,7 @@ function DashboardContent() {
                             <tr key={r.id} style={s.tr}>
                               <td style={s.td}><span style={s.tdBold}>{r.camps?.name || r.camp_id}</span></td>
                               <td style={s.td}>{r.current_headcount}</td>
-                              <td style={s.td}><span style={{ ...s.tdBold, color: '#2563EB' }}>{r.min_kits_needed}</span></td>
+                              <td style={s.td}><span style={{ ...s.tdBold, color: '#1B3676' }}>{r.min_kits_needed}</span></td>
                               <td style={{ ...s.td, maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.notes || '—'}</td>
                               <td style={s.td}>{new Date(r.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</td>
                               <td style={s.td}>
@@ -342,7 +345,7 @@ function DashboardContent() {
                       {inventoryPct.toFixed(0)}%
                     </span>
                   </div>
-                  <div style={s.sideStat}><span style={s.sideStatLabel}>Available</span><span style={{ ...s.sideStatVal, color: '#2563EB' }}>{inventory.balance.toLocaleString('en-IN')}</span></div>
+                  <div style={s.sideStat}><span style={s.sideStatLabel}>Available</span><span style={{ ...s.sideStatVal, color: '#1B3676' }}>{inventory.balance.toLocaleString('en-IN')}</span></div>
                   <div style={s.sideDivider} />
                   <div style={s.sideStat}><span style={s.sideStatLabel}>Total In</span><span style={{ ...s.sideStatVal, color: '#059669' }}>{inventory.total_in.toLocaleString('en-IN')}</span></div>
                   <div style={s.sideDivider} />
@@ -426,7 +429,7 @@ function DashboardContent() {
                           <td style={s.td}><span style={s.tdBold}>{a.camp_name || a.camp_id}</span></td>
                           <td style={s.td}>{a.current_headcount}</td>
                           <td style={s.td}>{a.predicted_headcount}</td>
-                          <td style={s.td}><span style={{ ...s.tdBold, color: '#2563EB' }}>{a.kits_allocated}</span></td>
+                          <td style={s.td}><span style={{ ...s.tdBold, color: '#1B3676' }}>{a.kits_allocated}</span></td>
                           <td style={s.td}>{a.kits_per_person_at_delivery}</td>
                           <td style={s.td}><span style={{ ...s.badge, background: u.bg, color: u.color }}>{u.label}</span></td>
                         </tr>
@@ -474,7 +477,7 @@ function DashboardContent() {
                 { href: '/super-admin/safe-zones',         label: 'Safe Zones',         desc: 'Map relief camps · flag danger zones · get AI migration recommendations', color: '#059669', bg: '#ECFDF5', border: '#A7F3D0', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg> },
                 { href: '/super-admin/sms-alerts',         label: 'SMS Broadcast',      desc: 'Send emergency SMS via Twilio · target by camp, area, or all users', color: '#DC2626', bg: '#FEF2F2', border: '#FECACA', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#DC2626" strokeWidth="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> },
                 { href: '/super-admin/simulate',           label: 'Simulation',         desc: 'Trigger test disaster scenarios · validate the full alert pipeline', color: '#D97706', bg: '#FEF3C7', border: '#FDE68A', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#D97706" strokeWidth="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> },
-                { href: '/super-admin/allocation-history', label: 'Allocation History', desc: 'Full log of past allocation rounds · dispatch orders · delivery status', color: '#2563EB', bg: '#EFF6FF', border: '#BFDBFE', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> },
+                { href: '/super-admin/allocation-history', label: 'Allocation History', desc: 'Full log of past allocation rounds · dispatch orders · delivery status', color: '#1B3676', bg: '#EEF2FF', border: '#C7D2FE', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1B3676" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> },
               ].map(m => (
                 <Link key={m.href} href={m.href} onClick={() => setDrawerOpen(false)}
                   style={{ display: 'flex', gap: 14, alignItems: 'flex-start', padding: '14px 16px', background: m.bg, border: `1px solid ${m.border}`, borderRadius: 12, textDecoration: 'none' }}>
@@ -528,6 +531,18 @@ const s = {
   navClock: { display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: '#6B7280', fontVariantNumeric: 'tabular-nums' },
   navClockDot: { width: 6, height: 6, borderRadius: '50%', background: '#22C55E' },
   navAlertChip: { display: 'flex', alignItems: 'center', gap: 5, fontSize: 12.5, fontWeight: 600, color: '#DC2626', background: '#FEF2F2', border: '1px solid #FECACA', padding: '4px 10px', borderRadius: 20 },
+  
+  navActions: { display: 'flex', gap: 8, alignItems: 'center' },
+  homeLink: {
+    fontSize: 13, fontWeight: 500, color: '#6B7280',
+    textDecoration: 'none', padding: '6px 10px',
+    borderRadius: 8, border: '1px solid #E2E8F0',
+    background: 'white',
+  },
+  logoutBtn: {
+    background: '#FEF2F2', border: '1px solid #FECACA', color: '#DC2626',
+    padding: '6px 14px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer',
+  },
 
   body: { maxWidth: 1320, margin: '0 auto', padding: '28px 28px 48px' },
 
@@ -577,20 +592,20 @@ const s = {
   actionReject: { display: 'flex', alignItems: 'center', gap: 4, padding: '5px 10px', background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 7, color: '#DC2626', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: FONT },
   emptyTable: { display: 'flex', alignItems: 'center', gap: 8, color: '#9CA3AF', fontSize: 13.5, padding: '8px 0' },
 
-  btnPrimary: { display: 'flex', alignItems: 'center', gap: 6, padding: '9px 18px', background: '#2563EB', color: 'white', border: 'none', borderRadius: 9, fontSize: 13.5, fontWeight: 700, cursor: 'pointer', fontFamily: FONT, boxShadow: '0 2px 8px rgba(37,99,235,0.25)', transition: 'opacity 0.15s' },
+  btnPrimary: { display: 'flex', alignItems: 'center', gap: 6, padding: '9px 18px', background: 'linear-gradient(135deg, #1B3676, #2A5298)', color: 'white', border: 'none', borderRadius: 9, fontSize: 13.5, fontWeight: 700, cursor: 'pointer', fontFamily: FONT, boxShadow: '0 2px 8px rgba(27,54,118,0.25)', transition: 'opacity 0.15s' },
   btnSecondary: { display: 'flex', alignItems: 'center', gap: 6, padding: '9px 16px', background: 'white', color: '#374151', border: '1px solid #E2E8F0', borderRadius: 9, fontSize: 13.5, fontWeight: 600, cursor: 'pointer', fontFamily: FONT },
   spinner: { width: 15, height: 15, border: '2.5px solid rgba(255,255,255,0.3)', borderTopColor: 'white', borderRadius: '50%', animation: 'spin 0.7s linear infinite', display: 'inline-block', flexShrink: 0 },
 
   loadingWrap: { display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '80px 0', gap: 14 },
-  loadingSpinner: { width: 36, height: 36, border: '3px solid #E2E8F0', borderTopColor: '#2563EB', borderRadius: '50%', animation: 'spin 0.8s linear infinite' },
+  loadingSpinner: { width: 36, height: 36, border: '3px solid #E2E8F0', borderTopColor: '#1B3676', borderRadius: '50%', animation: 'spin 0.8s linear infinite' },
   loadingText: { fontSize: 14, color: '#9CA3AF', margin: 0 },
 
   /* Sidebar */
-  sideAllocationCard: { background: 'linear-gradient(135deg, #4F46E5, #2563EB)', borderRadius: 13, padding: '18px 18px', color: 'white' },
+  sideAllocationCard: { background: 'linear-gradient(135deg, #1B3676, #2A5298)', borderRadius: 13, padding: '18px 18px', color: 'white', boxShadow: '0 4px 12px rgba(27,54,118,0.15)' },
   sideAllocEye: { fontSize: 10.5, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.8px', opacity: 0.7, margin: '0 0 5px' },
   sideAllocTitle: { fontSize: 15.5, fontWeight: 700, margin: '0 0 7px', lineHeight: 1.3 },
   sideAllocDesc: { fontSize: 12.5, opacity: 0.85, lineHeight: 1.55, margin: '0 0 14px' },
-  sideAllocBtn: { display: 'inline-block', background: 'white', color: '#2563EB', fontSize: 13.5, fontWeight: 700, padding: '8px 16px', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: FONT, width: '100%', textAlign: 'center', transition: 'opacity 0.15s' },
+  sideAllocBtn: { display: 'inline-block', background: 'white', color: '#1B3676', fontSize: 13.5, fontWeight: 700, padding: '8px 16px', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: FONT, width: '100%', textAlign: 'center', transition: 'opacity 0.15s' },
 
   sideCard: { background: 'white', border: '1px solid #E2E8F0', borderRadius: 12, padding: '16px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' },
   sideCardHead: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
@@ -621,7 +636,7 @@ const s = {
   modalStripe: { height: 4, background: 'linear-gradient(90deg, #4F46E5, #2563EB, #60A5FA)', borderRadius: '16px 16px 0 0' },
   modalBody: { padding: '24px 28px 28px' },
   modalHead: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 18 },
-  modalEyebrow: { fontSize: 11, fontWeight: 600, color: '#2563EB', textTransform: 'uppercase', letterSpacing: '0.8px', margin: '0 0 4px' },
+  modalEyebrow: { fontSize: 11, fontWeight: 600, color: '#1B3676', textTransform: 'uppercase', letterSpacing: '0.8px', margin: '0 0 4px' },
   modalTitle: { fontSize: 20, fontWeight: 800, color: '#0F172A', margin: 0, letterSpacing: '-0.4px' },
   modalClose: { background: '#F1F5F9', border: 'none', borderRadius: 8, width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#6B7280', flexShrink: 0 },
   modalStats: { display: 'flex', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 10, padding: '14px 20px', marginBottom: 18, alignItems: 'center' },
