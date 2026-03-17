@@ -18,6 +18,12 @@
 import { addToQueue } from './offlineStore';
 import { registerBackgroundSync } from './syncEngine';
 
+function notifyQueueUpdated() {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('sahaay:queue-updated'));
+  }
+}
+
 /**
  * Offline-aware fetch wrapper.
  *
@@ -65,6 +71,7 @@ export async function offlineFetch(url, options = {}, queueMeta = null) {
         camp_id: queueMeta.camp_id || null,
         payload,
       });
+      notifyQueueUpdated();
 
       // Try to register background sync
       await registerBackgroundSync().catch(() => {});
@@ -91,5 +98,6 @@ export async function queueOfflineAction(actionType, payload, campId = null) {
     camp_id: campId,
     payload,
   });
+  notifyQueueUpdated();
   await registerBackgroundSync().catch(() => {});
 }

@@ -22,9 +22,9 @@ export default function HomePage() {
   }, []);
 
   const mockAlerts = alerts.length > 0 ? alerts : [
-    { type: 'FLOOD', location_name: 'Assam — Dibrugarh District', message: 'Rising water levels reported. Evacuate low-lying zones immediately.', created_at: new Date(), severity: 'High' },
-    { type: 'CYCLONE', location_name: 'Odisha — Puri Coastline', message: 'Category 2 landfall expected in 18 hours. Coastal evacuation underway.', created_at: new Date(Date.now() - 3600000), severity: 'Medium' },
-    { type: 'LANDSLIDE', location_name: 'Himachal Pradesh — Manali', message: 'Road blockage reported on NH-3. Relief teams dispatched.', created_at: new Date(Date.now() - 7200000), severity: 'Low' },
+    { type: 'FLOOD', location_name: 'Assam — Dibrugarh District', message: 'Rising water levels reported. Evacuate low-lying zones immediately.', created_at: '2024-01-01T10:00:00.000Z', severity: 'High' },
+    { type: 'CYCLONE', location_name: 'Odisha — Puri Coastline', message: 'Category 2 landfall expected in 18 hours. Coastal evacuation underway.', created_at: '2024-01-01T09:00:00.000Z', severity: 'Medium' },
+    { type: 'LANDSLIDE', location_name: 'Himachal Pradesh — Manali', message: 'Road blockage reported on NH-3. Relief teams dispatched.', created_at: '2024-01-01T08:00:00.000Z', severity: 'Low' },
   ];
 
   return (

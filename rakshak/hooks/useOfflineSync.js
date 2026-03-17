@@ -66,6 +66,30 @@ export function useOfflineSync(campId = null) {
     }
   }, [isOnline, pendingCount, syncNow]);
 
+  // Immediately sync when browser regains connectivity.
+  useEffect(() => {
+    const handleOnline = async () => {
+      await refreshCount();
+      if (!syncingRef.current) syncNow();
+    };
+    if (typeof window !== 'undefined') {
+      window.addEventListener('online', handleOnline);
+      return () => window.removeEventListener('online', handleOnline);
+    }
+  }, [refreshCount, syncNow]);
+
+  // React to new queued actions (even if queue was updated outside this hook).
+  useEffect(() => {
+    const handleQueueUpdated = async () => {
+      await refreshCount();
+      if (navigator.onLine && !syncingRef.current) syncNow();
+    };
+    if (typeof window !== 'undefined') {
+      window.addEventListener('sahaay:queue-updated', handleQueueUpdated);
+      return () => window.removeEventListener('sahaay:queue-updated', handleQueueUpdated);
+    }
+  }, [refreshCount, syncNow]);
+
   // Prefetch when online (once per session)
   useEffect(() => {
     if (isOnline && !lastPrefetch) {

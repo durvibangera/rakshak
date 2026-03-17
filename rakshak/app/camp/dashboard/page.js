@@ -8,6 +8,7 @@ import FaceScanner from '@/components/common/FaceScanner';
 import RoleGate from '@/components/common/RoleGate';
 import { useOfflineSync } from '@/hooks/useOfflineSync';
 import { supabase } from '@/lib/supabase/client';
+import { offlineFetch, queueOfflineAction } from '@/lib/offline/offlineFetch';
 
 const TABS = [
   { id: 'victims', label: 'Victims' },
@@ -22,6 +23,7 @@ const TABS = [
 ];
 
 const BLOOD_GROUPS = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
+const DASHBOARD_TAB_KEY = 'sahaay_camp_dashboard_active_tab';
 
 export default function CampDashboard() {
   return (
@@ -44,6 +46,27 @@ function CampDashboardContent() {
   const [loggingOut, setLoggingOut] = useState(false);
 
   const { isOnline, isSyncing, pendingCount, connectionStatus, syncNow, refreshCount } = useOfflineSync();
+
+  // Restore last opened dashboard tab after reload.
+  useEffect(() => {
+    try {
+      const savedTab = localStorage.getItem(DASHBOARD_TAB_KEY);
+      if (savedTab && TABS.some(tab => tab.id === savedTab)) {
+        setActiveTab(savedTab);
+      }
+    } catch {
+      // Ignore storage read errors.
+    }
+  }, []);
+
+  // Persist current tab so refresh returns to same page.
+  useEffect(() => {
+    try {
+      localStorage.setItem(DASHBOARD_TAB_KEY, activeTab);
+    } catch {
+      // Ignore storage write errors.
+    }
+  }, [activeTab]);
 
   // Load camp ID from localStorage
   useEffect(() => {
@@ -243,7 +266,7 @@ function CampDashboardContent() {
               />
             )}
             {activeTab === 'register' && (
-              <RegisterTab campId={campId} isOnline={isOnline} onRegistered={() => { fetchVictims(); refreshCount(); }} />
+              <RegisterTab campId={campId} isOnline={isOnline} pendingCount={pendingCount} syncNow={syncNow} onRegistered={() => { fetchVictims(); refreshCount(); }} />
             )}
             {activeTab === 'face' && (
               <FaceScanTab campId={campId} onDone={() => { fetchVictims(); }} />
@@ -421,7 +444,7 @@ function DetailRow({ label, value }) {
 // REGISTER TAB
 // ═══════════════════════════════════════════════════════════
 
-function RegisterTab({ campId, isOnline, onRegistered }) {
+function RegisterTab({ campId, isOnline, pendingCount, syncNow, onRegistered }) {
   const [photo, setPhoto] = useState(null);
   const [showCamera, setShowCamera] = useState(false);
   const [form, setForm] = useState({
@@ -432,8 +455,42 @@ function RegisterTab({ campId, isOnline, onRegistered }) {
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
+  const [syncingQueued, setSyncingQueued] = useState(false);
+  const [syncNote, setSyncNote] = useState('');
+  const [queuedItems, setQueuedItems] = useState([]);
+  const [loadingQueue, setLoadingQueue] = useState(false);
 
   const updateField = (key, val) => setForm(prev => ({ ...prev, [key]: val }));
+
+  const refreshQueuedItems = useCallback(async () => {
+    try {
+      setLoadingQueue(true);
+      const { getPendingActions } = await import('@/lib/offline/offlineStore');
+      const pending = await getPendingActions();
+      setQueuedItems((pending || []).slice(-8).reverse());
+    } catch {
+      setQueuedItems([]);
+    } finally {
+      setLoadingQueue(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    refreshQueuedItems();
+  }, [refreshQueuedItems]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const handleQueueUpdated = () => {
+      refreshQueuedItems();
+    };
+    window.addEventListener('sahaay:queue-updated', handleQueueUpdated);
+    window.addEventListener('online', handleQueueUpdated);
+    return () => {
+      window.removeEventListener('sahaay:queue-updated', handleQueueUpdated);
+      window.removeEventListener('online', handleQueueUpdated);
+    };
+  }, [refreshQueuedItems]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -461,26 +518,87 @@ function RegisterTab({ campId, isOnline, onRegistered }) {
       camp_id: campId,
     };
 
+    const queuedResult = {
+      offline: true,
+      qr_code_id: 'pending-sync',
+      queued_action: 'register_victim',
+      queued_name: payload.name || 'Unknown Victim',
+      queued_phone: payload.phone || 'No phone',
+    };
+
+    if (!isOnline) {
+      try {
+        await queueOfflineAction('register_victim', payload, campId);
+        setResult(queuedResult);
+        onRegistered?.();
+      } catch {
+        setError('Could not save offline. Please try again.');
+      }
+      setSubmitting(false);
+      return;
+    }
+
     try {
-      if (isOnline) {
-        const res = await fetch('/api/victims', {
+      const res = await offlineFetch(
+        '/api/victims',
+        {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.details || data.error || 'Unknown error');
-        setResult(data);
-      } else {
-        const { addToQueue } = await import('@/lib/offline/offlineStore');
-        await addToQueue({ action_type: 'register_victim', payload, camp_id: campId });
-        setResult({ offline: true, qr_code_id: 'pending-sync' });
-      }
+        },
+        { action_type: 'register_victim', camp_id: campId }
+      );
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.details || data.error || 'Unknown error');
+      setResult(
+        data?.offline || data?.queued ? queuedResult : data
+      );
       onRegistered?.();
     } catch (err) {
-      setError(err.message || 'Registration failed');
+      // If network fails unexpectedly, still persist in IndexedDB queue.
+      const message = String(err?.message || '').toLowerCase();
+      const shouldQueueFallback =
+        !navigator.onLine ||
+        message.includes('fetch failed') ||
+        message.includes('failed to fetch') ||
+        message.includes('network');
+
+      if (shouldQueueFallback) {
+        try {
+          await queueOfflineAction('register_victim', payload, campId);
+          setResult(queuedResult);
+          onRegistered?.();
+        } catch {
+          setError('Could not save offline. Please try again.');
+        }
+      } else {
+        setError(err.message || 'Registration failed');
+      }
     }
     setSubmitting(false);
+  };
+
+  const handleSyncQueued = async () => {
+    if (!isOnline) {
+      setSyncNote('Still offline. Sync will start automatically when network is back.');
+      return;
+    }
+    if (!syncNow) return;
+    setSyncingQueued(true);
+    setSyncNote('');
+    try {
+      const r = await syncNow();
+      if (r?.synced > 0) setSyncNote(`Synced ${r.synced} queued operation(s).`);
+      else if (r?.failed > 0) setSyncNote('Sync attempted. Some items are still pending.');
+      else setSyncNote('Queue is already up to date.');
+      onRegistered?.();
+    } catch {
+      setSyncNote('Sync failed. It will retry automatically.');
+    } finally {
+      setSyncingQueued(false);
+      refreshQueuedItems();
+    }
   };
 
   if (result) {
@@ -495,6 +613,21 @@ function RegisterTab({ campId, isOnline, onRegistered }) {
         <p style={{ color: '#475569', fontSize: 13, margin: '0 0 16px' }}>
           {result.offline ? 'Will sync when internet is available' : 'Added to camp database'}
         </p>
+        {result.offline && (
+          <div style={{ margin: '0 auto 14px', maxWidth: 360, textAlign: 'left', padding: 12, background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 10 }}>
+            <p style={{ margin: '0 0 6px', fontSize: 12, fontWeight: 700, color: '#1E3A8A' }}>Queued operation</p>
+            <p style={{ margin: '0 0 4px', fontSize: 12, color: '#475569' }}>Action: Register victim</p>
+            <p style={{ margin: '0 0 4px', fontSize: 12, color: '#475569' }}>Name: {result.queued_name}</p>
+            <p style={{ margin: 0, fontSize: 12, color: '#475569' }}>Phone: {result.queued_phone}</p>
+            <p style={{ margin: '8px 0 0', fontSize: 12, color: '#6B7280' }}>Pending queue: {pendingCount ?? 0}</p>
+            <div style={{ marginTop: 8 }}>
+              <button onClick={handleSyncQueued} disabled={syncingQueued} style={{ ...s.secondaryBtn, padding: '8px 12px' }}>
+                {syncingQueued ? 'Syncing...' : 'Sync Now'}
+              </button>
+            </div>
+            {syncNote && <p style={{ margin: '8px 0 0', fontSize: 12, color: '#0F766E' }}>{syncNote}</p>}
+          </div>
+        )}
         {(result.qr_code_id || result?.user?.qr_code_id) && (
           <div style={{ padding: 16, background: '#FFFFFF', borderRadius: 10, display: 'inline-block', marginBottom: 16 }}>
             <QRCodeSVG value={result.qr_code_id || result?.user?.qr_code_id} size={140} bgColor="#FFFFFF" fgColor="#0F172A" level="M" />
@@ -514,6 +647,38 @@ function RegisterTab({ campId, isOnline, onRegistered }) {
       <p style={{ fontSize: 12, color: '#6B7280', margin: 0 }}>
         Only photo is required. All other fields are optional.
       </p>
+
+      <div style={{ padding: 12, background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 10 }}>
+        <p style={{ margin: '0 0 6px', fontSize: 12, fontWeight: 700, color: '#1E3A8A' }}>
+          Queued Operations ({pendingCount ?? 0})
+        </p>
+        {loadingQueue ? (
+          <p style={{ margin: 0, fontSize: 12, color: '#64748B' }}>Loading queued items...</p>
+        ) : queuedItems.length === 0 ? (
+          <p style={{ margin: 0, fontSize: 12, color: '#64748B' }}>No pending offline operations.</p>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {queuedItems.map((item) => (
+              <div key={item.id} style={{ padding: 8, border: '1px solid #E2E8F0', borderRadius: 8, background: '#FFFFFF' }}>
+                <p style={{ margin: '0 0 2px', fontSize: 12, fontWeight: 600, color: '#0F172A' }}>
+                  {item.action_type === 'register_victim'
+                    ? 'Register victim'
+                    : item.action_type === 'checkin_qr'
+                      ? 'QR check-in'
+                      : item.action_type === 'approve_alert'
+                        ? 'Approve alert'
+                        : item.action_type === 'update_resources'
+                          ? 'Update resources'
+                          : item.action_type}
+                </p>
+                <p style={{ margin: 0, fontSize: 11, color: '#64748B' }}>
+                  {item.payload?.name || item.payload?.phone || item.payload?.qr_code_id || 'Details saved for sync'}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Photo (required) */}
       <div>
@@ -633,9 +798,10 @@ function QRScanTab({ campId, isOnline, onDone }) {
     } else if (qrId) {
       url += `&qr_code_id=${encodeURIComponent(qrId)}`;
     } else if (raw) {
-      // If raw looks like a phone, query by phone; otherwise query by qr_code_id.
-      const onlyDigits = raw.replace(/\D/g, '');
-      if (onlyDigits.length >= 10) {
+      // Treat as phone only for strict phone formats. Otherwise use qr_code_id.
+      const rawTrim = String(raw).trim();
+      const isStrictPhone = /^\+91\d{10}$/.test(rawTrim) || /^\d{10}$/.test(rawTrim);
+      if (isStrictPhone) {
         url += `&phone=${encodeURIComponent(raw)}`;
       } else {
         url += `&qr_code_id=${encodeURIComponent(raw)}`;
@@ -646,7 +812,12 @@ function QRScanTab({ campId, isOnline, onDone }) {
     }
 
     if (!isOnline) {
-      setResult({ offline: true, phone });
+      await queueOfflineAction(
+        'checkin_qr',
+        { phone: phone || null, qr_code_id: qrId || null, raw: raw || null },
+        campId
+      );
+      setResult({ offline: true, phone, qr_code_id: qrId, raw });
       return;
     }
 
@@ -656,10 +827,16 @@ function QRScanTab({ campId, isOnline, onDone }) {
       if (json.found) {
         setResult({ user: json.user });
       } else {
-        setError('No user found with this QR code');
+        setError(json?.message || json?.error || 'No user found with this QR code');
       }
     } catch {
-      setError('QR lookup failed');
+      // If network drops during scan, queue for sync.
+      await queueOfflineAction(
+        'checkin_qr',
+        { phone: phone || null, qr_code_id: qrId || null, raw: raw || null },
+        campId
+      );
+      setResult({ offline: true, phone, qr_code_id: qrId, raw });
     }
   };
 
@@ -682,6 +859,12 @@ function QRScanTab({ campId, isOnline, onDone }) {
         ) : (
           <div style={{ textAlign: 'center', padding: 20 }}>
             <p style={{ color: '#9A3412', fontSize: 14, fontWeight: 600 }}>Saved offline — will sync later</p>
+            <div style={{ margin: '8px auto 12px', maxWidth: 360, textAlign: 'left', padding: 12, background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 10 }}>
+              <p style={{ margin: '0 0 6px', fontSize: 12, fontWeight: 700, color: '#1E3A8A' }}>Queued QR check-in</p>
+              {result.phone && <p style={{ margin: '0 0 4px', fontSize: 12, color: '#475569' }}>Phone: {result.phone}</p>}
+              {result.qr_code_id && <p style={{ margin: '0 0 4px', fontSize: 12, color: '#475569' }}>QR ID: {result.qr_code_id}</p>}
+              {result.raw && !result.phone && !result.qr_code_id && <p style={{ margin: 0, fontSize: 12, color: '#475569' }}>Raw payload saved for sync</p>}
+            </div>
             <button onClick={() => { setResult(null); setScanning(true); }} style={s.secondaryBtn}>Scan Another</button>
           </div>
         )}
@@ -714,16 +897,15 @@ function AlertsTab({ alerts, campId, isOnline, onUpdate }) {
   const handleAction = async (alertId, action) => {
     setProcessing(alertId);
     try {
-      if (isOnline) {
-        await fetch('/api/alerts/approve', {
+      await offlineFetch(
+        '/api/alerts/approve',
+        {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ alert_id: alertId, action }),
-        });
-      } else {
-        const { addToQueue } = await import('@/lib/offline/offlineStore');
-        await addToQueue({ action_type: 'approve_alert', payload: { alert_id: alertId, action }, camp_id: campId });
-      }
+        },
+        { action_type: 'approve_alert', camp_id: campId }
+      );
       onUpdate?.();
     } catch {}
     setProcessing(null);
@@ -1331,14 +1513,18 @@ function ResourcesTab({ campId, isOnline, victimCount }) {
         critical_flag: criticalFlag || null,
       };
 
-      const res = await fetch('/api/camp-resources', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
+      const res = await offlineFetch(
+        '/api/camp-resources',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        },
+        { action_type: 'update_resources', camp_id: campId }
+      );
       const data = await res.json();
-      if (data.success) {
-        setRes(data.resources);
+      if (data.success || data.queued || data.offline) {
+        if (data.resources) setRes(data.resources);
         setIsNew(false);
         setSaved(true);
         setTimeout(() => setSaved(false), 3000);

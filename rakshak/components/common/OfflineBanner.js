@@ -8,9 +8,16 @@
 
 'use client';
 
+import { useEffect, useState } from 'react';
 import { useOfflineSync } from '@/hooks/useOfflineSync';
 
 export default function OfflineBanner() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const {
     isOnline,
     isSyncing,
@@ -18,6 +25,9 @@ export default function OfflineBanner() {
     connectionStatus,
     syncNow,
   } = useOfflineSync();
+
+  // Prevent server/client markup mismatch during hydration.
+  if (!mounted) return null;
 
   // State: fully online with nothing pending — hide banner
   if (isOnline && pendingCount === 0 && !isSyncing) return null;

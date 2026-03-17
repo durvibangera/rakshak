@@ -84,6 +84,74 @@ export async function POST(request) {
         break;
       }
 
+      case 'checkin_qr': {
+        const { phone, qr_code_id, raw } = payload;
+        if (!camp_id) throw new Error('camp_id required');
+        if (!phone && !qr_code_id && !raw) throw new Error('phone or qr_code_id or raw required');
+
+        const normalizePhone = (value) => {
+          const input = String(value || '').trim();
+          if (!input) return '';
+          const digits = input.replace(/\D/g, '');
+          if (digits.length === 10) return `+91${digits}`;
+          if (digits.length === 12 && digits.startsWith('91')) return `+${digits}`;
+          return input.startsWith('+') ? input : `+${digits}`;
+        };
+
+        let user = null;
+        if (phone) {
+          const { data } = await supabase
+            .from('users')
+            .select('id, qr_code_id, phone')
+            .eq('phone', normalizePhone(phone))
+            .maybeSingle();
+          user = data || null;
+        }
+
+        if (!user && qr_code_id) {
+          const { data } = await supabase
+            .from('users')
+            .select('id, qr_code_id, phone')
+            .eq('qr_code_id', qr_code_id)
+            .maybeSingle();
+          user = data || null;
+        }
+
+        if (!user && raw) {
+          const rawTrim = String(raw).trim();
+          const isStrictPhone = /^\+91\d{10}$/.test(rawTrim) || /^\d{10}$/.test(rawTrim);
+          if (isStrictPhone) {
+            const { data } = await supabase
+              .from('users')
+              .select('id, qr_code_id, phone')
+              .eq('phone', normalizePhone(rawTrim))
+              .maybeSingle();
+            user = data || null;
+          } else {
+            const { data } = await supabase
+              .from('users')
+              .select('id, qr_code_id, phone')
+              .eq('qr_code_id', rawTrim)
+              .maybeSingle();
+            user = data || null;
+          }
+        }
+
+        if (user?.id) {
+          await supabase.from('camp_victims').upsert({
+            camp_id,
+            user_id: user.id,
+            checked_in_via: 'qr',
+          }, { onConflict: 'camp_id,user_id' });
+
+          result = { checked_in: true, user_id: user.id, qr_code_id: user.qr_code_id, phone: user.phone };
+        } else {
+          // Mark as synced with no-op to avoid retry loops for unknown QR payloads.
+          result = { checked_in: false, reason: 'user_not_found' };
+        }
+        break;
+      }
+
       case 'approve_alert': {
         const { alert_id, action: alertAction } = payload;
         if (!alert_id) throw new Error('alert_id required');
