@@ -21,7 +21,7 @@ export async function GET(request) {
     const supabase = getSupabaseAdmin();
     let query = supabase
       .from('kit_dispatch_orders')
-      .select('*, camps(name), kit_allocation_rounds(round_number, run_at)')
+      .select('*, camps(name), kit_allocation_rounds(round_number, created_at)')
       .order('dispatched_at', { ascending: false });
 
     if (camp_id) query = query.eq('camp_id', camp_id);

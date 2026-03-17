@@ -94,7 +94,8 @@ def clip_rank():
                 })
                 
             except Exception as img_err:
-                print(f"Error processing image {image_url}: {img_err}")
+                candidate_id = candidate.get('id', 'unknown')
+                print(f"Error processing image for candidate {candidate_id} ({image_url}): {img_err}")
                 results.append({
                     **candidate,
                     'clip_similarity': 0.0,

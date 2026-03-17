@@ -115,6 +115,7 @@ export async function rankWithCLIP(report, candidates) {
           matched_attributes: c.matched_attributes,
         }))
       }),
+      signal: AbortSignal.timeout(30000), // 30 second timeout
     });
     
     if (!response.ok) {

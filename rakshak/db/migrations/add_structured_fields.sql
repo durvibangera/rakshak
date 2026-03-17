@@ -23,6 +23,12 @@ ADD COLUMN IF NOT EXISTS accessories TEXT; -- glasses, jewelry, etc.
 -- ═══════════════════════════════════════════════════════════
 
 ALTER TABLE users 
+ADD COLUMN IF NOT EXISTS age INTEGER,
+ADD COLUMN IF NOT EXISTS gender TEXT,
+ADD COLUMN IF NOT EXISTS assigned_camp_id UUID REFERENCES camps(id),
+ADD COLUMN IF NOT EXISTS auth_uid UUID,
+ADD COLUMN IF NOT EXISTS consent_given BOOLEAN DEFAULT false,
+ADD COLUMN IF NOT EXISTS consent_timestamp TIMESTAMPTZ,
 ADD COLUMN IF NOT EXISTS height VARCHAR(20),
 ADD COLUMN IF NOT EXISTS build VARCHAR(20),
 ADD COLUMN IF NOT EXISTS skin_tone VARCHAR(20),

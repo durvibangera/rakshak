@@ -20,6 +20,7 @@
 
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { rankWithCLIP, buildDescription } from '@/lib/ai/clipMatching';
 
 function getSupabaseAdmin() {
   return createClient(
@@ -137,18 +138,53 @@ export async function POST(request) {
     matches.sort((a, b) => b.match_score - a.match_score);
 
     // ═══════════════════════════════════════════════════════════
-    // Step 4: CLIP ranking (Phase 5 - placeholder for now)
+    // Step 4: CLIP ranking (Phase 5)
     // ═══════════════════════════════════════════════════════════
 
     if (use_clip && matches.length > 0) {
-      // TODO: Implement CLIP ranking in Phase 5
-      // const rankedMatches = await rankWithCLIP(report, matches);
-      // return NextResponse.json({ matches: rankedMatches.slice(0, 10), total: matches.length });
+      // Take top 50 candidates for CLIP ranking
+      const top50 = matches.slice(0, 50);
+      
+      // Rank with CLIP
+      const rankedMatches = await rankWithCLIP(report, top50);
+      
+      // Calculate hybrid scores for CLIP-ranked candidates
+      const hybridMatches = rankedMatches.map(candidate => {
+        // Hybrid score formula: (match_score * 0.4) + (clip_similarity * 60)
+        const hybridScore = candidate.clip_similarity !== undefined
+          ? (candidate.match_score * 0.4) + (candidate.clip_similarity * 60)
+          : candidate.match_score;
+        
+        return {
+          ...candidate,
+          hybrid_score: hybridScore,
+        };
+      });
+      
+      // Sort by hybrid score descending
+      hybridMatches.sort((a, b) => b.hybrid_score - a.hybrid_score);
       
       return NextResponse.json({
-        matches: matches.slice(0, 10),
-        total: matches.length,
-        message: 'CLIP ranking not yet implemented (Phase 5)',
+        success: true,
+        report: {
+          id: report.id,
+          name: report.name,
+          age_range: report.age_min && report.age_max ? `${report.age_min}-${report.age_max}` : null,
+          gender: report.gender,
+        },
+        matches: hybridMatches.slice(0, 10),
+        total_candidates: matches.length,
+        filters_applied: {
+          age_range: !!(report.age_min || report.age_max),
+          gender: !!report.gender,
+          height: !!report.height,
+          build: !!report.build,
+          skin_tone: !!report.skin_tone,
+          hair_color: !!report.hair_color,
+          hair_length: !!report.hair_length,
+          facial_hair: !!report.facial_hair,
+        },
+        clip_enabled: true,
       });
     }
 

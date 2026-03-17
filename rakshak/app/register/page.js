@@ -41,6 +41,8 @@ const STEPS = [
 export default function RegisterPage() {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
+  const [age, setAge] = useState('');
+  const [gender, setGender] = useState('');
   const [address, setAddress] = useState('');
   const [state, setState] = useState('Maharashtra');
   const [bloodGroup, setBloodGroup] = useState('');
@@ -109,7 +111,8 @@ export default function RegisterPage() {
         if (embData.success) face_encoding = embData.embedding;
       } catch {}
       const { data, error: dbError } = await supabase.from('users').upsert({
-        name: name.trim(), phone: fullPhone, address: address.trim() || null, state, lat, lng,
+        name: name.trim(), phone: fullPhone, age: age ? parseInt(age) : null, gender: gender || null,
+        address: address.trim() || null, state, lat, lng,
         selfie_url, face_encoding, blood_group: bloodGroup || null,
         medical_conditions: medicalConditions.trim() || null, current_medications: currentMedications.trim() || null,
         disability_status: disabilityStatus.trim() || null, emergency_contact_name: emergencyContactName.trim() || null,
@@ -263,6 +266,20 @@ export default function RegisterPage() {
                 <div style={s.fieldRow}>
                   <FieldBlock label="Full Name" required style={{ flex: 1 }}>
                     <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your full name" style={s.input} />
+                  </FieldBlock>
+                </div>
+
+                <div style={s.twoCol}>
+                  <FieldBlock label="Age">
+                    <input type="number" value={age} onChange={(e) => setAge(e.target.value)} placeholder="Your age" min="1" max="120" style={s.input} />
+                  </FieldBlock>
+                  <FieldBlock label="Gender">
+                    <select value={gender} onChange={(e) => setGender(e.target.value)} style={s.input}>
+                      <option value="">Select</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                      <option value="Other">Other</option>
+                    </select>
                   </FieldBlock>
                 </div>
 
@@ -484,7 +501,7 @@ export default function RegisterPage() {
                     {selfie && <img src={selfie} alt="" style={s.summaryPhoto} />}
                     <div>
                       <p style={s.summaryName}>{name}</p>
-                      <p style={s.summaryMeta}>+91{phone} · {state}</p>
+                      <p style={s.summaryMeta}>+91{phone} · {state}{age && ` · ${age} years`}{gender && ` · ${gender}`}</p>
                     </div>
                   </div>
                   <div style={s.summaryDetails}>

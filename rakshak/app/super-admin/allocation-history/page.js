@@ -88,7 +88,7 @@ function HistoryContent() {
               const totalKits = ds.reduce((sum, d) => sum + d.kits_allocated, 0);
               const received = ds.filter(d => d.received_at).length;
               const critical = ds.filter(d => d.urgency === 'CRITICAL').length;
-              const pct = r.total_kits_available > 0 ? Math.round((r.total_kits_distributed / r.total_kits_available) * 100) : 0;
+              const pct = r.total_kits_available > 0 ? Math.round((r.total_kits_dispatched / r.total_kits_available) * 100) : 0;
 
               return (
                 <div key={r.id} style={s.roundCard}>
@@ -101,12 +101,12 @@ function HistoryContent() {
                       </div>
                       <p style={s.roundMeta}>
                         {new Date(r.created_at).toLocaleString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                        &nbsp;·&nbsp;{r.camps_count} camps
+                        &nbsp;·&nbsp;{r.camps_count || 0} camps
                       </p>
                     </div>
                     <div style={s.roundHeaderRight}>
                       <div style={s.roundChips}>
-                        <span style={s.roundChip}><span style={{ color: '#2563EB', fontWeight: 700 }}>{r.total_kits_distributed}</span> / {r.total_kits_available} kits</span>
+                        <span style={s.roundChip}><span style={{ color: '#2563EB', fontWeight: 700 }}>{r.total_kits_dispatched}</span> / {r.total_kits_available} kits</span>
                         <span style={{ ...s.roundChip, background: '#EFF6FF', color: '#2563EB' }}>{pct}% dispatched</span>
                       </div>
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2.5" style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform 0.2s', flexShrink: 0 }}><polyline points="6 9 12 15 18 9"/></svg>

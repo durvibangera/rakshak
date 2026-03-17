@@ -6,11 +6,13 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "seed:allocation": "node scripts/seed-allocation-demo.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.78.0",
     "@supabase/supabase-js": "^2.98.0",
+    "dotenv": "^17.3.1",
     "idb": "^8.0.3",
     "jsqr": "^1.4.0",
     "maplibre-gl": "^5.19.0",

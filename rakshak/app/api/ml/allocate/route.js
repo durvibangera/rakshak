@@ -91,6 +91,7 @@ export async function POST(request) {
         disaster_id,
         total_kits_available,
         total_kits_dispatched: total_dispatched,
+        camps_count: camps.length,
         reserve_kits,
         buffer_pct,
         beta_weight: beta,

@@ -46,8 +46,9 @@ function DashboardContent({ handleLogout }) {
       let total = 0;
       await Promise.all(campsList.map(async (c) => {
         const { count } = await supabase.from('camp_victims').select('*', { count: 'exact', head: true }).eq('camp_id', c.id);
-        headcounts[c.id] = count || 0;
-        total += count || 0;
+        // Fall back to demo_headcount if no real victims
+        headcounts[c.id] = count || c.demo_headcount || 0;
+        total += headcounts[c.id];
       }));
       setTotalPeople(total);
       setCamps(campsList.map((c) => ({ ...c, headcount: headcounts[c.id] || 0 })));
@@ -73,9 +74,24 @@ function DashboardContent({ handleLogout }) {
       const { data: alert } = await supabase.from('alerts').select('type, risk').is('resolved_at', null).order('created_at', { ascending: false }).limit(1).single();
       const res = await fetch('/api/ml/predict', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ camp_id: camp.id, current_headcount: camp.headcount, alert_risk: alert?.risk || 'MEDIUM', alert_type: alert?.type || 'FLOOD', arrivals_last_1h: arr1h, arrivals_last_3h: arr3h, arrivals_last_6h: arr6h }),
+        body: JSON.stringify({
+          camp_id: camp.id,
+          current_headcount: camp.headcount,
+          alert_risk: camp.demo_risk || alert?.risk || 'MEDIUM',
+          alert_type: alert?.type || 'FLOOD',
+          arrivals_last_1h: arr1h,
+          arrivals_last_3h: arr3h,
+          arrivals_last_6h: arr6h,
+        }),
       });
-      return await res.json();
+      const pred = await res.json();
+      // If demo data exists, override predicted headcount with seeded value
+      if (camp.demo_predicted) {
+        pred.predicted_headcount_24h = camp.demo_predicted;
+        pred.phase_name = camp.demo_phase || pred.phase_name;
+        pred.features_used = { ...pred.features_used, alert_risk: camp.demo_risk || pred.features_used?.alert_risk };
+      }
+      return pred;
     } catch { return null; }
   };
 
@@ -90,10 +106,11 @@ function DashboardContent({ handleLogout }) {
     try {
       if (Object.keys(predictions).length < camps.length) await runAllPredictions();
       const campStates = camps.map((c) => ({
-        camp_id: c.id, camp_name: c.name, current_headcount: c.headcount,
-        predicted_headcount: predictions[c.id]?.predicted_headcount_24h || c.headcount,
-        alert_risk: predictions[c.id]?.features_used?.alert_risk || 'MEDIUM',
-        phase_name: predictions[c.id]?.phase_name || 'PLATEAU',
+        camp_id: c.id, camp_name: c.name,
+        current_headcount: c.headcount || c.demo_headcount || 0,
+        predicted_headcount: predictions[c.id]?.predicted_headcount_24h || c.demo_predicted || c.headcount || 0,
+        alert_risk: predictions[c.id]?.features_used?.alert_risk || c.demo_risk || 'MEDIUM',
+        phase_name: predictions[c.id]?.phase_name || c.demo_phase || 'PLATEAU',
       }));
       const res = await fetch('/api/ml/allocate', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -332,8 +349,13 @@ function DashboardContent({ handleLogout }) {
                   <p style={s.sideAllocEye}>ML-Powered</p>
                   <p style={s.sideAllocTitle}>Smart Kit Allocation</p>
                   <p style={s.sideAllocDesc}>Uses predicted headcounts, risk levels, and arrival rates to optimally distribute kits across all camps.</p>
+                  {inventory.balance <= 0 && (
+                    <div style={{ background: 'rgba(255,255,255,0.15)', borderRadius: 8, padding: '10px 12px', marginBottom: 10, fontSize: 12, lineHeight: 1.5 }}>
+                      ⚠️ No kits in inventory. Add kits via NGO Management to enable allocation.
+                    </div>
+                  )}
                   <button onClick={runAllocation} disabled={allocating || inventory.balance <= 0} style={{ ...s.sideAllocBtn, opacity: (allocating || inventory.balance <= 0) ? 0.6 : 1 }}>
-                    {allocating ? 'Running…' : 'Run Allocation →'}
+                    {allocating ? 'Running…' : inventory.balance <= 0 ? 'No Inventory' : 'Run Allocation →'}
                   </button>
                 </div>
 
