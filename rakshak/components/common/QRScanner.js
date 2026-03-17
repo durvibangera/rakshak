@@ -3,15 +3,20 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import jsQR from 'jsqr';
 
-export default function QRScanner({ onScan, onClose }) {
+export default function QRScanner({ onScan, onClose, facingMode = 'user', startLabel = 'Open QR Scanner' }) {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const streamRef = useRef(null);
   const animFrameRef = useRef(null);
+  const startingRef = useRef(false);
+  const startTokenRef = useRef(0);
   const [phase, setPhase] = useState('idle'); // idle | starting | live
   const [error, setError] = useState('');
+  const frameCountRef = useRef(0);
 
   const stopCamera = useCallback(() => {
+    startTokenRef.current += 1;
+    startingRef.current = false;
     if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
     animFrameRef.current = null;
     if (streamRef.current) {
@@ -48,9 +53,45 @@ export default function QRScanner({ onScan, onClose }) {
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
     ctx.drawImage(video, 0, 0);
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const code = jsQR(imageData.data, imageData.width, imageData.height, {
-      inversionAttempts: 'dontInvert',
-    });
+    const decode = (imgData) => jsQR(imgData.data, imgData.width, imgData.height, { inversionAttempts: 'attemptBoth' });
+    let code = decode(imageData);
+
+    // Every few frames, try a center zoom crop for dense Aadhaar QR.
+    frameCountRef.current += 1;
+    const shouldTryHeavyPass = frameCountRef.current % 4 === 0;
+    if (!code && shouldTryHeavyPass) {
+      const cropW = Math.floor(canvas.width * 0.62);
+      const cropH = Math.floor(canvas.height * 0.62);
+      const cropX = Math.floor((canvas.width - cropW) / 2);
+      const cropY = Math.floor((canvas.height - cropH) / 2);
+      const cropped = ctx.getImageData(cropX, cropY, cropW, cropH);
+
+      // Upscale center crop to improve QR module visibility.
+      const zoomCanvas = document.createElement('canvas');
+      zoomCanvas.width = cropW * 2;
+      zoomCanvas.height = cropH * 2;
+      const zctx = zoomCanvas.getContext('2d', { willReadFrequently: true });
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = cropW;
+      tempCanvas.height = cropH;
+      tempCanvas.getContext('2d', { willReadFrequently: true }).putImageData(cropped, 0, 0);
+      zctx.drawImage(tempCanvas, 0, 0, zoomCanvas.width, zoomCanvas.height);
+      const zoomData = zctx.getImageData(0, 0, zoomCanvas.width, zoomCanvas.height);
+      code = decode(zoomData);
+
+      // Contrast fallback for faint printed photocopies.
+      if (!code) {
+        const boosted = new Uint8ClampedArray(zoomData.data);
+        for (let i = 0; i < boosted.length; i += 4) {
+          const gray = 0.299 * boosted[i] + 0.587 * boosted[i + 1] + 0.114 * boosted[i + 2];
+          const contrast = Math.max(0, Math.min(255, (gray - 128) * 1.8 + 128));
+          boosted[i] = contrast;
+          boosted[i + 1] = contrast;
+          boosted[i + 2] = contrast;
+        }
+        code = jsQR(boosted, zoomData.width, zoomData.height, { inversionAttempts: 'attemptBoth' });
+      }
+    }
 
     if (code && code.data) {
       stopCamera();
@@ -67,46 +108,96 @@ export default function QRScanner({ onScan, onClose }) {
   }, [onScan, stopCamera]);
 
   const startCamera = useCallback(async () => {
+    if (startingRef.current) return;
+    startingRef.current = true;
+    const startToken = startTokenRef.current + 1;
+    startTokenRef.current = startToken;
+
+    // Ensure any previous stream is fully stopped before re-opening.
+    if (streamRef.current || animFrameRef.current) {
+      stopCamera();
+    }
+
     setError('');
     setPhase('starting');
 
     let stream = null;
 
-    // Front camera only (user-facing)
+    // Default is front camera for profile QR; caller can pass environment for document QR.
     try {
       stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
+        video: {
+          facingMode,
+          width: { ideal: 1920 },
+          height: { ideal: 1080 },
+          focusMode: 'continuous',
+        },
         audio: false,
       });
     } catch (err) {
-      setError(
-        err.name === 'NotAllowedError'
-          ? 'Camera access denied. Please allow camera permissions.'
-          : 'Could not access camera. Make sure no other app is using it.'
-      );
-      setPhase('idle');
+      // Retry with simpler constraints for browsers that reject focusMode/high-res keys.
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode, width: { ideal: 1280 }, height: { ideal: 720 } },
+          audio: false,
+        });
+      } catch (retryErr) {
+        setError(
+          retryErr.name === 'NotAllowedError'
+            ? 'Camera access denied. Please allow camera permissions.'
+            : retryErr.name === 'AbortError'
+              ? 'Camera request was interrupted. Please tap scanner once again.'
+            : 'Could not access camera. Make sure no other app is using it.'
+        );
+        setPhase('idle');
+        startingRef.current = false;
+        return;
+      }
+    }
+
+    if (startToken !== startTokenRef.current) {
+      stream.getTracks().forEach(t => t.stop());
+      startingRef.current = false;
       return;
     }
 
     streamRef.current = stream;
 
-    // Wait for next render to have the video element, then attach
-    requestAnimationFrame(() => {
+    // Wait for next render to have the video element, then attach.
+    requestAnimationFrame(async () => {
       const video = videoRef.current;
-      if (!video || !streamRef.current) return;
+      if (!video || !streamRef.current || startToken !== startTokenRef.current) {
+        startingRef.current = false;
+        return;
+      }
 
-      video.srcObject = streamRef.current;
-      video.onloadedmetadata = () => {
-        video.play().then(() => {
-          setPhase('live');
-          animFrameRef.current = requestAnimationFrame(scanFrame);
-        }).catch(() => {
-          setError('Could not start video playback.');
-          setPhase('idle');
+      try {
+        video.srcObject = streamRef.current;
+        await new Promise((resolve) => {
+          if (video.readyState >= 1) return resolve(true);
+          video.onloadedmetadata = () => resolve(true);
         });
-      };
+        await video.play();
+
+        if (startToken !== startTokenRef.current) {
+          startingRef.current = false;
+          return;
+        }
+
+        setPhase('live');
+        animFrameRef.current = requestAnimationFrame(scanFrame);
+      } catch (err) {
+        setError(
+          err?.name === 'AbortError'
+            ? 'Camera was interrupted by another request. Close other scanners and try again.'
+            : 'Could not start video playback.'
+        );
+        stopCamera();
+      } finally {
+        startingRef.current = false;
+      }
     });
-  }, [scanFrame]);
+  }, [facingMode, scanFrame, stopCamera]);
 
   return (
     <div style={styles.wrapper}>
@@ -115,7 +206,7 @@ export default function QRScanner({ onScan, onClose }) {
       {phase === 'idle' && (
         <div style={styles.startArea}>
           <button type="button" onClick={startCamera} style={styles.startBtn}>
-            Open QR Scanner
+            {startLabel}
           </button>
           {error && <p style={styles.error}>{error}</p>}
         </div>

@@ -43,12 +43,13 @@ export async function PUT(request) {
       );
     }
 
+    let evacuationResult = null;
     // If approved, trigger evacuation calls (only after approval)
     if (action === 'approve') {
       try {
         const appBaseUrl = process.env.APP_BASE_URL || 'http://localhost:3000';
         const isPreparedness = (alert.description || '').startsWith('PREPAREDNESS:');
-        await fetch(`${appBaseUrl}/api/evacuate`, {
+        const evacRes = await fetch(`${appBaseUrl}/api/evacuate`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -58,6 +59,7 @@ export async function PUT(request) {
             preparedness: isPreparedness,
           }),
         });
+        evacuationResult = await evacRes.json().catch(() => null);
       } catch (callErr) {
         console.error('[AlertApprove] Failed to trigger evacuation:', callErr.message);
       }
@@ -66,6 +68,7 @@ export async function PUT(request) {
     return NextResponse.json({
       success: true,
       alert,
+      evacuation: evacuationResult,
       message: action === 'approve'
         ? 'Alert approved — evacuation calls initiated'
         : 'Alert rejected',

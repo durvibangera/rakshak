@@ -3,7 +3,7 @@
 import { useState, useCallback } from 'react';
 import CameraCapture from './CameraCapture';
 
-export default function FaceScanner({ onMatch, onNoMatch, campId }) {
+export default function FaceScanner({ onMatch, onNoMatch, campId, mode = 'register' }) {
   const [status, setStatus] = useState('idle');
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
@@ -17,7 +17,11 @@ export default function FaceScanner({ onMatch, onNoMatch, campId }) {
       const res = await fetch('/api/face-match', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ photo: photoBase64, camp_id: campId }),
+        body: JSON.stringify({
+          photo: photoBase64,
+          camp_id: campId,
+          check_only: mode === 'check',
+        }),
       });
 
       const data = await res.json();
@@ -31,10 +35,10 @@ export default function FaceScanner({ onMatch, onNoMatch, campId }) {
         onNoMatch?.(photoBase64);
       }
     } catch {
-      setError('Face matching failed. You may be offline — try manual registration.');
+      setError('Face matching failed. You may be offline — try again.');
       setStatus('error');
     }
-  }, [campId, onMatch, onNoMatch]);
+  }, [campId, mode, onMatch, onNoMatch]);
 
   const reset = useCallback(() => {
     setStatus('idle');
@@ -46,7 +50,7 @@ export default function FaceScanner({ onMatch, onNoMatch, campId }) {
     return (
       <div style={styles.statusCard}>
         <div style={styles.spinner} />
-        <p style={styles.statusText}>Searching for face match...</p>
+        <p style={styles.statusText}>{mode === 'check' ? 'Checking face record...' : 'Searching for face match...'}</p>
         <p style={styles.statusSub}>Comparing with registered users</p>
       </div>
     );
@@ -73,7 +77,11 @@ export default function FaceScanner({ onMatch, onNoMatch, campId }) {
             </span>
           </div>
         </div>
-        <p style={styles.addedMsg}>Added to Camp Database</p>
+        <p style={styles.addedMsg}>
+          {mode === 'check'
+            ? (result.is_in_camp ? 'Already added to this camp' : 'Registered user, not yet added to this camp')
+            : 'Added to Camp Database'}
+        </p>
         <button type="button" onClick={reset} style={styles.scanAgainBtn}>Scan Another Person</button>
       </div>
     );
@@ -83,7 +91,11 @@ export default function FaceScanner({ onMatch, onNoMatch, campId }) {
     return (
       <div style={styles.resultCard}>
         <div style={styles.notFoundBadge}>No Match Found</div>
-        <p style={styles.statusSub}>This person is not pre-registered. Please use manual registration.</p>
+        <p style={styles.statusSub}>
+          {mode === 'check'
+            ? 'This person is not pre-registered.'
+            : 'This person is not pre-registered. Please use manual registration.'}
+        </p>
         <button type="button" onClick={reset} style={styles.scanAgainBtn}>Try Again</button>
       </div>
     );
@@ -95,7 +107,7 @@ export default function FaceScanner({ onMatch, onNoMatch, campId }) {
       <CameraCapture
         onCapture={handleCapture}
         facingMode="user"
-        label="Scan Face for Identification"
+        label={mode === 'check' ? 'Scan Face to Check Camp Entry' : 'Scan Face for Identification'}
       />
     </div>
   );

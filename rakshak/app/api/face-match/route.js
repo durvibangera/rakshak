@@ -11,7 +11,7 @@ function getSupabaseAdmin() {
 
 export async function POST(request) {
   try {
-    const { photo, camp_id, mode } = await request.json();
+    const { photo, camp_id, mode, check_only } = await request.json();
     // mode: 'checkin' (default) — match against registered users
     //        'missing' — match against missing_reports + unidentified_persons
     //        'all' — match against everything
@@ -51,15 +51,27 @@ export async function POST(request) {
       const { match: bestUser, score: bestUserScore } = findBestMatch(capturedEmbedding, users || []);
 
       if (bestUser) {
+        let isInCamp = false;
         if (camp_id) {
+          const { data: existingCampRow } = await supabase
+            .from('camp_victims')
+            .select('id')
+            .eq('camp_id', camp_id)
+            .eq('user_id', bestUser.id)
+            .maybeSingle();
+          isInCamp = !!existingCampRow;
+        }
+
+        if (camp_id && !check_only && !isInCamp) {
           await supabase.from('camp_victims').upsert({
             camp_id,
             user_id: bestUser.id,
             checked_in_via: 'face',
           }, { onConflict: 'camp_id,user_id' });
+          isInCamp = true;
         }
         const { face_encoding, ...safeUser } = bestUser;
-        results.registeredUser = { user: safeUser, score: bestUserScore };
+        results.registeredUser = { user: { ...safeUser, is_in_camp: isInCamp }, score: bestUserScore };
       }
     }
 

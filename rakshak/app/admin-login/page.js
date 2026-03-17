@@ -1,7 +1,7 @@
 // admin login page
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { supabase } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
@@ -72,31 +72,88 @@ export default function AdminLoginPage() {
   const [operatorPhone, setOperatorPhone] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const loadingWatchdogRef = useRef(null);
+
+  useEffect(() => {
+    if (!loading) {
+      if (loadingWatchdogRef.current) {
+        clearTimeout(loadingWatchdogRef.current);
+        loadingWatchdogRef.current = null;
+      }
+      return;
+    }
+    loadingWatchdogRef.current = setTimeout(() => {
+      setLoading(false);
+      setError('Login got stuck. Please try once again.');
+    }, 15000);
+
+    return () => {
+      if (loadingWatchdogRef.current) {
+        clearTimeout(loadingWatchdogRef.current);
+        loadingWatchdogRef.current = null;
+      }
+    };
+  }, [loading]);
+
+  const withTimeout = (promise, ms, message) => {
+    return new Promise((resolve, reject) => {
+      const timer = setTimeout(() => reject(new Error(message)), ms);
+      promise
+        .then((value) => {
+          clearTimeout(timer);
+          resolve(value);
+        })
+        .catch((err) => {
+          clearTimeout(timer);
+          reject(err);
+        });
+    });
+  };
 
   const handleEmailLogin = async (e) => {
     e.preventDefault();
+    if (loading) return;
     setError('');
+    if (!selectedRole) return setError('Select role first');
     if (!email || !password) return setError('Enter email and password');
     setLoading(true);
 
     const doEmailLogin = async () => {
-      const { data, error: authErr } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+      const { data, error: authErr } = await withTimeout(
+        supabase.auth.signInWithPassword({ email: email.trim(), password }),
+        12000,
+        'Login timed out. Please check internet and try again.'
+      );
       if (authErr) throw authErr;
-      if (selectedRole.id === 'camp_admin') {
+      if (!data?.user?.id) throw new Error('Login failed. Please verify credentials.');
+      if (selectedRole?.id === 'camp_admin') {
         // Fetch camp assignment in background, don't block login
         supabase.from('users').select('assigned_camp_id').eq('auth_uid', data.user.id).maybeSingle()
           .then(({ data: profile }) => {
             if (profile?.assigned_camp_id) localStorage.setItem('sahaay_camp_id', profile.assigned_camp_id);
           });
       }
-      router.push(selectedRole.redirect);
+      return selectedRole?.redirect || '/';
     };
 
     try {
-      await doEmailLogin();
+      const redirectPath = await doEmailLogin();
+      // Do not keep button in loading state during route transition.
+      setLoading(false);
+      router.replace(redirectPath);
+      // Fallback hard navigation if client router transition gets stuck.
+      setTimeout(() => {
+        if (typeof window !== 'undefined' && window.location.pathname !== redirectPath) {
+          window.location.assign(redirectPath);
+        }
+      }, 1500);
     } catch (err) {
-      setError(err.message);
-    } finally {
+      const msg = String(err?.message || '');
+      if (msg.toLowerCase().includes('invalid login credentials')) {
+        setError('Invalid email or password');
+      } else {
+        setError(msg || 'Login failed');
+      }
       setLoading(false);
     }
   };
@@ -104,7 +161,9 @@ export default function AdminLoginPage() {
 
   const handleOperatorLogin = async (e) => {
     e.preventDefault();
+    if (loading) return;
     setError('');
+    if (!selectedRole) return setError('Select role first');
     if (!campCode || !operatorPhone) return setError('Enter camp code and your phone number');
     setLoading(true);
     try {

@@ -41,6 +41,7 @@ function CampDashboardContent() {
   const [loading, setLoading] = useState(false);
   const [selectedVictim, setSelectedVictim] = useState(null);
   const [showQrFor, setShowQrFor] = useState(null);
+  const [loggingOut, setLoggingOut] = useState(false);
 
   const { isOnline, isSyncing, pendingCount, connectionStatus, syncNow, refreshCount } = useOfflineSync();
 
@@ -108,6 +109,25 @@ function CampDashboardContent() {
 
   const pendingAlerts = alerts.filter(a => a.status === 'pending');
 
+  const handleLogout = async () => {
+    if (loggingOut) return;
+    setLoggingOut(true);
+    try {
+      // Do not let a stuck auth call block user logout.
+      await Promise.race([
+        supabase.auth.signOut(),
+        new Promise((resolve) => setTimeout(resolve, 1500)),
+      ]);
+    } catch {
+      // Ignore and continue with local cleanup + redirect.
+    } finally {
+      localStorage.removeItem('sahaay_phone');
+      localStorage.removeItem('sahaay_camp_id');
+      localStorage.removeItem('sahaay_camp_name');
+      window.location.replace('/');
+    }
+  };
+
   // No camp registered
   if (!campId) {
     return (
@@ -137,7 +157,9 @@ function CampDashboardContent() {
           {/* Header */}
           <header style={s.header}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <div style={s.logo}>R</div>
+              <div style={s.logoWrap}>
+                <img src="/logo-light.png" alt="Sahaay" style={{ height: 30, width: 'auto', objectFit: 'contain' }} />
+              </div>
               <div>
                 <h1 style={{ fontSize: 17, fontWeight: 700, margin: 0, color: '#0F172A' }}>
                   {campData?.name || 'Camp Dashboard'}
@@ -177,9 +199,12 @@ function CampDashboardContent() {
               )}
 
               <a href="/flood-prediction" style={{ color: '#6B7280', fontSize: 12, textDecoration: 'none' }}>Map</a>
-              <button onClick={async () => { await supabase.auth.signOut(); localStorage.removeItem('sahaay_camp_id'); localStorage.removeItem('sahaay_camp_name'); window.location.href = '/'; }}
-                style={{ background: '#E2E8F0', border: 'none', color: '#475569', padding: '6px 12px', borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
-                Logout
+              <button
+                onClick={handleLogout}
+                disabled={loggingOut}
+                style={{ background: '#E2E8F0', border: 'none', color: '#475569', padding: '6px 12px', borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: loggingOut ? 'default' : 'pointer', opacity: loggingOut ? 0.7 : 1 }}
+              >
+                {loggingOut ? 'Logging out...' : 'Logout'}
               </button>
             </div>
           </header>
@@ -221,7 +246,7 @@ function CampDashboardContent() {
               <RegisterTab campId={campId} isOnline={isOnline} onRegistered={() => { fetchVictims(); refreshCount(); }} />
             )}
             {activeTab === 'face' && (
-              <FaceScanTab campId={campId} onDone={() => { fetchVictims(); setActiveTab('victims'); }} />
+              <FaceScanTab campId={campId} onDone={() => { fetchVictims(); }} />
             )}
             {activeTab === 'qr' && (
               <QRScanTab campId={campId} isOnline={isOnline} onDone={() => { fetchVictims(); setActiveTab('victims'); }} />
@@ -552,13 +577,34 @@ function FormField({ label, value, onChange, placeholder, type = 'text' }) {
 // ═══════════════════════════════════════════════════════════
 
 function FaceScanTab({ campId, onDone }) {
+  const [faceMode, setFaceMode] = useState('register');
+
   return (
     <div>
       <p style={{ fontSize: 14, color: '#475569', margin: '0 0 16px' }}>
-        Capture a person&apos;s face to check if they are pre-registered in the system.
+        {faceMode === 'register'
+          ? 'Register using face: if matched, person is auto-added to this camp with their details.'
+          : 'Face check only: verify if person is registered and whether they are already added to this camp.'}
       </p>
+      <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
+        <button
+          type="button"
+          onClick={() => setFaceMode('register')}
+          style={{ ...s.secondaryBtn, background: faceMode === 'register' ? '#1B3676' : '#E2E8F0', color: faceMode === 'register' ? '#FFFFFF' : '#0F172A' }}
+        >
+          Register Using Face
+        </button>
+        <button
+          type="button"
+          onClick={() => setFaceMode('check')}
+          style={{ ...s.secondaryBtn, background: faceMode === 'check' ? '#1B3676' : '#E2E8F0', color: faceMode === 'check' ? '#FFFFFF' : '#0F172A' }}
+        >
+          Face Check
+        </button>
+      </div>
       <FaceScanner
         campId={campId}
+        mode={faceMode}
         onMatch={() => onDone?.()}
         onNoMatch={() => {}}
       />
@@ -1595,9 +1641,9 @@ const s = {
     padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
     background: '#FFFFFF', borderBottom: '1px solid #E2E8F0', width: '100%', maxWidth: '1320px',
   },
-  logo: {
+  logoWrap: {
     width: 36, height: 36, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center',
-    fontWeight: 800, fontSize: 18, color: 'white', background: 'linear-gradient(135deg, #1B3676, #2A5298)',
+    background: '#EEF2FF', border: '1px solid #C7D2FE', overflow: 'hidden',
   },
   statusBadge: {
     display: 'flex', alignItems: 'center', gap: 6, padding: '4px 12px', borderRadius: 20,
