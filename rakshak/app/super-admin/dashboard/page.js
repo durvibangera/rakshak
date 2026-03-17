@@ -71,12 +71,13 @@ function DashboardContent({ handleLogout }) {
       const arr1h = (victims || []).filter(v => new Date(v.checked_in_at) >= new Date(now - 3600000)).length;
       const arr3h = (victims || []).filter(v => new Date(v.checked_in_at) >= new Date(now - 10800000)).length;
       const arr6h = (victims || []).filter(v => new Date(v.checked_in_at) >= new Date(now - 21600000)).length;
-      const { data: alert } = await supabase.from('alerts').select('type, risk').is('resolved_at', null).order('created_at', { ascending: false }).limit(1).single();
+      const { data: alertRows } = await supabase.from('alerts').select('type, risk').is('resolved_at', null).order('created_at', { ascending: false }).limit(1);
+      const alert = alertRows?.[0] || null;
       const res = await fetch('/api/ml/predict', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           camp_id: camp.id,
-          current_headcount: camp.headcount,
+          current_headcount: camp.headcount || camp.demo_headcount || 0,
           alert_risk: camp.demo_risk || alert?.risk || 'MEDIUM',
           alert_type: alert?.type || 'FLOOD',
           arrivals_last_1h: arr1h,
@@ -92,7 +93,7 @@ function DashboardContent({ handleLogout }) {
         pred.features_used = { ...pred.features_used, alert_risk: camp.demo_risk || pred.features_used?.alert_risk };
       }
       return pred;
-    } catch { return null; }
+    } catch (e) { console.error('[predictCamp] failed for', camp.name, e); return null; }
   };
 
   const runAllPredictions = async () => {

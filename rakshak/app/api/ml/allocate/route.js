@@ -25,7 +25,11 @@ export async function POST(request) {
       triggered_by = 'manual',
     } = body;
 
+    console.log('[ML Allocate] Received request:', { camps_count: camps.length, total_kits_available, beta, buffer_pct });
+    console.log('[ML Allocate] First 3 camps:', camps.slice(0, 3));
+
     if (!camps.length || total_kits_available <= 0) {
+      console.error('[ML Allocate] Validation failed:', { camps_length: camps.length, total_kits_available });
       return NextResponse.json(
         { error: 'camps array and total_kits_available > 0 required' },
         { status: 400 }
@@ -77,11 +81,16 @@ export async function POST(request) {
 
     const total_dispatched = allocations.reduce((s, a) => s + a.kits_allocated, 0);
 
+    console.log('[ML Allocate] Calculated allocations:', { total_dispatched, allocations_count: allocations.length });
+    console.log('[ML Allocate] Top 3 allocations:', allocations.slice(0, 3).map(a => ({ camp: a.camp_name, kits: a.kits_allocated, urgency: a.urgency })));
+
     // Get next round number
     const { count } = await supabase
       .from('kit_allocation_rounds')
       .select('*', { count: 'exact', head: true });
     const round_number = (count || 0) + 1;
+
+    console.log('[ML Allocate] Inserting round:', { round_number, total_kits_available, total_dispatched, camps_count: camps.length });
 
     // Write allocation round
     const { data: round, error: roundErr } = await supabase
@@ -101,8 +110,11 @@ export async function POST(request) {
       .single();
 
     if (roundErr) {
+      console.error('[ML Allocate] Round insert failed:', roundErr);
       return NextResponse.json({ error: 'Failed to save allocation round', details: roundErr.message }, { status: 500 });
     }
+
+    console.log('[ML Allocate] Round saved:', round.id);
 
     // Write dispatch orders
     const dispatchRows = allocations.map((a) => ({
@@ -147,8 +159,11 @@ export async function POST(request) {
       });
 
     if (inventoryRows.length > 0) {
-      await supabase.from('kit_inventory').insert(inventoryRows);
+      const { error: invErr } = await supabase.from('kit_inventory').insert(inventoryRows);
+      if (invErr) console.error('[ML Allocate] Inventory insert failed:', invErr);
     }
+
+    console.log('[ML Allocate] Success! Returning result');
 
     return NextResponse.json({
       success: true,
