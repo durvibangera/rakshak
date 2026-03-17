@@ -26,9 +26,11 @@ export async function POST(request) {
     const supabase = getSupabaseAdmin();
     const qr_code_id = nanoid(12);
 
-    // Upload selfie to Supabase Storage if provided
+    // Keep inline selfie for reliable UI display. Upload to storage best-effort.
+    // This avoids broken image URLs when storage bucket/public access is misconfigured.
     let selfie_url = null;
     if (selfie_base64) {
+      selfie_url = selfie_base64;
       const base64Data = selfie_base64.replace(/^data:image\/\w+;base64,/, '');
       const buffer = Buffer.from(base64Data, 'base64');
       const fileName = `selfies/${qr_code_id}.jpg`;
@@ -41,8 +43,9 @@ export async function POST(request) {
         });
 
       if (!uploadError) {
-        const { data: urlData } = supabase.storage.from('rakshak').getPublicUrl(fileName);
-        selfie_url = urlData?.publicUrl;
+        // Upload succeeded; keeping inline URL to ensure image always renders.
+      } else {
+        console.warn('[Victims API] Storage upload failed, inline selfie will be used:', uploadError.message);
       }
     }
 

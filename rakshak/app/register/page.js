@@ -70,6 +70,7 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [registeredPhone, setRegisteredPhone] = useState('');
+  const [registeredQrId, setRegisteredQrId] = useState('');
   const [step, setStep] = useState(1);
 
   const detectLocation = () => {
@@ -98,12 +99,16 @@ export default function RegisterPage() {
       const fullPhone = phone.startsWith('+91') ? phone : `+91${phone.replace(/\D/g, '')}`;
       const generatedQrId = nanoid(12);
       const compressedSelfie = await compressImg(selfie, 480, 0.7);
-      let selfie_url = null;
+      // Keep inline selfie for reliable rendering in dashboards.
+      // Storage upload is best-effort.
+      let selfie_url = compressedSelfie;
       const base64Data = compressedSelfie.replace(/^data:image\/\w+;base64,/, '');
       const buffer = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
       const fileName = `selfies/${fullPhone.replace('+', '')}.jpg`;
-      const { error: uploadError } = await supabase.storage.from('sahaay').upload(fileName, buffer, { contentType: 'image/jpeg', upsert: true });
-      if (!uploadError) { const { data: urlData } = supabase.storage.from('sahaay').getPublicUrl(fileName); selfie_url = urlData?.publicUrl; }
+      const { error: uploadError } = await supabase.storage.from('rakshak').upload(fileName, buffer, { contentType: 'image/jpeg', upsert: true });
+      if (uploadError) {
+        console.warn('[Register] Selfie upload failed, inline selfie will be used:', uploadError.message);
+      }
       let face_encoding = null;
       try {
         const embRes = await fetch('/api/face-embedding', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ image_base64: compressedSelfie }) });
@@ -135,6 +140,7 @@ export default function RegisterPage() {
       }
       localStorage.setItem('sahaay_phone', fullPhone);
       setRegisteredPhone(fullPhone);
+      setRegisteredQrId(data?.qr_code_id || generatedQrId);
       setSuccess(true);
     } catch (err) { setError(err.message || 'Registration failed'); }
     setLoading(false);
@@ -169,9 +175,9 @@ export default function RegisterPage() {
               <p style={s.qrEyebrow}>Your Emergency QR Identity Card</p>
               <p style={s.qrHint}>Screenshot this — works offline at any relief camp</p>
               <div style={s.qrBox}>
-                <QRCodeSVG value={JSON.stringify({ phone: registeredPhone })} size={160} bgColor="#FFFFFF" fgColor="#0F172A" level="M" includeMargin={true} />
+                <QRCodeSVG value={registeredQrId || registeredPhone} size={160} bgColor="#FFFFFF" fgColor="#0F172A" level="M" includeMargin={true} />
               </div>
-              <p style={s.qrPhone}>{registeredPhone}</p>
+              <p style={s.qrPhone}>{registeredQrId || registeredPhone}</p>
               <div style={s.qrVerifiedBadge}>
                 <div style={s.qrVerifiedDot} />
                 Verified & Active

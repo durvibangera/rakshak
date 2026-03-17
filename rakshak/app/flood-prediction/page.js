@@ -438,7 +438,11 @@ export default function DisasterDashboard() {
         <nav className="glass" style={{ padding: '10px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 20, borderBottom: '1px solid #E2E8F0' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <a href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div style={{ width: 32, height: 32, borderRadius: 10, background: 'linear-gradient(135deg, #1B3676, #2A5298)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 16, color: 'white' }}>R</div>
+              <img
+                src="/logo-light.png"
+                alt="Sahaay"
+                style={{ height: 34, width: 'auto', objectFit: 'contain' }}
+              />
               <div>
                 <h1 style={{ fontSize: 16, fontWeight: 700, margin: 0, color: '#0F172A', letterSpacing: '-0.3px' }}>Sahaay</h1>
                 <p style={{ fontSize: 10, color: '#64748B', margin: 0 }}>Natural Disaster Command Map</p>

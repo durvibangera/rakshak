@@ -151,7 +151,7 @@ export default function ReportMissingPage() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F1F5F9', fontFamily: FONT, color: '#111827' }}>
+    <div style={{ minHeight: '100vh', background: '#EEF2F7', fontFamily: FONT, color: '#111827' }}>
       <canvas ref={canvasRef} style={{ display: 'none' }} />
 
       {/* Nav */}
@@ -212,7 +212,7 @@ export default function ReportMissingPage() {
                   placeholder="10-digit number" style={s.phoneInput} maxLength={10} />
               </div>
 
-              <button onClick={goToStep2} style={s.primaryBtn}>
+              <button onClick={goToStep2} style={{ ...s.primaryBtn, flex: '0 0 auto', width: 'fit-content', minWidth: 0, padding: '10px 16px', minHeight: 40, marginTop: 12 }}>
                 Next — Missing Person Details →
               </button>
             </div>
@@ -432,49 +432,50 @@ export default function ReportMissingPage() {
 
 const s = {
   nav: {
-    background: 'white', borderBottom: '1px solid #E2E8F0', padding: '0 40px',
+    background: 'white', borderBottom: '1px solid #E2E8F0', padding: '0 24px',
     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
     height: 72, position: 'sticky', top: 0, zIndex: 200,
-    boxShadow: '0 2px 8px rgba(0,0,0,0.06)', fontFamily: FONT,
+    boxShadow: '0 2px 10px rgba(2,6,23,0.06)', fontFamily: FONT,
   },
-  navLeft: { display: 'flex', alignItems: 'center' },
-  navCenter: { position: 'absolute', left: '50%', transform: 'translateX(-50%)' },
+  navLeft: { display: 'flex', alignItems: 'center', minWidth: 120 },
+  navCenter: { display: 'flex', justifyContent: 'center', flex: 1 },
   navTitle: { fontSize: 16, fontWeight: 700, color: '#0F172A', margin: 0 },
-  navRight: { display: 'flex', alignItems: 'center' },
+  navRight: { display: 'flex', alignItems: 'center', justifyContent: 'flex-end', minWidth: 120 },
   backBtn: {
     fontSize: 13.5, fontWeight: 600, color: '#374151', background: 'white',
     border: '1px solid #D1D5DB', padding: '7px 16px', borderRadius: 7, textDecoration: 'none',
   },
-  body: { maxWidth: 600, margin: '32px auto', padding: '0 20px 60px' },
+  body: { maxWidth: 780, margin: '24px auto', padding: '0 16px 64px' },
   card: {
     background: 'white', border: '1px solid #E2E8F0', borderRadius: 14,
-    boxShadow: '0 2px 12px rgba(0,0,0,0.06)', overflow: 'hidden',
+    boxShadow: '0 10px 24px rgba(15,23,42,0.06)', overflow: 'hidden',
   },
   progress: {
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    padding: '24px 32px 20px', borderBottom: '1px solid #F1F5F9', gap: 0,
+    padding: '22px 20px 18px', borderBottom: '1px solid #F1F5F9', gap: 0,
+    flexWrap: 'wrap',
   },
-  progressStep: { display: 'flex', alignItems: 'center', gap: 8 },
+  progressStep: { display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 },
   progressDot: {
     width: 28, height: 28, borderRadius: '50%', display: 'flex',
     alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, flexShrink: 0,
   },
   progressLabel: { fontSize: 12.5, whiteSpace: 'nowrap' },
-  progressLine: { width: 40, height: 2, margin: '0 8px', flexShrink: 0 },
+  progressLine: { width: 34, height: 2, margin: '0 6px', flexShrink: 0 },
   error: {
     margin: '0 28px 16px', padding: '10px 14px', background: '#FEF2F2',
     border: '1px solid #FECACA', borderRadius: 8, color: '#DC2626', fontSize: 13,
   },
-  section: { padding: '24px 28px' },
+  section: { padding: '24px 22px' },
   eyebrow: { fontSize: 11, fontWeight: 700, color: '#1B3676', textTransform: 'uppercase', letterSpacing: '0.8px', margin: '0 0 6px' },
   sectionTitle: { fontSize: 20, fontWeight: 800, color: '#0F172A', margin: '0 0 4px', letterSpacing: '-0.3px' },
   sectionDesc: { fontSize: 13.5, color: '#6B7280', margin: '0 0 22px' },
   label: {
-    display: 'block', fontSize: 12, fontWeight: 600, color: '#374151',
-    marginBottom: 6, marginTop: 16, textTransform: 'uppercase', letterSpacing: '0.4px',
+    display: 'block', fontSize: 12.5, fontWeight: 600, color: '#374151',
+    marginBottom: 6, marginTop: 14, letterSpacing: '0.2px',
   },
   input: {
-    width: '100%', padding: '11px 14px', background: 'white',
+    width: '100%', padding: '12px 14px', background: 'white',
     border: '1px solid #D1D5DB', borderRadius: 8, color: '#111827',
     fontSize: 14, outline: 'none', boxSizing: 'border-box',
     fontFamily: FONT,
@@ -484,14 +485,14 @@ const s = {
     borderRadius: 8, overflow: 'hidden',
   },
   phonePrefix: {
-    padding: '11px 14px', color: '#6B7280', fontWeight: 600, fontSize: 14,
+    padding: '12px 14px', color: '#6B7280', fontWeight: 600, fontSize: 14,
     background: '#F8FAFC', borderRight: '1px solid #D1D5DB', flexShrink: 0,
   },
   phoneInput: {
-    flex: 1, padding: '11px 14px', background: 'white', border: 'none',
+    flex: 1, padding: '12px 14px', background: 'white', border: 'none',
     color: '#111827', fontSize: 14, outline: 'none', fontFamily: FONT,
   },
-  row: { display: 'flex', gap: 12 },
+  row: { display: 'flex', gap: 12, flexWrap: 'wrap' },
   halfField: { flex: 1 },
   divider: {
     marginTop: 28, marginBottom: 4, paddingTop: 24,
@@ -501,14 +502,14 @@ const s = {
     fontSize: 11.5, fontWeight: 700, color: '#9CA3AF',
     textTransform: 'uppercase', letterSpacing: '0.5px', whiteSpace: 'nowrap',
   },
-  btnRow: { display: 'flex', gap: 10, marginTop: 24 },
+  btnRow: { display: 'flex', gap: 10, marginTop: 24, flexWrap: 'wrap' },
   primaryBtn: {
-    flex: 1, padding: '12px 20px', background: '#1B3676',
+    flex: 1, minHeight: 46, padding: '12px 20px', background: '#1B3676',
     color: 'white', border: 'none', borderRadius: 8, fontSize: 14,
     fontWeight: 700, cursor: 'pointer', fontFamily: FONT,
   },
   secondaryBtn: {
-    flex: 1, padding: '12px 20px', background: 'white', color: '#374151',
+    flex: 1, minHeight: 46, padding: '12px 20px', background: 'white', color: '#374151',
     border: '1px solid #D1D5DB', borderRadius: 8, fontSize: 14, fontWeight: 600,
     cursor: 'pointer', fontFamily: FONT,
   },

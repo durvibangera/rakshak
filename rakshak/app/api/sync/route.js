@@ -35,6 +35,8 @@ export async function POST(request) {
 
         // Upload selfie if included
         if (payload.selfie_base64) {
+          // Keep inline selfie for reliable rendering in camp/user dashboards.
+          userRecord.selfie_url = payload.selfie_base64;
           const base64Data = payload.selfie_base64.replace(/^data:image\/\w+;base64,/, '');
           const buffer = Buffer.from(base64Data, 'base64');
           const fileName = `selfies/${qr_code_id}.jpg`;
@@ -42,8 +44,7 @@ export async function POST(request) {
             .from('rakshak')
             .upload(fileName, buffer, { contentType: 'image/jpeg', upsert: true });
           if (!uploadError) {
-            const { data: urlData } = supabase.storage.from('rakshak').getPublicUrl(fileName);
-            userRecord.selfie_url = urlData?.publicUrl;
+            // Upload succeeded; keep inline URL to prevent broken image links in demos.
           }
         }
 

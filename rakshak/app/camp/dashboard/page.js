@@ -314,8 +314,8 @@ function VictimsTab({ victims, searchQuery, setSearchQuery, loading, selectedVic
               </div>
               {showQrFor === v.qr_code_id && (
                 <div style={{ marginTop: 12, padding: 16, background: '#FFFFFF', borderRadius: 10, textAlign: 'center' }}>
-                  <QRCodeSVG value={JSON.stringify({ phone: v.phone })} size={120} bgColor="#FFFFFF" fgColor="#FFFFFF" level="M" />
-                  <p style={{ fontSize: 11, color: '#6B7280', margin: '8px 0 0' }}>{v.phone}</p>
+                  <QRCodeSVG value={v.qr_code_id} size={120} bgColor="#FFFFFF" fgColor="#0F172A" level="M" />
+                  <p style={{ fontSize: 11, color: '#6B7280', margin: '8px 0 0' }}>{v.qr_code_id}</p>
                 </div>
               )}
             </div>
@@ -371,10 +371,10 @@ function VictimProfile({ victim, onBack }) {
           <DetailRow label="Check-in Method" value={victim.checked_in_via} />
         </div>
 
-        {victim.phone && (
+        {victim.qr_code_id && (
           <div style={{ marginTop: 20, padding: 16, background: '#FFFFFF', borderRadius: 10, textAlign: 'center' }}>
-            <QRCodeSVG value={JSON.stringify({ phone: victim.phone })} size={140} bgColor="#FFFFFF" fgColor="#FFFFFF" level="M" />
-            <p style={{ fontSize: 11, color: '#6B7280', margin: '8px 0 0' }}>{victim.phone}</p>
+            <QRCodeSVG value={victim.qr_code_id} size={140} bgColor="#FFFFFF" fgColor="#0F172A" level="M" />
+            <p style={{ fontSize: 11, color: '#6B7280', margin: '8px 0 0' }}>{victim.qr_code_id}</p>
           </div>
         )}
       </div>
@@ -470,10 +470,10 @@ function RegisterTab({ campId, isOnline, onRegistered }) {
         <p style={{ color: '#475569', fontSize: 13, margin: '0 0 16px' }}>
           {result.offline ? 'Will sync when internet is available' : 'Added to camp database'}
         </p>
-        {result.phone && (
+        {(result.qr_code_id || result?.user?.qr_code_id) && (
           <div style={{ padding: 16, background: '#FFFFFF', borderRadius: 10, display: 'inline-block', marginBottom: 16 }}>
-            <QRCodeSVG value={JSON.stringify({ phone: result.phone })} size={140} bgColor="#FFFFFF" fgColor="#FFFFFF" level="M" />
-            <p style={{ fontSize: 11, color: '#6B7280', margin: '8px 0 0' }}>{result.phone}</p>
+            <QRCodeSVG value={result.qr_code_id || result?.user?.qr_code_id} size={140} bgColor="#FFFFFF" fgColor="#0F172A" level="M" />
+            <p style={{ fontSize: 11, color: '#6B7280', margin: '8px 0 0' }}>{result.qr_code_id || result?.user?.qr_code_id}</p>
           </div>
         )}
         <br />
@@ -577,8 +577,24 @@ function QRScanTab({ campId, isOnline, onDone }) {
 
   const handleScan = async (data) => {
     setError('');
-    const phone = data.phone || data.raw;
-    if (!phone) {
+    const phone = data.phone;
+    const qrId = data.qr_code_id || data.id;
+    const raw = data.raw;
+    let url = `/api/qr-lookup?camp_id=${campId}`;
+
+    if (phone) {
+      url += `&phone=${encodeURIComponent(phone)}`;
+    } else if (qrId) {
+      url += `&qr_code_id=${encodeURIComponent(qrId)}`;
+    } else if (raw) {
+      // If raw looks like a phone, query by phone; otherwise query by qr_code_id.
+      const onlyDigits = raw.replace(/\D/g, '');
+      if (onlyDigits.length >= 10) {
+        url += `&phone=${encodeURIComponent(raw)}`;
+      } else {
+        url += `&qr_code_id=${encodeURIComponent(raw)}`;
+      }
+    } else {
       setError('Invalid QR code');
       return;
     }
@@ -589,7 +605,7 @@ function QRScanTab({ campId, isOnline, onDone }) {
     }
 
     try {
-      const res = await fetch(`/api/qr-lookup?phone=${encodeURIComponent(phone)}&camp_id=${campId}`);
+      const res = await fetch(url);
       const json = await res.json();
       if (json.found) {
         setResult({ user: json.user });
