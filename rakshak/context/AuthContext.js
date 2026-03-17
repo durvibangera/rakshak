@@ -88,8 +88,8 @@ export function AuthProvider({ children }) {
   // Load profile from Supabase Auth session or localStorage fallback
   const loadProfile = useCallback(async (authUser) => {
     try {
-      const lsPhone = typeof window !== 'undefined' ? localStorage.getItem('rakshak_phone') : null;
-      const lsCampId = typeof window !== 'undefined' ? localStorage.getItem('rakshak_camp_id') : null;
+      const lsPhone = typeof window !== 'undefined' ? localStorage.getItem('sahaay_phone') : null;
+      const lsCampId = typeof window !== 'undefined' ? localStorage.getItem('sahaay_camp_id') : null;
 
       const prof = await fetchProfile(authUser?.id || null, lsPhone);
 
@@ -194,8 +194,8 @@ export function AuthProvider({ children }) {
     setRole(null);
     setCampId(null);
     if (typeof window !== 'undefined') {
-      localStorage.removeItem('rakshak_phone');
-      localStorage.removeItem('rakshak_camp_id');
+      localStorage.removeItem('sahaay_phone');
+      localStorage.removeItem('sahaay_camp_id');
     }
   }, []);
 

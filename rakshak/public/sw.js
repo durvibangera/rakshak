@@ -1,5 +1,5 @@
 /**
- * SERVICE WORKER — Rakshak Offline-First
+ * SERVICE WORKER — Sahaay Offline-First
  * =============================================================
  * Strategy:
  *   - App Shell: Cache-first (HTML pages, JS, CSS, fonts)
@@ -9,7 +9,7 @@
  * =============================================================
  */
 
-const CACHE_NAME = 'rakshak-v2';
+const CACHE_NAME = 'sahaay-v2';
 const OFFLINE_URL = '/offline';
 
 // App shell — cached on install for instant offline loading
@@ -159,7 +159,7 @@ async function cacheFirst(request) {
 // When a queued action is ready to sync, the app can trigger
 // a sync event. The SW will receive it and process the queue.
 self.addEventListener('sync', (event) => {
-  if (event.tag === 'rakshak-sync') {
+  if (event.tag === 'sahaay-sync') {
     event.waitUntil(processOfflineQueue());
   }
 });
@@ -180,7 +180,7 @@ self.addEventListener('push', (event) => {
   try {
     data = event.data.json();
   } catch {
-    data = { title: 'Rakshak Alert', body: event.data.text() };
+    data = { title: 'Sahaay Alert', body: event.data.text() };
   }
 
   const options = {
@@ -188,7 +188,7 @@ self.addEventListener('push', (event) => {
     icon: '/icons/icon-192.png',
     badge: '/icons/icon-192.png',
     vibrate: [200, 100, 200, 100, 200],
-    tag: data.tag || 'rakshak-alert',
+    tag: data.tag || 'sahaay-alert',
     data: {
       url: data.url || '/',
       alertId: data.alertId,
@@ -201,7 +201,7 @@ self.addEventListener('push', (event) => {
 
   event.waitUntil(
     self.registration.showNotification(
-      data.title || '🚨 Rakshak Alert',
+      data.title || '🚨 Sahaay Alert',
       options
     )
   );

@@ -1,10 +1,10 @@
-# 🛡️ Rakshak — India's Disaster Response & Survival Platform
+# 🛡️ Sahaay — India's Disaster Response & Survival Platform
 
 > **Multilingual, offline-first disaster response ecosystem built for India.**
 
 PPT Link: https://www.canva.com/design/DAHCqZFwKY8/MpxLrr1N_tRpbwBMkG-JTQ/view?utm_content=DAHCqZFwKY8&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h72f3b37a17
 
-Rakshak connects disaster victims with relief camps, reunites separated families,
+Sahaay connects disaster victims with relief camps, reunites separated families,
 and enables NGOs to coordinate resources — all in the victim's local language,
 even without internet connectivity.
 
@@ -17,7 +17,7 @@ Every year India faces devastating natural disasters. When they strike:
 - Relief camps operate blindly without data
 - Food/medical supplies are distributed inefficiently
 
-## What Rakshak Does
+## What Sahaay Does
 
 ### Phase 1 — Before Disaster (Prediction & Preparedness)
 - AI-powered flood/cyclone/earthquake prediction

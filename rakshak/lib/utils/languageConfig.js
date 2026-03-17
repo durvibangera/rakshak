@@ -2,7 +2,7 @@
  * FILE: languageConfig.js
  * PURPOSE: Centralized language configuration and translation keys mapping.
  *
- * CONTEXT: Every user-facing string in Rakshak must be translatable. This file
+ * CONTEXT: Every user-facing string in Sahaay must be translatable. This file
  *          provides the core translation keys for essential UI strings (button
  *          labels, status messages, navigation items) so the app can render
  *          in any supported language from day one — even without the SarvamAI

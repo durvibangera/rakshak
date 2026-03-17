@@ -2,7 +2,7 @@
  * FILE: roleGuard.js
  * PURPOSE: Server-side role checking middleware for API routes.
  *
- * CONTEXT: Rakshak has 4-tier role-based access control:
+ * CONTEXT: Sahaay has 4-tier role-based access control:
  *   - super_admin: Full access, reviews matches, audit logs
  *   - camp_admin: Manages one camp, full camp operations
  *   - operator: Camp volunteer, check-in only

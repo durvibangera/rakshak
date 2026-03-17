@@ -2,7 +2,7 @@
  * FILE: roles.js
  * PURPOSE: Define user role constants and permission hierarchy for the entire application.
  *
- * CONTEXT: Rakshak has 4 distinct roles with tiered access control:
+ * CONTEXT: Sahaay has 4 distinct roles with tiered access control:
  *   - SUPER_ADMIN: National/state-level, full visibility, reviews matches, audit logs
  *   - CAMP_ADMIN: Manages one camp, full camp access, approves alerts, manages resources
  *   - OPERATOR: Camp volunteer, check-in only (via phone/QR/face/unidentified)

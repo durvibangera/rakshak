@@ -2,7 +2,7 @@
  * FILE: distanceCalculator.js
  * PURPOSE: Haversine formula for calculating distance between two GPS coordinates.
  *
- * CONTEXT: Used throughout Rakshak to calculate distance from a victim's current
+ * CONTEXT: Used throughout Sahaay to calculate distance from a victim's current
  *          location to relief camps, to rank camps by proximity, and in the
  *          safety-weighted routing algorithm. All distances are in kilometers.
  *

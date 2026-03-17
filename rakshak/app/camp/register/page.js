@@ -156,8 +156,8 @@ export default function CampRegisterPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to register camp');
 
-      localStorage.setItem('rakshak_camp_id', data.camp.id);
-      localStorage.setItem('rakshak_camp_name', data.camp.name);
+      localStorage.setItem('sahaay_camp_id', data.camp.id);
+      localStorage.setItem('sahaay_camp_name', data.camp.name);
       setCampId(data.camp.id);
       setSuccess(true);
     } catch (err) {

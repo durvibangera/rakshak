@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 
 export default function Error({ error, reset }) {
   useEffect(() => {
-    console.error('[Rakshak] App error:', error);
+    console.error('[Sahaay] App error:', error);
   }, [error]);
 
   return (

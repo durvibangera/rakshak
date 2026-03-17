@@ -28,7 +28,7 @@ const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 if (typeof window !== 'undefined') {
   throw new Error(
-    'Rakshak SECURITY: supabaseAdmin must NEVER be imported in client-side code!'
+    'Sahaay SECURITY: supabaseAdmin must NEVER be imported in client-side code!'
   );
 }
 

@@ -46,7 +46,7 @@ function CampDashboardContent() {
 
   // Load camp ID from localStorage
   useEffect(() => {
-    const id = localStorage.getItem('rakshak_camp_id');
+    const id = localStorage.getItem('sahaay_camp_id');
     if (id) setCampId(id);
   }, []);
 
@@ -177,7 +177,7 @@ function CampDashboardContent() {
               )}
 
               <a href="/flood-prediction" style={{ color: '#64748B', fontSize: 12, textDecoration: 'none' }}>Map</a>
-              <button onClick={async () => { await supabase.auth.signOut(); localStorage.removeItem('rakshak_camp_id'); localStorage.removeItem('rakshak_camp_name'); window.location.href = '/'; }}
+              <button onClick={async () => { await supabase.auth.signOut(); localStorage.removeItem('sahaay_camp_id'); localStorage.removeItem('sahaay_camp_name'); window.location.href = '/'; }}
                 style={{ background: '#334155', border: 'none', color: '#94A3B8', padding: '6px 12px', borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
                 Logout
               </button>
@@ -630,7 +630,7 @@ function QRScanTab({ campId, isOnline, onDone }) {
   return (
     <div>
       <p style={{ fontSize: 14, color: '#94A3B8', margin: '0 0 16px' }}>
-        Scan a victim&apos;s Rakshak QR code to retrieve their profile and add them to this camp.
+        Scan a victim&apos;s Sahaay QR code to retrieve their profile and add them to this camp.
       </p>
       {error && <p style={{ color: '#EF4444', fontSize: 13, margin: '0 0 12px' }}>{error}</p>}
       {scanning && <QRScanner onScan={handleScan} onClose={() => setScanning(false)} />}

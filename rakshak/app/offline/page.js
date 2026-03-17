@@ -44,7 +44,7 @@ export default function OfflinePage() {
         You&apos;re Offline
       </h1>
       <p style={{ fontSize: 14, color: '#94A3B8', textAlign: 'center', margin: '0 0 24px', maxWidth: 320 }}>
-        No internet connection detected. Don&apos;t worry — Rakshak works offline too.
+        No internet connection detected. Don&apos;t worry — Sahaay works offline too.
       </p>
 
       {pendingCount > 0 && (

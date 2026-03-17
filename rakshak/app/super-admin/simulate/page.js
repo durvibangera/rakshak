@@ -13,41 +13,44 @@
 import { useState, useEffect, useCallback } from 'react';
 import RoleGate from '@/components/common/RoleGate';
 import { supabase } from '@/lib/supabase/client';
+import Link from 'next/link';
+
+const FONT = '"DM Sans", "Instrument Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
 
 export default function DisasterSimPage() {
-  return (
-    <RoleGate allowedRole="super_admin">
-      <SimulationContent />
-    </RoleGate>
-  );
+  return <RoleGate allowedRole="super_admin"><SimulationContent /></RoleGate>;
 }
 
 const DISASTER_TYPES = [
-  { id: 'FLOOD', label: 'Flood', icon: '🌊', color: '#3B82F6', desc: 'Heavy rainfall — river levels rising rapidly' },
-  { id: 'EARTHQUAKE', label: 'Earthquake', icon: '🔴', color: '#EF4444', desc: 'Seismic activity — magnitude 5.2 tremor' },
-  { id: 'LANDSLIDE', label: 'Landslide', icon: '⛰️', color: '#A16207', desc: 'Continuous rainfall in hilly terrain' },
-  { id: 'CYCLONE', label: 'Cyclone', icon: '🌀', color: '#7C3AED', desc: 'Cyclonic storm — winds exceeding 120 km/h' },
+  { id: 'FLOOD',      label: 'Flood',      color: '#2563EB', bg: '#EFF6FF', border: '#BFDBFE', desc: 'Heavy rainfall — river levels rising rapidly',
+    icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M2 12h20M2 17c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/><path d="M3 7l4-4 4 4"/><path d="M11 3v4"/></svg> },
+  { id: 'EARTHQUAKE', label: 'Earthquake', color: '#DC2626', bg: '#FEF2F2', border: '#FECACA', desc: 'Seismic activity — magnitude 5.2 tremor',
+    icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> },
+  { id: 'LANDSLIDE',  label: 'Landslide',  color: '#B45309', bg: '#FEF3C7', border: '#FDE68A', desc: 'Continuous rainfall in hilly terrain',
+    icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 20l7-10 4 5 2-3 5 8z"/><path d="M20 3l-5 5"/></svg> },
+  { id: 'CYCLONE',    label: 'Cyclone',    color: '#7C3AED', bg: '#F5F3FF', border: '#DDD6FE', desc: 'Cyclonic storm — winds exceeding 120 km/h',
+    icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 14a4 4 0 118 0c0 2.5-2 4-4 4"/><path d="M14 10a4 4 0 11-8 0c0-2.5 2-4 4-4"/><circle cx="12" cy="12" r="1"/></svg> },
 ];
 
-const SEVERITIES = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'];
+const SEVERITIES = [
+  { id: 'LOW',      color: '#059669', bg: '#D1FAE5' },
+  { id: 'MEDIUM',   color: '#D97706', bg: '#FEF3C7' },
+  { id: 'HIGH',     color: '#DC2626', bg: '#FEE2E2' },
+  { id: 'CRITICAL', color: '#7C3AED', bg: '#F5F3FF' },
+];
 
 function SimulationContent() {
   const [camps, setCamps] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  // Form
   const [campId, setCampId] = useState('');
   const [disasterType, setDisasterType] = useState('FLOOD');
   const [severity, setSeverity] = useState('HIGH');
-
-  // State
   const [triggering, setTriggering] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
   const [history, setHistory] = useState([]);
   const [recentAlerts, setRecentAlerts] = useState([]);
 
-  // Load camps
   const fetchCamps = useCallback(async () => {
     setLoading(true);
     try {
@@ -58,7 +61,6 @@ function SimulationContent() {
     setLoading(false);
   }, []);
 
-  // Load recent alerts
   const fetchAlerts = useCallback(async () => {
     try {
       const res = await fetch('/api/alerts');
@@ -69,139 +71,113 @@ function SimulationContent() {
 
   useEffect(() => { fetchCamps(); fetchAlerts(); }, [fetchCamps, fetchAlerts]);
 
-  // Realtime alerts
   useEffect(() => {
-    const ch = supabase
-      .channel('sim-alerts')
+    const ch = supabase.channel('sim-alerts')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'camp_alerts' }, () => fetchAlerts())
       .subscribe();
     return () => supabase.removeChannel(ch);
   }, [fetchAlerts]);
 
   const triggerDisaster = async () => {
-    setError('');
-    setResult(null);
+    setError(''); setResult(null);
     if (!campId) return setError('Select a camp');
-
     setTriggering(true);
     try {
-      const res = await fetch('/api/dummy-disaster', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          camp_id: campId,
-          disaster_type: disasterType,
-          severity,
-        }),
-      });
+      const res = await fetch('/api/dummy-disaster', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ camp_id: campId, disaster_type: disasterType, severity }) });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to trigger');
       setResult(data);
       const campName = camps.find(c => c.id === campId)?.name || campId;
-      setHistory(prev => [{
-        type: disasterType, severity, campName,
-        message: data.message, time: new Date().toLocaleTimeString(),
-        alertId: data.alert?.id,
-      }, ...prev]);
+      setHistory(prev => [{ type: disasterType, severity, campName, message: data.message, time: new Date().toLocaleTimeString(), alertId: data.alert?.id }, ...prev]);
       fetchAlerts();
-    } catch (err) {
-      setError(err.message);
-    }
+    } catch (err) { setError(err.message); }
     setTriggering(false);
   };
 
   const selectedCamp = camps.find(c => c.id === campId);
+  const selectedDisaster = DISASTER_TYPES.find(d => d.id === disasterType);
+
+  const ALERT_STATUS = {
+    pending: { bg: '#FEF3C7', text: '#B45309', label: 'Pending' },
+    active:  { bg: '#FEE2E2', text: '#DC2626', label: 'Active' },
+    resolved:{ bg: '#D1FAE5', text: '#059669', label: 'Resolved' },
+  };
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0F172A', padding: 24, fontFamily: 'system-ui, sans-serif', color: '#E2E8F0' }}>
-      <div style={{ maxWidth: 900, margin: '0 auto' }}>
+    <div style={s.page}>
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
 
-        {/* Header */}
-        <div style={panel}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
-            <div>
-              <h1 style={{ fontSize: 22, fontWeight: 800, color: '#F1F5F9', margin: '0 0 4px' }}>⚡ Disaster Simulation</h1>
-              <p style={{ fontSize: 13, color: '#94A3B8', margin: 0 }}>
-                Trigger test disaster scenarios for camps — creates pending alerts in the pipeline
-              </p>
-            </div>
-            <div style={{ display: 'flex', gap: 8 }}>
-              <a href="/super-admin/dashboard" style={linkBtnStyle}>← Dashboard</a>
-              <a href="/super-admin/sms-alerts" style={linkBtnStyle}>📲 SMS Alerts</a>
-            </div>
-          </div>
+      {/* Nav */}
+      <header style={s.nav}>
+        <div style={s.navLogo}>
+          <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
+            <path d="M14 2L3 8v7c0 5.55 4.7 10.74 11 12 6.3-1.26 11-6.45 11-12V8L14 2z" fill="#2563EB"/>
+            <path d="M10 14l3 3 5-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          <span style={s.navLogoText}>Sahaay</span>
+          <span style={s.navRoleBadge}>Super Admin</span>
+        </div>
+        <div style={s.navRight}>
+          <Link href="/super-admin/sms-alerts" style={s.navLink}>SMS Alerts</Link>
+          <Link href="/super-admin/dashboard" style={s.navBack}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            Dashboard
+          </Link>
+        </div>
+      </header>
+
+      <div style={s.body}>
+        <div style={s.pageHead}>
+          <p style={s.eyebrow}>Super Admin · Testing Tools</p>
+          <h1 style={s.pageTitle}>Disaster Simulation</h1>
+          <p style={s.pageSubtitle}>Trigger test disaster scenarios — creates a pending alert in the admin approval pipeline</p>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginTop: 16 }}>
-          {/* Left column: Configuration */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div style={s.twoCol}>
+          {/* Left: Config */}
+          <div style={s.configCol}>
 
-            {/* Disaster type picker */}
-            <div style={panel}>
-              <h3 style={sectionTitle}>1. Disaster Type</h3>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-                {DISASTER_TYPES.map(d => (
-                  <button
-                    key={d.id}
-                    onClick={() => setDisasterType(d.id)}
-                    style={{
-                      padding: '14px 12px', textAlign: 'left', cursor: 'pointer', color: '#E2E8F0',
-                      background: disasterType === d.id ? `${d.color}15` : '#0F172A',
-                      border: `1px solid ${disasterType === d.id ? d.color : '#334155'}`,
-                      borderRadius: 10, transition: 'all 0.15s',
-                    }}
-                  >
-                    <div style={{ fontSize: 24, marginBottom: 4 }}>{d.icon}</div>
-                    <div style={{ fontSize: 14, fontWeight: 700 }}>{d.label}</div>
-                    <div style={{ fontSize: 11, color: '#64748B', marginTop: 2 }}>{d.desc}</div>
-                  </button>
-                ))}
+            {/* Disaster type */}
+            <div style={s.card}>
+              <p style={s.stepLabel}>Step 1 — Disaster Type</p>
+              <div style={s.disasterGrid}>
+                {DISASTER_TYPES.map(d => {
+                  const isSelected = disasterType === d.id;
+                  return (
+                    <button key={d.id} onClick={() => setDisasterType(d.id)} style={{ ...s.disasterCard, ...(isSelected ? { background: d.bg, borderColor: d.border, boxShadow: `0 0 0 2px ${d.border}` } : {}) }}>
+                      <div style={{ ...s.disasterIcon, background: isSelected ? d.bg : '#F8FAFC', border: `1px solid ${isSelected ? d.border : '#E2E8F0'}`, color: d.color }}>
+                        {d.icon}
+                      </div>
+                      <p style={{ ...s.disasterLabel, color: isSelected ? d.color : '#374151' }}>{d.label}</p>
+                      <p style={s.disasterDesc}>{d.desc}</p>
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
             {/* Camp + Severity */}
-            <div style={panel}>
-              <h3 style={sectionTitle}>2. Target Camp & Severity</h3>
-
+            <div style={s.card}>
+              <p style={s.stepLabel}>Step 2 — Target Camp &amp; Severity</p>
               <div style={{ marginBottom: 14 }}>
-                <label style={labelStyle}>Camp</label>
-                {loading ? (
-                  <p style={{ color: '#64748B', fontSize: 13, margin: 0 }}>Loading camps…</p>
-                ) : camps.length === 0 ? (
-                  <p style={{ color: '#EAB308', fontSize: 13, margin: 0 }}>No active camps</p>
-                ) : (
-                  <select value={campId} onChange={e => setCampId(e.target.value)} style={inputStyle}>
-                    {camps.map(c => (
-                      <option key={c.id} value={c.id}>
-                        {c.name} ({c.code || 'no code'})
-                      </option>
-                    ))}
-                  </select>
-                )}
-                {selectedCamp && (
-                  <p style={{ fontSize: 11, color: '#64748B', margin: '4px 0 0' }}>
-                    Location: {selectedCamp.lat?.toFixed(4)}, {selectedCamp.lng?.toFixed(4)}
-                  </p>
-                )}
+                <label style={s.label}>Camp</label>
+                {loading ? <p style={{ fontSize: 13, color: '#9CA3AF', margin: 0 }}>Loading camps…</p>
+                  : camps.length === 0 ? <p style={{ fontSize: 13, color: '#D97706', margin: 0 }}>No active camps</p>
+                  : (
+                    <select value={campId} onChange={e => setCampId(e.target.value)} style={s.input}>
+                      {camps.map(c => <option key={c.id} value={c.id}>{c.name} ({c.code || 'no code'})</option>)}
+                    </select>
+                  )}
+                {selectedCamp && <p style={{ fontSize: 12, color: '#9CA3AF', margin: '5px 0 0', fontFamily: 'monospace' }}>📍 {selectedCamp.lat?.toFixed(4)}, {selectedCamp.lng?.toFixed(4)}</p>}
               </div>
-
               <div>
-                <label style={labelStyle}>Severity</label>
-                <div style={{ display: 'flex', gap: 8 }}>
-                  {SEVERITIES.map(s => {
-                    const colors = { LOW: '#22C55E', MEDIUM: '#EAB308', HIGH: '#F97316', CRITICAL: '#EF4444' };
+                <label style={s.label}>Severity</label>
+                <div style={s.severityRow}>
+                  {SEVERITIES.map(sv => {
+                    const isSel = severity === sv.id;
                     return (
-                      <button
-                        key={s}
-                        onClick={() => setSeverity(s)}
-                        style={{
-                          flex: 1, padding: '8px 4px', fontSize: 12, fontWeight: 600, cursor: 'pointer',
-                          background: severity === s ? `${colors[s]}20` : '#0F172A',
-                          border: `1px solid ${severity === s ? colors[s] : '#334155'}`,
-                          borderRadius: 8, color: severity === s ? colors[s] : '#64748B',
-                        }}
-                      >
-                        {s}
+                      <button key={sv.id} onClick={() => setSeverity(sv.id)} style={{ ...s.severityBtn, background: isSel ? sv.bg : 'white', borderColor: isSel ? sv.color : '#E2E8F0', color: isSel ? sv.color : '#9CA3AF' }}>
+                        {sv.id}
                       </button>
                     );
                   })}
@@ -210,127 +186,111 @@ function SimulationContent() {
             </div>
           </div>
 
-          {/* Right column: Preview + trigger */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {/* Right: Preview + trigger + alerts */}
+          <div style={s.rightCol}>
 
-            {/* Preview + Trigger */}
-            <div style={panel}>
-              <h3 style={sectionTitle}>3. Trigger Simulation</h3>
+            {/* Preview & trigger */}
+            <div style={s.card}>
+              <p style={s.stepLabel}>Step 3 — Trigger Simulation</p>
 
-              <div style={{ padding: 14, background: '#0F172A', borderRadius: 10, border: '1px solid #334155', marginBottom: 14 }}>
-                <p style={{ fontSize: 11, color: '#64748B', margin: '0 0 8px', textTransform: 'uppercase', letterSpacing: 1 }}>Preview</p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-                  <span style={{ fontSize: 28 }}>{DISASTER_TYPES.find(d => d.id === disasterType)?.icon}</span>
+              {/* Preview */}
+              <div style={s.previewBox}>
+                <p style={s.previewLabel}>Preview</p>
+                <div style={s.previewContent}>
+                  <div style={{ ...s.previewIconWrap, background: selectedDisaster?.bg, border: `1px solid ${selectedDisaster?.border}`, color: selectedDisaster?.color }}>
+                    {selectedDisaster?.icon}
+                  </div>
                   <div>
-                    <p style={{ fontSize: 16, fontWeight: 700, color: '#F1F5F9', margin: 0 }}>
-                      {disasterType} — {severity}
-                    </p>
-                    <p style={{ fontSize: 12, color: '#94A3B8', margin: '2px 0 0' }}>
-                      {selectedCamp?.name || 'Select a camp'}
-                    </p>
+                    <p style={s.previewTitle}>{disasterType} — {severity}</p>
+                    <p style={s.previewCamp}>{selectedCamp?.name || 'Select a camp'}</p>
+                    <p style={s.previewDesc}>{selectedDisaster?.desc}</p>
                   </div>
                 </div>
-                <p style={{ fontSize: 12, color: '#94A3B8', margin: 0, fontStyle: 'italic' }}>
-                  {DISASTER_TYPES.find(d => d.id === disasterType)?.desc}
-                </p>
               </div>
 
-              <div style={{ padding: '10px 14px', background: 'rgba(234,179,8,0.08)', border: '1px solid rgba(234,179,8,0.2)', borderRadius: 10, marginBottom: 14 }}>
-                <p style={{ fontSize: 12, color: '#EAB308', margin: 0 }}>
-                  ⚠ This creates a <strong>pending</strong> alert in the system. It will appear in the Admin Dashboard for approval.
-                </p>
+              {/* Warning */}
+              <div style={s.warningBox}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D97706" strokeWidth="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                <p style={{ fontSize: 13, color: '#B45309', margin: 0 }}>Creates a <strong>pending</strong> alert for admin approval. Does not send real notifications.</p>
               </div>
 
-              {error && <p style={{ color: '#EF4444', fontSize: 13, margin: '0 0 8px' }}>{error}</p>}
+              {error && (
+                <div style={s.errorBox}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#DC2626" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                  {error}
+                </div>
+              )}
 
-              <button
-                onClick={triggerDisaster}
-                disabled={triggering || !campId}
-                style={{
-                  width: '100%', padding: 14,
-                  background: triggering ? '#334155' : 'linear-gradient(135deg, #F97316, #EF4444)',
-                  color: 'white', border: 'none', borderRadius: 10, fontSize: 16, fontWeight: 700,
-                  cursor: triggering ? 'not-allowed' : 'pointer',
-                  boxShadow: '0 4px 14px rgba(249,115,22,0.3)',
-                  opacity: triggering || !campId ? 0.6 : 1,
-                }}
-              >
-                {triggering ? '⚡ Triggering…' : '⚡ Trigger Disaster'}
+              <button onClick={triggerDisaster} disabled={triggering || !campId} style={{ ...s.triggerBtn, opacity: (triggering || !campId) ? 0.6 : 1 }}>
+                {triggering ? <><span style={s.spinner2} /> Triggering…</> : <>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                  Trigger Disaster
+                </>}
               </button>
 
               {result && (
-                <div style={{
-                  marginTop: 12, padding: 14, borderRadius: 10,
-                  background: 'rgba(74,222,128,0.08)', border: '1px solid rgba(74,222,128,0.2)',
-                }}>
-                  <p style={{ fontSize: 14, fontWeight: 600, color: '#4ADE80', margin: '0 0 4px' }}>✅ Disaster Triggered</p>
-                  <p style={{ fontSize: 12, color: '#94A3B8', margin: 0 }}>{result.message}</p>
-                  {result.alert?.id && (
-                    <p style={{ fontSize: 11, color: '#64748B', margin: '6px 0 0' }}>Alert ID: {result.alert.id}</p>
-                  )}
+                <div style={s.successBox}>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                  <div>
+                    <p style={{ fontSize: 14, fontWeight: 700, color: '#059669', margin: '0 0 2px' }}>Disaster Triggered</p>
+                    <p style={{ fontSize: 12.5, color: '#6B7280', margin: 0 }}>{result.message}</p>
+                    {result.alert?.id && <p style={{ fontSize: 11.5, color: '#9CA3AF', margin: '4px 0 0', fontFamily: 'monospace' }}>Alert ID: {result.alert.id}</p>}
+                  </div>
                 </div>
               )}
             </div>
 
             {/* Recent alerts */}
-            <div style={panel}>
-              <h3 style={sectionTitle}>Recent Alerts</h3>
+            <div style={s.card}>
+              <div style={s.cardHead}>
+                <h2 style={s.cardTitle}>Recent Alerts</h2>
+                <span style={s.cardMeta}>{recentAlerts.length} shown</span>
+              </div>
               {recentAlerts.length === 0 ? (
-                <p style={{ fontSize: 13, color: '#64748B', margin: 0 }}>No alerts yet</p>
+                <p style={{ fontSize: 13.5, color: '#9CA3AF', margin: 0 }}>No alerts yet</p>
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 220, overflowY: 'auto' }}>
-                  {recentAlerts.map((a, i) => (
-                    <div key={a.id || i} style={{
-                      display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                      padding: '8px 12px', background: '#0F172A', borderRadius: 8, border: '1px solid #1E293B',
-                    }}>
-                      <div>
-                        <p style={{ fontSize: 12, fontWeight: 600, color: '#E2E8F0', margin: 0 }}>
-                          {a.disaster_type || a.type} — {a.location_name || a.camp_id?.slice(0, 8)}
-                        </p>
-                        <p style={{ fontSize: 11, color: '#64748B', margin: '2px 0 0' }}>
-                          {a.severity} · {a.status}
-                        </p>
+                <div style={s.alertList}>
+                  {recentAlerts.map((a, i) => {
+                    const st = ALERT_STATUS[a.status] || ALERT_STATUS.pending;
+                    return (
+                      <div key={a.id || i} style={s.alertRow}>
+                        <div>
+                          <p style={s.alertRowTitle}>{a.disaster_type || a.type} — {a.location_name || a.camp_id?.slice(0, 8)}</p>
+                          <p style={s.alertRowMeta}>{a.severity} · {a.status}</p>
+                        </div>
+                        <span style={{ ...s.badge, background: st.bg, color: st.text }}>{st.label}</span>
                       </div>
-                      <span style={{
-                        fontSize: 10, padding: '2px 8px', borderRadius: 6, fontWeight: 600,
-                        background: a.status === 'pending' ? 'rgba(234,179,8,0.15)' : a.status === 'active' ? 'rgba(239,68,68,0.15)' : 'rgba(74,222,128,0.15)',
-                        color: a.status === 'pending' ? '#EAB308' : a.status === 'active' ? '#EF4444' : '#4ADE80',
-                      }}>
-                        {a.status?.toUpperCase()}
-                      </span>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>
           </div>
         </div>
 
-        {/* Trigger history */}
+        {/* History */}
         {history.length > 0 && (
-          <div style={{ ...panel, marginTop: 16 }}>
-            <h3 style={sectionTitle}>Simulation History (this session)</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              {history.map((h, i) => (
-                <div key={i} style={{
-                  display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                  padding: '10px 14px', background: '#0F172A', borderRadius: 8, border: '1px solid #1E293B',
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <span style={{ fontSize: 18 }}>{DISASTER_TYPES.find(d => d.id === h.type)?.icon || '⚡'}</span>
-                    <div>
-                      <p style={{ fontSize: 13, fontWeight: 600, color: '#E2E8F0', margin: 0 }}>
-                        {h.type} — {h.campName}
-                      </p>
-                      <p style={{ fontSize: 11, color: '#64748B', margin: '2px 0 0' }}>
-                        {h.severity} · {h.time}
-                      </p>
+          <div style={s.card}>
+            <div style={s.cardHead}>
+              <h2 style={s.cardTitle}>Session Simulation History</h2>
+              <span style={s.cardMeta}>{history.length} triggered</span>
+            </div>
+            <div style={s.historyList}>
+              {history.map((h, i) => {
+                const d = DISASTER_TYPES.find(dt => dt.id === h.type);
+                return (
+                  <div key={i} style={s.historyRow}>
+                    <div style={{ ...s.historyIconWrap, background: d?.bg, color: d?.color }}>
+                      {d?.icon}
                     </div>
+                    <div style={{ flex: 1 }}>
+                      <p style={s.historyTitle}>{h.type} — {h.campName}</p>
+                      <p style={s.historyMeta}>{h.severity} · {h.time}</p>
+                    </div>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: '#059669' }}>✓ Triggered</span>
                   </div>
-                  <span style={{ fontSize: 12, color: '#4ADE80', fontWeight: 600 }}>✅ Triggered</span>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
@@ -339,20 +299,57 @@ function SimulationContent() {
   );
 }
 
-const panel = {
-  background: '#1E293B', borderRadius: 14, border: '1px solid #334155', padding: 20,
-};
-const sectionTitle = {
-  fontSize: 14, fontWeight: 700, color: '#F1F5F9', margin: '0 0 12px',
-};
-const labelStyle = {
-  display: 'block', fontSize: 12, fontWeight: 600, color: '#94A3B8', marginBottom: 6,
-};
-const inputStyle = {
-  width: '100%', padding: '10px 12px', background: '#0F172A', border: '1px solid #334155',
-  borderRadius: 8, color: '#E2E8F0', fontSize: 14, outline: 'none', boxSizing: 'border-box',
-};
-const linkBtnStyle = {
-  padding: '6px 14px', background: '#0F172A', border: '1px solid #334155',
-  borderRadius: 8, color: '#60A5FA', fontSize: 13, textDecoration: 'none',
+const s = {
+  page: { minHeight: '100vh', background: '#F1F5F9', fontFamily: FONT, color: '#111827' },
+  nav: { background: 'white', borderBottom: '1px solid #E2E8F0', padding: '0 28px', height: 56, display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 1px 3px rgba(0,0,0,0.06)' },
+  navLogo: { display: 'flex', alignItems: 'center', gap: 9 },
+  navLogoText: { fontSize: 16, fontWeight: 700, color: '#0F172A', letterSpacing: '-0.3px' },
+  navRoleBadge: { fontSize: 11, fontWeight: 700, background: '#F5F3FF', color: '#7C3AED', border: '1px solid #DDD6FE', padding: '2px 8px', borderRadius: 20 },
+  navRight: { display: 'flex', alignItems: 'center', gap: 12 },
+  navLink: { fontSize: 13, color: '#6B7280', textDecoration: 'none', padding: '5px 10px', borderRadius: 6 },
+  navBack: { display: 'flex', alignItems: 'center', gap: 5, fontSize: 13, color: '#6B7280', textDecoration: 'none' },
+  body: { maxWidth: 1100, margin: '0 auto', padding: '28px 28px 48px' },
+  pageHead: { marginBottom: 22 },
+  eyebrow: { fontSize: 11, fontWeight: 600, color: '#7C3AED', textTransform: 'uppercase', letterSpacing: '0.8px', margin: '0 0 4px' },
+  pageTitle: { fontSize: 26, fontWeight: 800, color: '#0F172A', margin: '0 0 4px', letterSpacing: '-0.5px' },
+  pageSubtitle: { fontSize: 14, color: '#6B7280', margin: 0 },
+  twoCol: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18, marginBottom: 18 },
+  configCol: { display: 'flex', flexDirection: 'column', gap: 18 },
+  rightCol: { display: 'flex', flexDirection: 'column', gap: 18 },
+  card: { background: 'white', border: '1px solid #E2E8F0', borderRadius: 12, padding: '20px 22px', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' },
+  cardHead: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 },
+  cardTitle: { fontSize: 15, fontWeight: 700, color: '#0F172A', margin: 0 },
+  cardMeta: { fontSize: 12.5, color: '#9CA3AF' },
+  stepLabel: { fontSize: 11, fontWeight: 700, color: '#7C3AED', textTransform: 'uppercase', letterSpacing: '0.8px', margin: '0 0 14px' },
+  disasterGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 },
+  disasterCard: { padding: '14px', background: 'white', border: '1px solid #E2E8F0', borderRadius: 10, cursor: 'pointer', textAlign: 'left', fontFamily: FONT, transition: 'all 0.15s' },
+  disasterIcon: { width: 40, height: 40, borderRadius: 9, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10, transition: 'all 0.15s' },
+  disasterLabel: { fontSize: 13.5, fontWeight: 700, margin: '0 0 3px', transition: 'color 0.15s' },
+  disasterDesc: { fontSize: 11.5, color: '#9CA3AF', margin: 0, lineHeight: 1.4 },
+  label: { display: 'block', fontSize: 12.5, fontWeight: 600, color: '#374151', marginBottom: 6 },
+  input: { width: '100%', padding: '10px 12px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 9, color: '#0F172A', fontSize: 14, fontFamily: FONT, boxSizing: 'border-box', outline: 'none' },
+  severityRow: { display: 'flex', gap: 8 },
+  severityBtn: { flex: 1, padding: '9px 6px', fontSize: 12, fontWeight: 700, border: '1px solid', borderRadius: 8, cursor: 'pointer', fontFamily: FONT, transition: 'all 0.15s' },
+  previewBox: { background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 10, padding: '14px', marginBottom: 12 },
+  previewLabel: { fontSize: 10.5, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.7px', margin: '0 0 10px' },
+  previewContent: { display: 'flex', gap: 12, alignItems: 'flex-start' },
+  previewIconWrap: { width: 44, height: 44, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+  previewTitle: { fontSize: 15, fontWeight: 700, color: '#0F172A', margin: '0 0 3px' },
+  previewCamp: { fontSize: 12.5, color: '#6B7280', margin: '0 0 3px' },
+  previewDesc: { fontSize: 12, color: '#9CA3AF', margin: 0, fontStyle: 'italic' },
+  warningBox: { display: 'flex', gap: 8, alignItems: 'flex-start', background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 9, padding: '10px 12px', marginBottom: 12 },
+  errorBox: { display: 'flex', gap: 8, alignItems: 'center', background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 9, padding: '10px 12px', color: '#DC2626', fontSize: 13.5, marginBottom: 12 },
+  triggerBtn: { width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, padding: '13px', background: '#DC2626', color: 'white', border: 'none', borderRadius: 10, fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: FONT, boxShadow: '0 2px 10px rgba(220,38,38,0.25)', transition: 'opacity 0.15s' },
+  spinner2: { width: 16, height: 16, border: '2.5px solid rgba(255,255,255,0.3)', borderTopColor: 'white', borderRadius: '50%', animation: 'spin 0.7s linear infinite', display: 'inline-block', flexShrink: 0 },
+  successBox: { display: 'flex', gap: 10, alignItems: 'flex-start', background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: 9, padding: '12px 14px', marginTop: 12 },
+  alertList: { display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 240, overflowY: 'auto' },
+  alertRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 10px', background: '#F8FAFC', border: '1px solid #F1F5F9', borderRadius: 8 },
+  alertRowTitle: { fontSize: 13, fontWeight: 600, color: '#0F172A', margin: 0 },
+  alertRowMeta: { fontSize: 11.5, color: '#9CA3AF', margin: '2px 0 0' },
+  badge: { fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 5, whiteSpace: 'nowrap' },
+  historyList: { display: 'flex', flexDirection: 'column', gap: 8 },
+  historyRow: { display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', background: '#F8FAFC', border: '1px solid #F1F5F9', borderRadius: 9 },
+  historyIconWrap: { width: 36, height: 36, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+  historyTitle: { fontSize: 13.5, fontWeight: 600, color: '#0F172A', margin: 0 },
+  historyMeta: { fontSize: 12, color: '#9CA3AF', margin: '2px 0 0' },
 };

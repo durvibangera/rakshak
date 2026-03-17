@@ -2,7 +2,7 @@
  * FILE: languages.js
  * PURPOSE: Define all supported languages with codes, native labels, and direction.
  *
- * CONTEXT: Rakshak serves disaster victims across India who speak different regional
+ * CONTEXT: Sahaay serves disaster victims across India who speak different regional
  *          languages. This config drives the LanguageToggle component, translation
  *          hooks, and the SarvamAI translation service. All user-facing strings
  *          must be translatable from day one.

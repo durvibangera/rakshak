@@ -72,7 +72,7 @@ export default function NGOLoginPage() {
   return (
     <div style={s.page}>
       <div style={s.card}>
-        <button onClick={() => router.push('/')} style={s.backLink}>← Back to Rakshak</button>
+        <button onClick={() => router.push('/')} style={s.backLink}>← Back to Sahaay</button>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
           <span style={{ fontSize: 28 }}>🏢</span>
@@ -125,7 +125,7 @@ export default function NGOLoginPage() {
         <div style={{ marginTop: 20, padding: '14px 16px', background: '#0F172A', borderRadius: 10, border: '1px solid #334155' }}>
           <p style={{ fontSize: 12, color: '#64748B', margin: 0, lineHeight: 1.5 }}>
             <strong style={{ color: '#94A3B8' }}>How to get access:</strong> Your organization must be registered by a Super Admin
-            in the Rakshak system. Once registered, you&apos;ll receive login credentials via email.
+            in the Sahaay system. Once registered, you&apos;ll receive login credentials via email.
           </p>
         </div>
       </div>

@@ -7,13 +7,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import RoleGate from '@/components/common/RoleGate';
 import { supabase } from '@/lib/supabase/client';
+import Link from 'next/link';
+
+const FONT = '"DM Sans", "Instrument Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
 
 export default function NGOsPage() {
-  return (
-    <RoleGate allowedRole="super_admin">
-      <NGOContent />
-    </RoleGate>
-  );
+  return <RoleGate allowedRole="super_admin"><NGOContent /></RoleGate>;
 }
 
 function NGOContent() {
@@ -33,16 +32,12 @@ function NGOContent() {
       const res = await fetch('/api/ngos');
       const data = await res.json();
       setNgos(data.ngos || []);
-
-      // Fetch donations per NGO
       const donMap = {};
-      await Promise.all(
-        (data.ngos || []).map(async (ngo) => {
-          const dRes = await fetch(`/api/donations?ngo_id=${ngo.id}`);
-          const dData = await dRes.json();
-          donMap[ngo.id] = dData.donations || [];
-        })
-      );
+      await Promise.all((data.ngos || []).map(async (ngo) => {
+        const dRes = await fetch(`/api/donations?ngo_id=${ngo.id}`);
+        const dData = await dRes.json();
+        donMap[ngo.id] = dData.donations || [];
+      }));
       setDonations(donMap);
     } catch (e) { console.error(e); }
     setLoading(false);
@@ -50,10 +45,8 @@ function NGOContent() {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  // Realtime subscription
   useEffect(() => {
-    const channel = supabase
-      .channel('ngos-realtime')
+    const channel = supabase.channel('ngos-realtime')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'ngos' }, () => fetchData())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'donations' }, () => fetchData())
       .subscribe();
@@ -62,11 +55,7 @@ function NGOContent() {
 
   const registerNGO = async () => {
     if (!form.name.trim()) return;
-    await fetch('/api/ngos', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
-    });
+    await fetch('/api/ngos', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) });
     setForm({ name: '', contact_phone: '', contact_email: '', cost_per_kit: 120, campaign_url: '' });
     setShowForm(false);
     fetchData();
@@ -76,11 +65,7 @@ function NGOContent() {
     const total = parseInt(totalKitsInput);
     if (!total || total <= 0) return;
     setAssigning(true);
-    await fetch('/api/ngos/assign', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ total_kits_needed: total }),
-    });
+    await fetch('/api/ngos/assign', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ total_kits_needed: total }) });
     setTotalKitsInput('');
     setAssigning(false);
     fetchData();
@@ -88,230 +73,210 @@ function NGOContent() {
 
   const addDonation = async () => {
     if (!selectedNgo || !donationForm.amount) return;
-    await fetch('/api/donations', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        ngo_id: selectedNgo,
-        donor_name: donationForm.donor_name || 'Anonymous',
-        amount: parseFloat(donationForm.amount),
-      }),
-    });
+    await fetch('/api/donations', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ngo_id: selectedNgo, donor_name: donationForm.donor_name || 'Anonymous', amount: parseFloat(donationForm.amount) }) });
     setDonationForm({ donor_name: '', amount: '' });
     setSelectedNgo(null);
     fetchData();
   };
 
   const markShipped = async (ngo) => {
-    // Set NGO to SHIPPED
-    await fetch('/api/ngos', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        id: ngo.id,
-        status: 'SHIPPED',
-        kits_shipped: ngo.kits_assigned,
-        shipped_at: new Date().toISOString(),
-      }),
-    });
-    // Write inventory IN event
-    await fetch('/api/kit-inventory', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        event_type: 'IN',
-        kits: ngo.kits_assigned,
-        source_ngo_id: ngo.id,
-        notes: `Shipment from ${ngo.name}`,
-      }),
-    });
+    await fetch('/api/ngos', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: ngo.id, status: 'SHIPPED', kits_shipped: ngo.kits_assigned, shipped_at: new Date().toISOString() }) });
+    await fetch('/api/kit-inventory', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ event_type: 'IN', kits: ngo.kits_assigned, source_ngo_id: ngo.id, notes: `Shipment from ${ngo.name}` }) });
     fetchData();
   };
 
-  const STATUS_COLORS = {
-    IDLE: { bg: '#334155', color: '#94A3B8' },
-    FUNDRAISING: { bg: '#FEF3C7', color: '#92400E' },
-    PRODUCING: { bg: '#DBEAFE', color: '#1E40AF' },
-    SHIPPED: { bg: '#D1FAE5', color: '#065F46' },
+  const STATUS = {
+    IDLE:        { bg: '#F3F4F6', text: '#6B7280' },
+    FUNDRAISING: { bg: '#FEF3C7', text: '#B45309' },
+    PRODUCING:   { bg: '#EFF6FF', text: '#2563EB' },
+    SHIPPED:     { bg: '#D1FAE5', text: '#065F46' },
   };
 
   const now = Date.now();
+  const eligibleNGOs = ngos.filter(n => ['IDLE', 'FUNDRAISING'].includes(n.status)).length;
 
   return (
-    <div style={S.page}>
+    <div style={s.page}>
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-      <div style={S.container}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-          <div>
-            <a href="/super-admin/dashboard" style={{ color: '#3B82F6', fontSize: 13, textDecoration: 'none' }}>← Dashboard</a>
-            <h1 style={S.title}>🏢 NGO Management</h1>
-            <p style={S.subtitle}>Register NGOs, assign kits, track fundraising &amp; production</p>
-          </div>
-          <button onClick={() => setShowForm(!showForm)} style={S.btnPrimary}>+ Register NGO</button>
+
+      {/* Nav */}
+      <header style={s.nav}>
+        <div style={s.navLogo}>
+          <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
+            <path d="M14 2L3 8v7c0 5.55 4.7 10.74 11 12 6.3-1.26 11-6.45 11-12V8L14 2z" fill="#2563EB"/>
+            <path d="M10 14l3 3 5-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          <span style={s.navLogoText}>Sahaay</span>
+          <span style={s.navRoleBadge}>Super Admin</span>
+        </div>
+        <div style={s.navRight}>
+          <Link href="/super-admin/dashboard" style={s.navBack}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            Dashboard
+          </Link>
+          <button onClick={() => setShowForm(!showForm)} style={s.btnPrimary}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Register NGO
+          </button>
+        </div>
+      </header>
+
+      <div style={s.body}>
+        <div style={s.pageHead}>
+          <p style={s.eyebrow}>Super Admin</p>
+          <h1 style={s.pageTitle}>NGO Management</h1>
+          <p style={s.pageSubtitle}>Register NGOs, assign kits, track fundraising &amp; production pipelines</p>
         </div>
 
-        {/* Register Form */}
+        {/* Stats */}
+        <div style={s.statsRow}>
+          <StatCard icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>} value={ngos.length} label="Total NGOs" bg="#EFF6FF" />
+          <StatCard icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2"><polyline points="20 6 9 17 4 12"/></svg>} value={ngos.filter(n => n.status === 'SHIPPED').length} label="Shipped" bg="#ECFDF5" accent="#059669" />
+          <StatCard icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#D97706" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>} value={ngos.filter(n => n.status === 'PRODUCING').length} label="Producing" bg="#FEF3C7" accent="#D97706" />
+          <StatCard icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" strokeWidth="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>} value={`₹${ngos.reduce((s, n) => s + parseFloat(n.total_raised || 0), 0).toLocaleString('en-IN')}`} label="Total Raised" bg="#F5F3FF" accent="#7C3AED" />
+        </div>
+
+        {/* Register form */}
         {showForm && (
-          <div style={S.card}>
-            <h2 style={S.cardTitle}>Register New NGO</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-              <div>
-                <label style={S.label}>NGO Name*</label>
-                <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} style={S.input} placeholder="Red Cross Mumbai" />
-              </div>
-              <div>
-                <label style={S.label}>Contact Phone</label>
-                <input value={form.contact_phone} onChange={(e) => setForm({ ...form, contact_phone: e.target.value })} style={S.input} placeholder="+91 9876543210" />
-              </div>
-              <div>
-                <label style={S.label}>Contact Email</label>
-                <input value={form.contact_email} onChange={(e) => setForm({ ...form, contact_email: e.target.value })} style={S.input} placeholder="ngo@example.com" />
-              </div>
-              <div>
-                <label style={S.label}>Cost per Kit (₹)</label>
-                <input type="number" value={form.cost_per_kit} onChange={(e) => setForm({ ...form, cost_per_kit: parseFloat(e.target.value) })} style={S.input} />
-              </div>
-              <div style={{ gridColumn: '1 / -1' }}>
-                <label style={S.label}>Campaign URL</label>
-                <input value={form.campaign_url} onChange={(e) => setForm({ ...form, campaign_url: e.target.value })} style={S.input} placeholder="https://fundraiser.example.com" />
+          <div style={s.card}>
+            <div style={s.cardHead}>
+              <h2 style={s.cardTitle}>Register New NGO</h2>
+              <button onClick={() => setShowForm(false)} style={s.closeBtn}>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+            <div style={s.formGrid}>
+              <FieldBlock label="NGO Name *"><input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} style={s.input} placeholder="Red Cross Mumbai" /></FieldBlock>
+              <FieldBlock label="Contact Phone"><input value={form.contact_phone} onChange={e => setForm({ ...form, contact_phone: e.target.value })} style={s.input} placeholder="+91 9876543210" /></FieldBlock>
+              <FieldBlock label="Contact Email"><input value={form.contact_email} onChange={e => setForm({ ...form, contact_email: e.target.value })} style={s.input} placeholder="ngo@example.com" /></FieldBlock>
+              <FieldBlock label="Cost per Kit (₹)"><input type="number" value={form.cost_per_kit} onChange={e => setForm({ ...form, cost_per_kit: parseFloat(e.target.value) })} style={s.input} /></FieldBlock>
+              <div style={{ gridColumn: '1/-1' }}>
+                <FieldBlock label="Campaign URL"><input value={form.campaign_url} onChange={e => setForm({ ...form, campaign_url: e.target.value })} style={s.input} placeholder="https://fundraiser.example.com" /></FieldBlock>
               </div>
             </div>
-            <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
-              <button onClick={registerNGO} style={S.btnPrimary}>Register</button>
-              <button onClick={() => setShowForm(false)} style={S.btnSecondary}>Cancel</button>
+            <div style={s.btnRow}>
+              <button onClick={registerNGO} style={s.btnPrimary}>Register NGO</button>
+              <button onClick={() => setShowForm(false)} style={s.btnSecondary}>Cancel</button>
             </div>
           </div>
         )}
 
-        {/* Assign to NGOs */}
-        <div style={S.card}>
-          <h2 style={S.cardTitle}>📦 Assign Kits to NGOs</h2>
-          <p style={{ fontSize: 13, color: '#94A3B8', margin: '0 0 12px' }}>
-            Enter total kits needed — divided equally across all available NGOs.
-          </p>
-          <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
-            <div style={{ flex: 1 }}>
-              <label style={S.label}>Total Kits Needed</label>
-              <input type="number" value={totalKitsInput} onChange={(e) => setTotalKitsInput(e.target.value)} style={S.input} placeholder="900" />
+        {/* Assign kits */}
+        <div style={s.card}>
+          <div style={s.cardHead}>
+            <div>
+              <h2 style={s.cardTitle}>Assign Kits to NGOs</h2>
+              <p style={s.cardSubtitle}>Divide total kits equally across all available NGOs ({eligibleNGOs} eligible)</p>
             </div>
-            <button onClick={assignToNGOs} disabled={assigning} style={{ ...S.btnPrimary, whiteSpace: 'nowrap' }}>
-              {assigning ? 'Assigning...' : `Assign to ${ngos.filter(n => ['IDLE', 'FUNDRAISING'].includes(n.status)).length} NGOs`}
+          </div>
+          <div style={s.assignRow}>
+            <div style={{ flex: 1 }}>
+              <FieldBlock label="Total Kits Needed">
+                <input type="number" value={totalKitsInput} onChange={e => setTotalKitsInput(e.target.value)} style={s.input} placeholder="e.g. 900" />
+              </FieldBlock>
+            </div>
+            <button onClick={assignToNGOs} disabled={assigning || eligibleNGOs === 0} style={{ ...s.btnPrimary, alignSelf: 'flex-end', opacity: (assigning || eligibleNGOs === 0) ? 0.6 : 1 }}>
+              {assigning ? 'Assigning…' : `Assign to ${eligibleNGOs} NGOs`}
             </button>
           </div>
         </div>
 
+        {/* NGO cards */}
         {loading ? (
-          <div style={{ textAlign: 'center', padding: 40 }}><div style={S.spinner} /></div>
+          <div style={s.loadingWrap}><div style={s.spinner} /><p style={s.loadingText}>Loading NGOs…</p></div>
         ) : ngos.length === 0 ? (
-          <div style={S.card}><p style={{ color: '#64748B', fontSize: 13 }}>No NGOs registered yet.</p></div>
+          <div style={s.emptyCard}><p style={s.emptyText}>No NGOs registered yet. Click "Register NGO" to add one.</p></div>
         ) : (
-          /* NGO Cards */
-          <div style={{ display: 'grid', gap: 16 }}>
-            {ngos.map((ngo) => {
-              const sc = STATUS_COLORS[ngo.status] || STATUS_COLORS.IDLE;
+          <div style={s.ngoGrid}>
+            {ngos.map(ngo => {
+              const sc = STATUS[ngo.status] || STATUS.IDLE;
               const progress = ngo.amount_needed > 0 ? Math.min(100, (parseFloat(ngo.total_raised || 0) / parseFloat(ngo.amount_needed)) * 100) : 0;
               const isReady = ngo.status === 'PRODUCING' && ngo.production_ready_at && new Date(ngo.production_ready_at).getTime() <= now;
               const nDonations = donations[ngo.id] || [];
-
               let countdown = '';
               if (ngo.status === 'PRODUCING' && ngo.production_ready_at) {
                 const diff = new Date(ngo.production_ready_at).getTime() - now;
-                if (diff > 0) {
-                  const hrs = Math.floor(diff / 3600000);
-                  const mins = Math.floor((diff % 3600000) / 60000);
-                  countdown = `${hrs}h ${mins}m remaining`;
-                } else {
-                  countdown = 'Ready for shipment!';
-                }
+                countdown = diff > 0 ? `${Math.floor(diff / 3600000)}h ${Math.floor((diff % 3600000) / 60000)}m remaining` : 'Ready for shipment!';
               }
 
               return (
-                <div key={ngo.id} style={S.card}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
-                    <div>
-                      <h3 style={{ fontSize: 16, fontWeight: 700, color: '#F1F5F9', margin: '0 0 2px' }}>{ngo.name}</h3>
-                      <p style={{ fontSize: 12, color: '#64748B', margin: 0 }}>
-                        {ngo.contact_email} {ngo.contact_phone ? `• ${ngo.contact_phone}` : ''}
-                      </p>
+                <div key={ngo.id} style={s.ngoCard}>
+                  {/* Header */}
+                  <div style={s.ngoCardHead}>
+                    <div style={s.ngoIconWrap}>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
                     </div>
-                    <span style={{ ...S.badge, background: sc.bg, color: sc.color }}>{ngo.status}</span>
+                    <div style={{ flex: 1 }}>
+                      <p style={s.ngoName}>{ngo.name}</p>
+                      <p style={s.ngoContact}>{ngo.contact_email}{ngo.contact_phone ? ` · ${ngo.contact_phone}` : ''}</p>
+                    </div>
+                    <span style={{ ...s.statusBadge, background: sc.bg, color: sc.text }}>{ngo.status}</span>
                   </div>
 
-                  {/* Assignment info */}
+                  {/* Fundraising progress */}
                   {ngo.kits_assigned > 0 && (
-                    <div style={{ marginBottom: 12 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#94A3B8', marginBottom: 4 }}>
-                        <span>₹{parseFloat(ngo.total_raised || 0).toLocaleString()} / ₹{parseFloat(ngo.amount_needed || 0).toLocaleString()}</span>
-                        <span>{Math.round(progress)}%</span>
+                    <div style={s.ngoProgress}>
+                      <div style={s.progressLabelRow}>
+                        <span style={s.progressLabel}>₹{parseFloat(ngo.total_raised || 0).toLocaleString('en-IN')} raised of ₹{parseFloat(ngo.amount_needed || 0).toLocaleString('en-IN')}</span>
+                        <span style={s.progressPct}>{Math.round(progress)}%</span>
                       </div>
-                      <div style={{ background: '#0F172A', borderRadius: 6, height: 8, overflow: 'hidden' }}>
-                        <div style={{ height: '100%', width: `${progress}%`, background: progress >= 100 ? '#22C55E' : 'linear-gradient(90deg, #3B82F6, #8B5CF6)', borderRadius: 6, transition: 'width 0.5s' }} />
-                      </div>
-                      <div style={{ display: 'flex', gap: 16, marginTop: 8 }}>
-                        <MiniStat label="Kits Assigned" value={ngo.kits_assigned} />
+                      <div style={s.progressBar}><div style={{ ...s.progressFill, width: `${progress}%`, background: progress >= 100 ? '#059669' : '#2563EB' }} /></div>
+                      <div style={s.miniStatsRow}>
+                        <MiniStat label="Assigned" value={ngo.kits_assigned} />
                         <MiniStat label="Cost/Kit" value={`₹${ngo.cost_per_kit}`} />
-                        <MiniStat label="Kits Produced" value={ngo.kits_produced || 0} />
-                        <MiniStat label="Kits Shipped" value={ngo.kits_shipped || 0} />
+                        <MiniStat label="Produced" value={ngo.kits_produced || 0} />
+                        <MiniStat label="Shipped" value={ngo.kits_shipped || 0} />
                       </div>
                     </div>
                   )}
 
-                  {/* Production timeline */}
+                  {/* Producing countdown */}
                   {ngo.status === 'PRODUCING' && (
-                    <div style={{ padding: 10, background: '#0F172A', borderRadius: 8, marginBottom: 12 }}>
-                      <p style={{ fontSize: 12, color: '#94A3B8', margin: 0 }}>
-                        🏭 Production started: {ngo.production_started_at ? new Date(ngo.production_started_at).toLocaleString() : '—'}
-                      </p>
-                      <p style={{ fontSize: 13, fontWeight: 700, color: isReady ? '#22C55E' : '#F59E0B', margin: '4px 0 0' }}>
-                        {countdown}
-                      </p>
+                    <div style={s.infoPanel}>
+                      <p style={s.infoPanelMeta}>Production started: {ngo.production_started_at ? new Date(ngo.production_started_at).toLocaleString('en-IN') : '—'}</p>
+                      <p style={{ ...s.infoPanelStatus, color: isReady ? '#059669' : '#D97706' }}>{countdown}</p>
                       {isReady && (
-                        <button onClick={() => markShipped(ngo)} style={{ ...S.btnPrimary, marginTop: 8, fontSize: 12 }}>
-                          📦 Mark as Shipped → Add to Inventory
+                        <button onClick={() => markShipped(ngo)} style={{ ...s.btnPrimary, marginTop: 10, fontSize: 13 }}>
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>
+                          Mark as Shipped → Add to Inventory
                         </button>
                       )}
                     </div>
                   )}
 
+                  {/* Shipped banner */}
                   {ngo.status === 'SHIPPED' && (
-                    <div style={{ padding: 10, background: 'rgba(34,197,94,0.1)', borderRadius: 8, marginBottom: 12, border: '1px solid rgba(34,197,94,0.2)' }}>
-                      <p style={{ fontSize: 13, color: '#22C55E', margin: 0 }}>
-                        ✅ Shipped {ngo.kits_shipped} kits on {ngo.shipped_at ? new Date(ngo.shipped_at).toLocaleDateString() : '—'}
-                      </p>
+                    <div style={s.shippedBanner}>
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                      Shipped {ngo.kits_shipped} kits on {ngo.shipped_at ? new Date(ngo.shipped_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}
                     </div>
                   )}
 
                   {/* Add donation */}
-                  {['FUNDRAISING'].includes(ngo.status) && (
-                    <div style={{ marginBottom: 12 }}>
+                  {ngo.status === 'FUNDRAISING' && (
+                    <div style={s.donationSection}>
                       {selectedNgo === ngo.id ? (
-                        <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
-                          <div style={{ flex: 1 }}>
-                            <label style={S.label}>Donor Name</label>
-                            <input value={donationForm.donor_name} onChange={(e) => setDonationForm({ ...donationForm, donor_name: e.target.value })} style={S.input} placeholder="Anonymous" />
-                          </div>
-                          <div style={{ flex: 1 }}>
-                            <label style={S.label}>Amount (₹)</label>
-                            <input type="number" value={donationForm.amount} onChange={(e) => setDonationForm({ ...donationForm, amount: e.target.value })} style={S.input} placeholder="5000" />
-                          </div>
-                          <button onClick={addDonation} style={S.btnPrimary}>Add</button>
-                          <button onClick={() => setSelectedNgo(null)} style={S.btnSecondary}>✕</button>
+                        <div style={s.donationForm}>
+                          <input value={donationForm.donor_name} onChange={e => setDonationForm({ ...donationForm, donor_name: e.target.value })} style={s.inputSm} placeholder="Donor name" />
+                          <input type="number" value={donationForm.amount} onChange={e => setDonationForm({ ...donationForm, amount: e.target.value })} style={{ ...s.inputSm, maxWidth: 120 }} placeholder="Amount ₹" />
+                          <button onClick={addDonation} style={s.btnPrimary}>Add</button>
+                          <button onClick={() => setSelectedNgo(null)} style={s.btnSecondary}>Cancel</button>
                         </div>
                       ) : (
-                        <button onClick={() => setSelectedNgo(ngo.id)} style={S.btnSecondary}>+ Record Donation</button>
+                        <button onClick={() => setSelectedNgo(ngo.id)} style={s.btnSecondary}>+ Record Donation</button>
                       )}
                     </div>
                   )}
 
                   {/* Donation log */}
                   {nDonations.length > 0 && (
-                    <div>
-                      <p style={{ fontSize: 11, color: '#64748B', fontWeight: 700, textTransform: 'uppercase', marginBottom: 6 }}>Recent Donations</p>
-                      <div style={{ maxHeight: 150, overflowY: 'auto' }}>
-                        {nDonations.slice(0, 10).map((d) => (
-                          <div key={d.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid #334155', fontSize: 12 }}>
-                            <span style={{ color: '#CBD5E1' }}>{d.donor_name}</span>
-                            <span style={{ color: '#34D399', fontWeight: 700 }}>₹{parseFloat(d.amount).toLocaleString()}</span>
+                    <div style={s.donationLog}>
+                      <p style={s.donationLogTitle}>Recent Donations</p>
+                      <div style={s.donationLogList}>
+                        {nDonations.slice(0, 8).map(d => (
+                          <div key={d.id} style={s.donationRow}>
+                            <span style={s.donorName}>{d.donor_name}</span>
+                            <span style={s.donorAmount}>₹{parseFloat(d.amount).toLocaleString('en-IN')}</span>
                           </div>
                         ))}
                       </div>
@@ -327,26 +292,103 @@ function NGOContent() {
   );
 }
 
-function MiniStat({ label, value }) {
+function StatCard({ icon, value, label, bg, accent = '#2563EB' }) {
   return (
-    <div>
-      <p style={{ fontSize: 10, color: '#64748B', margin: 0, textTransform: 'uppercase', fontWeight: 700 }}>{label}</p>
-      <p style={{ fontSize: 16, fontWeight: 800, color: '#F1F5F9', margin: 0 }}>{value}</p>
+    <div style={{ background: bg, border: '1px solid #E2E8F0', borderRadius: 11, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
+      <div style={{ width: 38, height: 38, borderRadius: 8, background: 'white', border: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{icon}</div>
+      <div>
+        <p style={{ fontSize: 20, fontWeight: 800, color: '#0F172A', margin: 0, letterSpacing: '-0.5px' }}>{value}</p>
+        <p style={{ fontSize: 11.5, color: '#6B7280', margin: '1px 0 0' }}>{label}</p>
+      </div>
     </div>
   );
 }
 
-const S = {
-  page: { minHeight: '100vh', background: '#0F172A', fontFamily: 'system-ui, sans-serif', padding: '20px' },
-  container: { maxWidth: 900, margin: '0 auto' },
-  title: { fontSize: 26, fontWeight: 800, color: '#F1F5F9', margin: '8px 0 4px', letterSpacing: '-0.5px' },
-  subtitle: { fontSize: 14, color: '#64748B', margin: 0 },
-  card: { background: '#1E293B', borderRadius: 14, padding: 20, border: '1px solid #334155', marginBottom: 16 },
-  cardTitle: { fontSize: 16, fontWeight: 700, color: '#F1F5F9', margin: '0 0 8px' },
-  btnPrimary: { background: 'linear-gradient(135deg, #3B82F6, #2563EB)', color: 'white', border: 'none', borderRadius: 10, padding: '8px 18px', fontWeight: 700, fontSize: 13, cursor: 'pointer' },
-  btnSecondary: { background: '#334155', color: '#94A3B8', border: 'none', borderRadius: 10, padding: '8px 18px', fontWeight: 700, fontSize: 13, cursor: 'pointer' },
-  label: { display: 'block', fontSize: 12, fontWeight: 600, color: '#94A3B8', marginBottom: 4 },
-  input: { width: '100%', padding: '8px 12px', background: '#0F172A', border: '1px solid #334155', borderRadius: 8, color: '#F1F5F9', fontSize: 14, fontFamily: 'inherit', boxSizing: 'border-box' },
-  badge: { padding: '4px 12px', borderRadius: 6, fontSize: 11, fontWeight: 700 },
-  spinner: { width: 36, height: 36, border: '3px solid #334155', borderTopColor: '#3B82F6', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto' },
+function FieldBlock({ label, children }) {
+  return (
+    <div>
+      <label style={{ display: 'block', fontSize: 12.5, fontWeight: 600, color: '#374151', marginBottom: 6 }}>{label}</label>
+      {children}
+    </div>
+  );
+}
+
+function MiniStat({ label, value }) {
+  return (
+    <div style={{ textAlign: 'center' }}>
+      <p style={{ fontSize: 10, color: '#9CA3AF', margin: '0 0 2px', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.4px' }}>{label}</p>
+      <p style={{ fontSize: 16, fontWeight: 800, color: '#0F172A', margin: 0 }}>{value}</p>
+    </div>
+  );
+}
+
+const s = {
+  page: { minHeight: '100vh', background: '#F1F5F9', fontFamily: FONT, color: '#111827' },
+  nav: { background: 'white', borderBottom: '1px solid #E2E8F0', padding: '0 28px', height: 56, display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 1px 3px rgba(0,0,0,0.06)' },
+  navLogo: { display: 'flex', alignItems: 'center', gap: 9 },
+  navLogoText: { fontSize: 16, fontWeight: 700, color: '#0F172A', letterSpacing: '-0.3px' },
+  navRoleBadge: { fontSize: 11, fontWeight: 700, background: '#F5F3FF', color: '#7C3AED', border: '1px solid #DDD6FE', padding: '2px 8px', borderRadius: 20 },
+  navRight: { display: 'flex', alignItems: 'center', gap: 12 },
+  navBack: { display: 'flex', alignItems: 'center', gap: 5, fontSize: 13, color: '#6B7280', textDecoration: 'none' },
+
+  body: { maxWidth: 1100, margin: '0 auto', padding: '28px 28px 48px' },
+  pageHead: { marginBottom: 22 },
+  eyebrow: { fontSize: 11, fontWeight: 600, color: '#7C3AED', textTransform: 'uppercase', letterSpacing: '0.8px', margin: '0 0 4px' },
+  pageTitle: { fontSize: 26, fontWeight: 800, color: '#0F172A', margin: '0 0 4px', letterSpacing: '-0.5px' },
+  pageSubtitle: { fontSize: 14, color: '#6B7280', margin: 0 },
+
+  statsRow: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 20 },
+
+  card: { background: 'white', border: '1px solid #E2E8F0', borderRadius: 12, padding: '20px 22px', boxShadow: '0 1px 4px rgba(0,0,0,0.04)', marginBottom: 18 },
+  cardHead: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14 },
+  cardTitle: { fontSize: 15, fontWeight: 700, color: '#0F172A', margin: 0 },
+  cardSubtitle: { fontSize: 12.5, color: '#9CA3AF', margin: '3px 0 0' },
+  closeBtn: { background: '#F1F5F9', border: 'none', borderRadius: 7, width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#6B7280' },
+  formGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 },
+  assignRow: { display: 'flex', gap: 12, alignItems: 'flex-end' },
+  btnRow: { display: 'flex', gap: 8 },
+
+  input: { width: '100%', padding: '10px 12px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 8, color: '#0F172A', fontSize: 14, fontFamily: FONT, boxSizing: 'border-box', outline: 'none' },
+  inputSm: { padding: '8px 10px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 8, color: '#0F172A', fontSize: 13, fontFamily: FONT, outline: 'none' },
+
+  btnPrimary: { display: 'flex', alignItems: 'center', gap: 6, padding: '9px 16px', background: '#2563EB', color: 'white', border: 'none', borderRadius: 8, fontSize: 13.5, fontWeight: 700, cursor: 'pointer', fontFamily: FONT, whiteSpace: 'nowrap', boxShadow: '0 2px 6px rgba(37,99,235,0.25)' },
+  btnSecondary: { display: 'flex', alignItems: 'center', gap: 6, padding: '9px 16px', background: 'white', color: '#374151', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 13.5, fontWeight: 600, cursor: 'pointer', fontFamily: FONT, whiteSpace: 'nowrap' },
+
+  ngoGrid: { display: 'grid', gap: 16 },
+  ngoCard: { background: 'white', border: '1px solid #E2E8F0', borderRadius: 12, padding: '18px 20px', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' },
+  ngoCardHead: { display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 },
+  ngoIconWrap: { width: 40, height: 40, borderRadius: 9, background: '#EFF6FF', border: '1px solid #BFDBFE', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+  ngoName: { fontSize: 15, fontWeight: 700, color: '#0F172A', margin: 0 },
+  ngoContact: { fontSize: 12, color: '#9CA3AF', margin: '2px 0 0' },
+  statusBadge: { fontSize: 11.5, fontWeight: 700, padding: '3px 10px', borderRadius: 20, whiteSpace: 'nowrap' },
+
+  ngoProgress: { marginBottom: 14 },
+  progressLabelRow: { display: 'flex', justifyContent: 'space-between', marginBottom: 6 },
+  progressLabel: { fontSize: 12.5, color: '#6B7280' },
+  progressPct: { fontSize: 12.5, fontWeight: 700, color: '#374151' },
+  progressBar: { height: 7, background: '#F1F5F9', borderRadius: 4, overflow: 'hidden', marginBottom: 12 },
+  progressFill: { height: '100%', borderRadius: 4, transition: 'width 0.5s ease' },
+  miniStatsRow: { display: 'flex', gap: 20 },
+
+  infoPanel: { background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 9, padding: '12px 14px', marginBottom: 12 },
+  infoPanelMeta: { fontSize: 12, color: '#6B7280', margin: '0 0 4px' },
+  infoPanelStatus: { fontSize: 14, fontWeight: 700, margin: 0 },
+
+  shippedBanner: { display: 'flex', alignItems: 'center', gap: 7, background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: 9, padding: '10px 14px', marginBottom: 12, fontSize: 13.5, color: '#059669', fontWeight: 600 },
+
+  donationSection: { marginBottom: 12 },
+  donationForm: { display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' },
+
+  donationLog: { borderTop: '1px solid #F1F5F9', paddingTop: 12 },
+  donationLogTitle: { fontSize: 11, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.6px', margin: '0 0 8px' },
+  donationLogList: { maxHeight: 140, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 2 },
+  donationRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 0', borderBottom: '1px solid #F8FAFC' },
+  donorName: { fontSize: 13, color: '#374151' },
+  donorAmount: { fontSize: 13, fontWeight: 700, color: '#059669' },
+
+  loadingWrap: { display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '48px 0', gap: 12 },
+  spinner: { width: 32, height: 32, border: '3px solid #E2E8F0', borderTopColor: '#2563EB', borderRadius: '50%', animation: 'spin 0.8s linear infinite' },
+  loadingText: { fontSize: 13.5, color: '#9CA3AF', margin: 0 },
+  emptyCard: { background: 'white', border: '1px solid #E2E8F0', borderRadius: 12, padding: '32px 24px', textAlign: 'center' },
+  emptyText: { fontSize: 14, color: '#9CA3AF', margin: 0 },
 };

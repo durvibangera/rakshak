@@ -29,7 +29,7 @@ const hasEnvVars = !!(supabaseUrl && supabaseAnonKey);
 
 if (!hasEnvVars) {
   console.warn(
-    'Rakshak: Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY. ' +
+    'Sahaay: Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY. ' +
     'Supabase client will not work. Check your .env.local file.'
   );
 }

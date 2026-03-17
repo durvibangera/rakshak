@@ -1,16 +1,9 @@
-/**
- * FILE: page.js (User Login)
- * PURPOSE: Phone-based login for registered users.
- *          Looks up user by phone number — no OTP needed.
- *
- * FLOW: Enter phone → POST /api/auth/phone-login → Dashboard
- *
- * ROLE ACCESS: Public (unauthenticated)
- */
 'use client';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+
+const FONT = '"DM Sans", "Instrument Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -26,7 +19,6 @@ export default function LoginPage() {
 
     const fullPhone = `+91${digits}`;
     setLoading(true);
-
     try {
       const res = await fetch('/api/auth/phone-login', {
         method: 'POST',
@@ -34,16 +26,10 @@ export default function LoginPage() {
         body: JSON.stringify({ phone: fullPhone }),
       });
       const data = await res.json();
-
       if (!res.ok) throw new Error(data.error || 'Login failed');
-
-      // Store session info for AuthContext
-      localStorage.setItem('rakshak_phone', fullPhone);
-      localStorage.setItem('rakshak_user', JSON.stringify(data.user));
-      if (data.camp) {
-        localStorage.setItem('rakshak_camp', JSON.stringify(data.camp));
-      }
-
+      localStorage.setItem('sahaay_phone', fullPhone);
+      localStorage.setItem('sahaay_user', JSON.stringify(data.user));
+      if (data.camp) localStorage.setItem('sahaay_camp', JSON.stringify(data.camp));
       router.push('/user/dashboard');
     } catch (err) {
       setError(err.message);
@@ -53,140 +39,314 @@ export default function LoginPage() {
 
   return (
     <div style={s.page}>
-      <div style={s.card}>
-        <button onClick={() => router.push('/')} style={s.backLink}>← Back to Rakshak</button>
 
-        <div style={s.headerRow}>
-          <div style={s.logoBadge}>R</div>
-          <div>
-            <h1 style={s.heading}>User Login</h1>
-            <p style={s.subheading}>Login with your registered phone number</p>
+      {/* Subtle background rings */}
+      <div style={s.bgPattern} aria-hidden="true">
+        {[...Array(5)].map((_, i) => (
+          <div key={i} style={{ ...s.bgRing, width: 180 + i * 130, height: 180 + i * 130 }} />
+        ))}
+      </div>
+
+      {/* Top bar */}
+      <header style={s.topBar}>
+        <button onClick={() => router.push('/')} style={s.backBtn}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+          Back to Sahaay
+        </button>
+        <div style={s.topLogo}>
+          <svg width="20" height="20" viewBox="0 0 28 28" fill="none">
+            <path d="M14 2L3 8v7c0 5.55 4.7 10.74 11 12 6.3-1.26 11-6.45 11-12V8L14 2z" fill="#2563EB"/>
+            <path d="M10 14l3 3 5-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          <span style={s.topLogoText}>Sahaay</span>
+        </div>
+      </header>
+
+      {/* Card */}
+      <div style={s.card}>
+        <div style={s.cardStripe} />
+
+        <div style={s.cardBody}>
+
+          {/* Header */}
+          <div style={s.header}>
+            <div style={s.logoWrap}>
+              <svg width="24" height="24" viewBox="0 0 28 28" fill="none">
+                <path d="M14 2L3 8v7c0 5.55 4.7 10.74 11 12 6.3-1.26 11-6.45 11-12V8L14 2z" fill="#2563EB"/>
+                <path d="M10 14l3 3 5-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+            <div>
+              <p style={s.eyebrow}>Civilian Access</p>
+              <h1 style={s.title}>Sign In</h1>
+              <p style={s.subtitle}>Use the phone number from your registration</p>
+            </div>
           </div>
+
+          {/* Admin switch banner */}
+          <button onClick={() => router.push('/admin-login')} style={s.switchBanner}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 00-3-3.87"/>
+              <path d="M16 3.13a4 4 0 010 7.75"/>
+            </svg>
+            Admin or Camp Staff? Login here
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ marginLeft: 'auto' }}>
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </button>
+
+          {/* Form */}
+          <form onSubmit={handleLogin} style={s.form}>
+            <div>
+              <label style={s.label}>Phone Number</label>
+              <div style={{ ...s.inputRow, ...(error ? s.inputRowError : {}) }}>
+                <div style={s.prefix}>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6B7280" strokeWidth="2">
+                    <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 8.81a19.79 19.79 0 01-3.07-8.7A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/>
+                  </svg>
+                  <span style={s.prefixText}>+91</span>
+                </div>
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => {
+                    setError('');
+                    setPhone(e.target.value.replace(/[^0-9]/g, '').slice(0, 10));
+                  }}
+                  placeholder="98765 43210"
+                  maxLength={10}
+                  style={s.input}
+                  autoFocus
+                />
+                {phone.length === 10 && !error && (
+                  <div style={s.inputTick}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2.5">
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                  </div>
+                )}
+              </div>
+              <p style={s.inputHint}>10-digit mobile number registered with Sahaay</p>
+            </div>
+
+            {error && (
+              <div style={s.errorBox}>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#DC2626" strokeWidth="2.5">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="12" y1="8" x2="12" y2="12"/>
+                  <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                {error}
+              </div>
+            )}
+
+            <button type="submit" disabled={loading} style={{ ...s.submitBtn, opacity: loading ? 0.75 : 1 }}>
+              {loading ? (
+                <>
+                  <span style={s.spinner} />
+                  Verifying…
+                </>
+              ) : (
+                <>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/>
+                    <polyline points="10 17 15 12 10 7"/>
+                    <line x1="15" y1="12" x2="3" y2="12"/>
+                  </svg>
+                  Sign In to Dashboard
+                </>
+              )}
+            </button>
+          </form>
+
+          {/* Divider + Register */}
+          <div style={s.divider}>
+            <div style={s.dividerLine}/>
+            <span style={s.dividerLabel}>New to Sahaay?</span>
+            <div style={s.dividerLine}/>
+          </div>
+
+          <button onClick={() => router.push('/register')} style={s.registerBtn}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+              <path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <line x1="19" y1="8" x2="19" y2="14"/>
+              <line x1="22" y1="11" x2="16" y2="11"/>
+            </svg>
+            Create a new account →
+          </button>
         </div>
 
-        {/* Admin login link */}
-        <button
-          onClick={() => router.push('/admin-login')}
-          style={s.switchLink}
-        >
-          Admin or Camp Staff? Login here →
-        </button>
-
-        <form onSubmit={handleLogin} style={s.form}>
-          <div>
-            <label style={s.label}>Phone Number</label>
-            <div style={s.inputRow}>
-              <span style={s.prefix}>+91</span>
-              <input
-                type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value.replace(/[^0-9]/g, '').slice(0, 10))}
-                placeholder="9876543210"
-                maxLength={10}
-                style={s.input}
-                autoFocus
-              />
-            </div>
-            <p style={s.inputHint}>
-              The number you used during registration
-            </p>
-          </div>
-
-          {error && (
-            <div style={s.errorBox}>
-              <span>⚠️</span>
-              <span>{error}</span>
-            </div>
-          )}
-
-          <button type="submit" disabled={loading} style={{ ...s.submitBtn, opacity: loading ? 0.6 : 1 }}>
-            {loading ? (
-              <span style={s.loadingRow}>
-                <span style={s.spinner} />
-                Verifying...
-              </span>
-            ) : 'Login'}
-          </button>
-        </form>
-
-        {/* Register link */}
-        <div style={s.footer}>
-          <p style={s.footerText}>
-            Not registered yet?{' '}
-            <button onClick={() => router.push('/register')} style={s.linkBtn}>
-              Register now →
-            </button>
-          </p>
+        {/* Card footer */}
+        <div style={s.cardFooter}>
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0110 0v4"/>
+          </svg>
+          Protected under India's Disaster Management Act, 2005
         </div>
       </div>
+
+      {/* Helpline */}
+      <div style={s.helpline}>
+        Need help? National helpline:&nbsp;
+        <a href="tel:1078" style={s.helplineNum}>1078</a>
+        &nbsp;· Available 24×7
+      </div>
+
     </div>
   );
 }
 
 const s = {
   page: {
-    minHeight: '100vh', background: '#0F172A', display: 'flex', alignItems: 'center',
-    justifyContent: 'center', padding: 24, fontFamily: 'system-ui, sans-serif',
+    minHeight: '100vh',
+    background: '#F1F5F9',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '24px 16px',
+    fontFamily: FONT,
+    position: 'relative',
+    overflow: 'hidden',
   },
+
+  bgPattern: {
+    position: 'fixed', top: '50%', left: '50%',
+    pointerEvents: 'none', zIndex: 0,
+  },
+  bgRing: {
+    position: 'absolute',
+    borderRadius: '50%',
+    border: '1px solid #2563EB',
+    opacity: 0.04,
+    transform: 'translate(-50%, -50%)',
+  },
+
+  topBar: {
+    width: '100%', maxWidth: 460,
+    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+    marginBottom: 18, position: 'relative', zIndex: 1,
+  },
+  backBtn: {
+    display: 'flex', alignItems: 'center', gap: 5,
+    background: 'none', border: 'none',
+    fontSize: 13, fontWeight: 500, color: '#6B7280',
+    cursor: 'pointer', padding: 0, fontFamily: FONT,
+  },
+  topLogo: { display: 'flex', alignItems: 'center', gap: 7 },
+  topLogoText: { fontSize: 15, fontWeight: 700, color: '#0F172A', letterSpacing: '-0.3px' },
+
   card: {
-    width: '100%', maxWidth: 440, background: '#1E293B', border: '1px solid #334155',
-    borderRadius: 16, padding: 28, color: '#E2E8F0',
+    width: '100%', maxWidth: 460,
+    background: 'white',
+    border: '1px solid #E2E8F0',
+    borderRadius: 16,
+    boxShadow: '0 4px 24px rgba(0,0,0,0.07)',
+    overflow: 'hidden',
+    position: 'relative', zIndex: 1,
   },
-  backLink: {
-    background: 'none', border: 'none', color: '#64748B', fontSize: 13,
-    cursor: 'pointer', padding: 0, marginBottom: 16, display: 'block',
+  cardStripe: {
+    height: 4,
+    background: 'linear-gradient(90deg, #2563EB, #3B82F6, #60A5FA)',
   },
-  headerRow: {
-    display: 'flex', gap: 14, alignItems: 'center', marginBottom: 16,
+  cardBody: { padding: '28px 28px 24px' },
+
+  header: { display: 'flex', gap: 14, alignItems: 'flex-start', marginBottom: 22 },
+  logoWrap: {
+    width: 48, height: 48, borderRadius: 12,
+    background: '#EFF6FF', border: '1px solid #BFDBFE',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    flexShrink: 0,
   },
-  logoBadge: {
-    width: 44, height: 44, borderRadius: 12, display: 'flex', alignItems: 'center',
-    justifyContent: 'center', fontWeight: 800, fontSize: 20, color: 'white',
-    background: 'linear-gradient(135deg, #3B82F6, #8B5CF6)', flexShrink: 0,
+  eyebrow: { fontSize: 11, fontWeight: 600, color: '#2563EB', textTransform: 'uppercase', letterSpacing: '0.8px', margin: '0 0 4px' },
+  title: { fontSize: 22, fontWeight: 800, color: '#0F172A', margin: '0 0 4px', letterSpacing: '-0.4px' },
+  subtitle: { fontSize: 13, color: '#6B7280', margin: 0 },
+
+  switchBanner: {
+    width: '100%', display: 'flex', alignItems: 'center', gap: 8,
+    padding: '10px 14px', marginBottom: 22,
+    background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: 9,
+    fontSize: 13, fontWeight: 500, color: '#1D4ED8',
+    cursor: 'pointer', fontFamily: FONT,
   },
-  heading: { fontSize: 22, fontWeight: 800, color: '#F1F5F9', margin: '0 0 2px' },
-  subheading: { fontSize: 13, color: '#94A3B8', margin: 0 },
-  switchLink: {
-    background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.2)',
-    borderRadius: 8, padding: '8px 14px', color: '#60A5FA', fontSize: 13,
-    cursor: 'pointer', width: '100%', textAlign: 'center', marginBottom: 20,
-  },
+
   form: { display: 'flex', flexDirection: 'column', gap: 16 },
-  label: { display: 'block', fontSize: 13, fontWeight: 600, color: '#94A3B8', marginBottom: 6 },
+  label: { display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 7 },
+
   inputRow: {
-    display: 'flex', alignItems: 'center', background: '#0F172A', borderRadius: 10,
-    border: '1px solid #334155', overflow: 'hidden',
+    display: 'flex', alignItems: 'center',
+    background: '#F8FAFC', border: '1.5px solid #E2E8F0',
+    borderRadius: 10, overflow: 'hidden',
   },
+  inputRowError: { borderColor: '#FECACA', background: '#FFF5F5' },
   prefix: {
-    padding: '13px 12px 13px 14px', color: '#64748B', fontWeight: 600, fontSize: 15,
-    borderRight: '1px solid #334155', background: 'rgba(51,65,85,0.3)',
+    display: 'flex', alignItems: 'center', gap: 6,
+    padding: '0 12px 0 14px', height: 48,
+    borderRight: '1.5px solid #E2E8F0',
+    background: '#F1F5F9', flexShrink: 0,
   },
+  prefixText: { fontSize: 14, fontWeight: 700, color: '#374151' },
   input: {
-    flex: 1, padding: '13px 14px', background: 'transparent', border: 'none',
-    color: '#F1F5F9', fontSize: 16, outline: 'none',
+    flex: 1, padding: '0 14px', height: 48,
+    background: 'transparent', border: 'none', outline: 'none',
+    fontSize: 16, fontWeight: 500, color: '#0F172A',
+    fontFamily: FONT, letterSpacing: '0.5px',
   },
-  inputHint: { fontSize: 11, color: '#64748B', margin: '6px 0 0' },
+  inputTick: { padding: '0 12px', display: 'flex', alignItems: 'center' },
+  inputHint: { fontSize: 12, color: '#9CA3AF', margin: '6px 0 0' },
+
   errorBox: {
-    display: 'flex', gap: 8, alignItems: 'center', padding: '10px 14px',
-    background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)',
-    borderRadius: 10, color: '#FCA5A5', fontSize: 13,
+    display: 'flex', alignItems: 'center', gap: 8,
+    padding: '10px 14px',
+    background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 9,
+    fontSize: 13, color: '#DC2626', fontWeight: 500,
   },
+
   submitBtn: {
-    width: '100%', padding: 14, background: 'linear-gradient(135deg, #3B82F6, #2563EB)',
-    color: 'white', border: 'none', borderRadius: 10, fontSize: 16, fontWeight: 700,
-    cursor: 'pointer', boxShadow: '0 4px 14px rgba(59,130,246,0.3)',
+    width: '100%', height: 48,
+    background: '#2563EB', color: 'white', border: 'none',
+    borderRadius: 10, fontSize: 15, fontWeight: 700,
+    cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+    boxShadow: '0 2px 10px rgba(37,99,235,0.25)',
+    fontFamily: FONT, transition: 'opacity 0.15s',
   },
-  loadingRow: { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 },
   spinner: {
-    width: 18, height: 18, border: '2px solid rgba(255,255,255,0.3)',
-    borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.6s linear infinite',
+    width: 17, height: 17,
+    border: '2.5px solid rgba(255,255,255,0.3)',
+    borderTopColor: 'white', borderRadius: '50%',
+    animation: 'spin 0.7s linear infinite',
+    display: 'inline-block', flexShrink: 0,
   },
-  footer: {
-    marginTop: 24, paddingTop: 16, borderTop: '1px solid #334155', textAlign: 'center',
+
+  divider: { display: 'flex', alignItems: 'center', gap: 10, margin: '22px 0 14px' },
+  dividerLine: { flex: 1, height: 1, background: '#F1F5F9' },
+  dividerLabel: { fontSize: 12, color: '#9CA3AF', whiteSpace: 'nowrap', fontWeight: 500 },
+
+  registerBtn: {
+    width: '100%', height: 44,
+    background: 'white', border: '1.5px solid #E2E8F0', borderRadius: 10,
+    fontSize: 14, fontWeight: 600, color: '#374151',
+    cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
+    fontFamily: FONT,
   },
-  footerText: { fontSize: 13, color: '#64748B', margin: 0 },
-  linkBtn: {
-    background: 'none', border: 'none', color: '#3B82F6', fontSize: 13,
-    cursor: 'pointer', padding: 0, fontWeight: 600,
+
+  cardFooter: {
+    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+    padding: '11px 28px',
+    background: '#F8FAFC', borderTop: '1px solid #F1F5F9',
+    fontSize: 11.5, color: '#9CA3AF',
   },
+
+  helpline: {
+    display: 'flex', alignItems: 'center',
+    marginTop: 18, fontSize: 12.5, color: '#6B7280',
+    position: 'relative', zIndex: 1,
+  },
+  helplineNum: { fontWeight: 700, color: '#2563EB', textDecoration: 'none' },
 };

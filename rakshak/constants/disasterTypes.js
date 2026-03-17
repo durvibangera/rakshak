@@ -4,7 +4,7 @@
  *
  * CONTEXT: India faces multiple disaster types — floods, cyclones, earthquakes, landslides.
  *          These constants classify alerts, drive prediction models, and determine
- *          the appropriate emergency response in the Rakshak platform.
+ *          the appropriate emergency response in the Sahaay platform.
  *
  * ROLE ACCESS: BOTH
  *

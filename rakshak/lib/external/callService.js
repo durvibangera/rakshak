@@ -144,7 +144,7 @@ export async function sendSmsFallback(users, message) {
     for (const user of users) {
         try {
             await client.messages.create({
-                body: `⚠ RAKSHAK ALERT: ${message}`,
+                body: `⚠ SAHAAY ALERT: ${message}`,
                 to: user.phone,
                 from: fromPhone,
             });

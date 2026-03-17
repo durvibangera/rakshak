@@ -16,9 +16,9 @@ import { useState, useEffect, useCallback } from 'react';
 
 // ── seed NGOs to register if none exist in DB ─────────────────────
 const SEED_NGOS = [
-  { name: 'NSS Mumbai Chapter',    contact_email: 'nss@rakshak.in',      contact_phone: '+912200001111', cost_per_kit: 120 },
-  { name: 'Red Cross Maharashtra', contact_email: 'redcross@rakshak.in', contact_phone: '+912200002222', cost_per_kit: 120 },
-  { name: 'HelpNow Foundation',    contact_email: 'helpnow@rakshak.in',  contact_phone: '+912200003333', cost_per_kit: 120 },
+  { name: 'NSS Mumbai Chapter',    contact_email: 'nss@sahaay.in',      contact_phone: '+912200001111', cost_per_kit: 120 },
+  { name: 'Red Cross Maharashtra', contact_email: 'redcross@sahaay.in', contact_phone: '+912200002222', cost_per_kit: 120 },
+  { name: 'HelpNow Foundation',    contact_email: 'helpnow@sahaay.in',  contact_phone: '+912200003333', cost_per_kit: 120 },
 ];
 
 const RISK_BADGE = {

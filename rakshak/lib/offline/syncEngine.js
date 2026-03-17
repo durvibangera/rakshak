@@ -106,7 +106,7 @@ export async function registerBackgroundSync() {
   if ('serviceWorker' in navigator && 'SyncManager' in window) {
     try {
       const reg = await navigator.serviceWorker.ready;
-      await reg.sync.register('rakshak-sync');
+      await reg.sync.register('sahaay-sync');
     } catch (err) {
       console.warn('[SyncEngine] Background sync registration failed:', err);
     }

@@ -8,7 +8,7 @@ This feature integrates CLIP (Contrastive Language-Image Pre-training) semantic 
 
 - **Search_API**: The Next.js API route at `/api/missing-reports/search` that orchestrates the hybrid search
 - **CLIP_Service**: The Python Flask service running on port 5001 that provides CLIP model inference
-- **CLIP_Client**: The JavaScript module at `rakshak/lib/ai/clipMatching.js` that calls the CLIP_Service
+- **CLIP_Client**: The JavaScript module at `sahaay/lib/ai/clipMatching.js` that calls the CLIP_Service
 - **Missing_Report**: A database record describing a missing person with structured attributes and optional free-text fields
 - **Candidate**: A registered user record with face image that may match a Missing_Report
 - **Attribute_Score**: Numeric score (0-100) based on matching structured fields like gender, height, skin_tone

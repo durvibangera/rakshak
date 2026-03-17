@@ -2,7 +2,7 @@
 
 import { openDB } from 'idb';
 
-const DB_NAME = 'rakshak_offline';
+const DB_NAME = 'sahaay_offline';
 const DB_VERSION = 2;
 
 const STORES = {

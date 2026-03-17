@@ -1,6 +1,6 @@
-# Rakshak — Technical Structure
+# Sahaay — Technical Structure
 
-Technical overview of the **Rakshak Disaster Rescue Platform**: stack, folder layout, routes, APIs, and data flow.
+Technical overview of the **Sahaay Disaster Rescue Platform**: stack, folder layout, routes, APIs, and data flow.
 
 ---
 
@@ -18,7 +18,7 @@ Technical overview of the **Rakshak Disaster Rescue Platform**: stack, folder la
 ## 2. Directory Structure
 
 ```
-rakshak/
+sahaay/
 ├── app/                    # Next.js App Router (pages + API)
 ├── components/             # Reusable UI (common + map)
 ├── context/                # React context (Auth)

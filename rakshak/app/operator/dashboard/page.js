@@ -25,16 +25,16 @@ function OperatorContent() {
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
-    setCampId(localStorage.getItem('rakshak_camp_id') || '');
-    setCampName(localStorage.getItem('rakshak_camp_name') || 'Camp');
+    setCampId(localStorage.getItem('sahaay') || '');
+    setCampName(localStorage.getItem('sahaay_camp_name') || 'Camp');
   }, []);
 
   const refreshVictims = () => setRefreshKey(k => k + 1);
 
   const handleLogout = () => {
-    localStorage.removeItem('rakshak_phone');
-    localStorage.removeItem('rakshak_camp_id');
-    localStorage.removeItem('rakshak_camp_name');
+    localStorage.removeItem('sahaay_phone');
+    localStorage.removeItem('sahaay_camp_id');
+    localStorage.removeItem('sahaay_camp_name');
     window.location.href = '/';
   };
 

@@ -8,7 +8,7 @@ Calls go **only after approval**. Flow: create alert → admin sees it → admin
 
 1. **Dev server running**
    ```bash
-   cd rakshak && npm run dev
+   cd sahaay && npm run dev
    ```
    Note the port (e.g. http://localhost:3000 or 3001).
 

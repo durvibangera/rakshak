@@ -1,8 +1,8 @@
 /**
  * FILE: colors.js
- * PURPOSE: Design system color tokens for the entire Rakshak platform.
+ * PURPOSE: Design system color tokens for the entire Sahaay platform.
  *
- * CONTEXT: Rakshak uses a dark-mode-first design to save battery on victims'
+ * CONTEXT: Sahaay uses a dark-mode-first design to save battery on victims'
  *          low-end Android phones. These color tokens are used across all
  *          components and pages. Status colors (red/orange/green) are critical
  *          for conveying camp safety and alert severity at a glance.

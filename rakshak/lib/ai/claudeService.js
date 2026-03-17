@@ -24,7 +24,7 @@
  */
 
 /**
- * Build a system prompt for the Rakshak AI disaster guide.
+ * Build a system prompt for the Sahaay AI disaster guide.
  * @param {Object} params
  * @param {string} params.language - User's preferred language code
  * @param {string} [params.userName] - User's name
@@ -34,7 +34,7 @@
  */
 export function buildSystemPrompt({ language, userName, location, disasterType }) {
   // TODO: Implement full system prompt
-  return `You are Rakshak AI, a disaster survival guide for India. 
+  return `You are Sahaay AI, a disaster survival guide for India. 
 Respond in language: ${language}. 
 User: ${userName || 'Unknown'}. 
 Location: ${location || 'Unknown'}.
