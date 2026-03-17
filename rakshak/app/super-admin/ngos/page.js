@@ -207,6 +207,10 @@ function NGOContent() {
                       <p style={s.ngoContact}>{ngo.contact_email}{ngo.contact_phone ? ` · ${ngo.contact_phone}` : ''}</p>
                     </div>
                     <span style={{ ...s.statusBadge, background: sc.bg, color: sc.text }}>{ngo.status}</span>
+                    <Link href="/ngo/portal" style={s.portalLink} title="View NGO Portal">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                      Portal
+                    </Link>
                   </div>
 
                   {/* Fundraising progress */}
@@ -387,4 +391,5 @@ const s = {
   loadingText: { fontSize: 13.5, color: '#9CA3AF', margin: 0 },
   emptyCard: { background: 'white', border: '1px solid #E2E8F0', borderRadius: 12, padding: '32px 24px', textAlign: 'center' },
   emptyText: { fontSize: 14, color: '#9CA3AF', margin: 0 },
+  portalLink: { display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 600, color: '#2563EB', textDecoration: 'none', background: '#EFF6FF', border: '1px solid #BFDBFE', padding: '4px 10px', borderRadius: 20, whiteSpace: 'nowrap', flexShrink: 0 },
 };

@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "seed:allocation": "node scripts/seed-allocation-demo.js"
+    "seed:allocation": "node scripts/seed-allocation-demo.js",
+    "migrate:kit-requests": "node scripts/apply-kit-request-migration.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.78.0",

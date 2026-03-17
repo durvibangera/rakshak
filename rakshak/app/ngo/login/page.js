@@ -10,7 +10,10 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { supabase } from '@/lib/supabase/client';
+
+const FONT = '"DM Sans", "Instrument Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
 
 export default function NGOLoginPage() {
   const router = useRouter();
@@ -26,7 +29,6 @@ export default function NGOLoginPage() {
 
     setLoading(true);
     try {
-      // Use Supabase client-side auth so the session persists
       const { data, error: authErr } = await supabase.auth.signInWithPassword({
         email: email.trim(),
         password,
@@ -34,7 +36,6 @@ export default function NGOLoginPage() {
 
       if (authErr) throw authErr;
 
-      // Fetch profile and verify NGO role
       const { data: profile } = await supabase
         .from('users')
         .select('role, name')
@@ -42,7 +43,6 @@ export default function NGOLoginPage() {
         .single();
 
       if (!profile) {
-        // Try by id
         const { data: byId } = await supabase
           .from('users')
           .select('role, name')
@@ -70,63 +70,93 @@ export default function NGOLoginPage() {
   };
 
   return (
-    <div style={s.page}>
-      <div style={s.card}>
-        <button onClick={() => router.push('/')} style={s.backLink}>← Back to Sahaay</button>
+    <div style={{ minHeight: '100vh', background: '#F1F5F9', fontFamily: FONT, color: '#111827' }}>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
-          <span style={{ fontSize: 28 }}>🏢</span>
-          <h1 style={s.heading}>NGO Login</h1>
-        </div>
-        <p style={s.subheading}>
-          Sign in to your NGO portal to manage assignments, fundraising and kit dispatches
-        </p>
+      {/* Nav */}
+      <header style={s.nav}>
+        <Link href="/" style={{ display: 'flex', alignItems: 'center' }}>
+          <img src="/logo-light.png" alt="Sahaay" style={{ height: 52, width: 'auto', objectFit: 'contain' }} />
+        </Link>
+        <Link href="/" style={s.backBtn}>← Back to Home</Link>
+      </header>
 
-        {/* Switch to other login */}
-        <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
-          <button onClick={() => router.push('/login')} style={s.switchLink}>
-            Victim? Login here →
-          </button>
-          <button onClick={() => router.push('/admin-login')} style={s.switchLink}>
-            Admin/Staff? Login here →
-          </button>
-        </div>
+      {/* Centered card */}
+      <div style={s.body}>
+        <div style={s.card}>
 
-        <form onSubmit={handleLogin} style={s.form}>
-          <div>
-            <label style={s.label}>Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="ngo-admin@organization.com"
-              style={s.input}
-              autoFocus
-            />
-          </div>
-          <div>
-            <label style={s.label}>Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              style={s.input}
-            />
+          {/* Header */}
+          <div style={s.cardTop}>
+            <div style={s.iconWrap}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1B3676" strokeWidth="2">
+                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 00-3-3.87"/>
+                <path d="M16 3.13a4 4 0 010 7.75"/>
+              </svg>
+            </div>
+            <div>
+              <p style={s.eyebrow}>NGO Portal</p>
+              <h1 style={s.heading}>NGO Admin Login</h1>
+            </div>
           </div>
 
-          {error && <p style={s.error}>{error}</p>}
-
-          <button type="submit" disabled={loading} style={{ ...s.submitBtn, opacity: loading ? 0.6 : 1 }}>
-            {loading ? 'Signing in…' : 'Login as NGO Admin'}
-          </button>
-        </form>
-
-        <div style={{ marginTop: 20, padding: '14px 16px', background: '#0F172A', borderRadius: 10, border: '1px solid #334155' }}>
-          <p style={{ fontSize: 12, color: '#64748B', margin: 0, lineHeight: 1.5 }}>
-            <strong style={{ color: '#94A3B8' }}>How to get access:</strong> Your organization must be registered by a Super Admin
-            in the Sahaay system. Once registered, you&apos;ll receive login credentials via email.
+          <p style={s.subheading}>
+            Sign in to manage assignments, fundraising and kit dispatches
           </p>
+
+          {/* Switch links */}
+          <div style={s.switchRow}>
+            <button onClick={() => router.push('/login')} style={s.switchBtn}>
+              Victim login →
+            </button>
+            <button onClick={() => router.push('/admin-login')} style={s.switchBtn}>
+              Admin / Staff →
+            </button>
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handleLogin} style={s.form}>
+            <div>
+              <label style={s.label}>Email</label>
+              <input
+                type="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                placeholder="ngo-admin@organization.com"
+                style={s.input}
+                autoFocus
+              />
+            </div>
+            <div>
+              <label style={s.label}>Password</label>
+              <input
+                type="password"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                placeholder="••••••••"
+                style={s.input}
+              />
+            </div>
+
+            {error && (
+              <div style={s.errorBox}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#DC2626" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                {error}
+              </div>
+            )}
+
+            <button type="submit" disabled={loading} style={{ ...s.submitBtn, opacity: loading ? 0.7 : 1 }}>
+              {loading ? 'Signing in…' : 'Login as NGO Admin'}
+            </button>
+          </form>
+
+          {/* Info box */}
+          <div style={s.infoBox}>
+            <p style={{ fontSize: 13, color: '#6B7280', margin: 0, lineHeight: 1.6 }}>
+              <strong style={{ color: '#374151' }}>How to get access:</strong> Your organization must be registered by a Super Admin
+              in the Sahaay system. Once registered, you&apos;ll receive login credentials via email.
+            </p>
+          </div>
         </div>
       </div>
     </div>
@@ -134,35 +164,60 @@ export default function NGOLoginPage() {
 }
 
 const s = {
-  page: {
-    minHeight: '100vh', background: '#0F172A', display: 'flex', alignItems: 'center',
-    justifyContent: 'center', padding: 24, fontFamily: 'system-ui, sans-serif',
+  nav: {
+    background: 'white', borderBottom: '1px solid #E2E8F0', padding: '0 40px',
+    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+    height: 72, position: 'sticky', top: 0, zIndex: 200,
+    boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+  },
+  backBtn: {
+    fontSize: 13.5, fontWeight: 600, color: '#374151', background: 'white',
+    border: '1px solid #D1D5DB', padding: '7px 16px', borderRadius: 7, textDecoration: 'none',
+  },
+  body: {
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    minHeight: 'calc(100vh - 72px)', padding: '32px 20px',
   },
   card: {
-    width: '100%', maxWidth: 440, background: '#1E293B', border: '1px solid #334155',
-    borderRadius: 16, padding: 28, color: '#E2E8F0',
+    width: '100%', maxWidth: 440, background: 'white',
+    border: '1px solid #E2E8F0', borderRadius: 16,
+    boxShadow: '0 4px 24px rgba(0,0,0,0.07)', padding: '32px 28px',
   },
-  backLink: {
-    background: 'none', border: 'none', color: '#64748B', fontSize: 13,
-    cursor: 'pointer', padding: 0, marginBottom: 16, display: 'block',
+  cardTop: { display: 'flex', alignItems: 'center', gap: 14, marginBottom: 8 },
+  iconWrap: {
+    width: 52, height: 52, borderRadius: 13, background: '#EEF2FF',
+    border: '1px solid #C7D2FE', display: 'flex', alignItems: 'center',
+    justifyContent: 'center', flexShrink: 0,
   },
-  heading: { fontSize: 24, fontWeight: 800, color: '#F1F5F9', margin: 0 },
-  subheading: { fontSize: 14, color: '#94A3B8', margin: '0 0 16px' },
-  switchLink: {
-    flex: 1, background: 'rgba(59,130,246,0.06)', border: '1px solid rgba(59,130,246,0.15)',
-    borderRadius: 8, padding: '8px 10px', color: '#60A5FA', fontSize: 12,
-    cursor: 'pointer', textAlign: 'center',
+  eyebrow: { fontSize: 11, fontWeight: 700, color: '#1B3676', textTransform: 'uppercase', letterSpacing: '0.8px', margin: '0 0 3px' },
+  heading: { fontSize: 22, fontWeight: 800, color: '#0F172A', margin: 0, letterSpacing: '-0.3px' },
+  subheading: { fontSize: 13.5, color: '#6B7280', margin: '0 0 20px', lineHeight: 1.5 },
+  switchRow: { display: 'flex', gap: 8, marginBottom: 24 },
+  switchBtn: {
+    flex: 1, background: '#F8FAFC', border: '1px solid #E2E8F0',
+    borderRadius: 8, padding: '8px 10px', color: '#374151', fontSize: 12.5,
+    fontWeight: 600, cursor: 'pointer', textAlign: 'center', fontFamily: FONT,
   },
-  form: { display: 'flex', flexDirection: 'column', gap: 14 },
-  label: { display: 'block', fontSize: 13, fontWeight: 600, color: '#94A3B8', marginBottom: 6 },
+  form: { display: 'flex', flexDirection: 'column', gap: 16 },
+  label: { display: 'block', fontSize: 12, fontWeight: 600, color: '#374151', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.4px' },
   input: {
-    width: '100%', padding: '12px 14px', background: '#0F172A', border: '1px solid #334155',
-    borderRadius: 10, color: '#E2E8F0', fontSize: 15, outline: 'none', boxSizing: 'border-box',
+    width: '100%', padding: '11px 14px', background: 'white',
+    border: '1px solid #D1D5DB', borderRadius: 8, color: '#111827',
+    fontSize: 14, outline: 'none', boxSizing: 'border-box', fontFamily: FONT,
+  },
+  errorBox: {
+    display: 'flex', alignItems: 'center', gap: 7, padding: '9px 12px',
+    background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 8,
+    color: '#DC2626', fontSize: 13,
   },
   submitBtn: {
-    width: '100%', padding: 14, background: 'linear-gradient(135deg, #10B981, #059669)',
-    color: 'white', border: 'none', borderRadius: 10, fontSize: 16, fontWeight: 700,
-    cursor: 'pointer', boxShadow: '0 4px 14px rgba(16,185,129,0.3)',
+    width: '100%', padding: '13px', background: '#1B3676',
+    color: 'white', border: 'none', borderRadius: 8, fontSize: 15,
+    fontWeight: 700, cursor: 'pointer', fontFamily: FONT,
+    boxShadow: '0 2px 8px rgba(27,54,118,0.25)',
   },
-  error: { color: '#EF4444', fontSize: 13, margin: 0 },
+  infoBox: {
+    marginTop: 20, padding: '14px 16px', background: '#F8FAFC',
+    border: '1px solid #E2E8F0', borderRadius: 10,
+  },
 };

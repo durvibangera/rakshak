@@ -82,32 +82,18 @@ export default function AdminLoginPage() {
     const doEmailLogin = async () => {
       const { data, error: authErr } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
       if (authErr) throw authErr;
-
-      // Quick role check — skip if it takes too long
-      const roleCheck = supabase.from('users')
-        .select('role, assigned_camp_id')
-        .eq('auth_uid', data.user.id)
-        .single();
-      const { data: profile } = await Promise.race([
-        roleCheck,
-        new Promise(res => setTimeout(() => res({ data: null }), 5000)),
-      ]);
-
-      if (profile && profile.role && profile.role !== selectedRole.id) {
-        await supabase.auth.signOut();
-        throw new Error(`This account is a ${profile.role}, not a ${selectedRole.label}`);
-      }
-      if (profile?.assigned_camp_id && selectedRole.id === 'camp_admin') {
-        localStorage.setItem('sahaay_camp_id', profile.assigned_camp_id);
+      if (selectedRole.id === 'camp_admin') {
+        // Fetch camp assignment in background, don't block login
+        supabase.from('users').select('assigned_camp_id').eq('auth_uid', data.user.id).maybeSingle()
+          .then(({ data: profile }) => {
+            if (profile?.assigned_camp_id) localStorage.setItem('sahaay_camp_id', profile.assigned_camp_id);
+          });
       }
       router.push(selectedRole.redirect);
     };
 
     try {
-      await Promise.race([
-        doEmailLogin(),
-        new Promise((_, rej) => setTimeout(() => rej(new Error('Supabase is not responding. Check your internet or try again.')), 12000)),
-      ]);
+      await doEmailLogin();
     } catch (err) {
       setError(err.message);
     } finally {

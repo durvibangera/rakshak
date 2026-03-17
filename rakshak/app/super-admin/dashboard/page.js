@@ -29,6 +29,11 @@ function DashboardContent({ handleLogout }) {
   const [totalPeople, setTotalPeople] = useState(0);
   const [time, setTime] = useState('');
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [kitRequests, setKitRequests] = useState([]);
+  const [kitResponses, setKitResponses] = useState([]);
+  const [ngos, setNgos] = useState([]);
+  const [showRequestForm, setShowRequestForm] = useState(false);
+  const [requestForm, setRequestForm] = useState({ ngo_id: '', kits_requested: '', urgency: 'NORMAL', reason: '', deadline_hours: '' });
 
   useEffect(() => {
     const tick = () => setTime(new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }));
@@ -46,18 +51,32 @@ function DashboardContent({ handleLogout }) {
       let total = 0;
       await Promise.all(campsList.map(async (c) => {
         const { count } = await supabase.from('camp_victims').select('*', { count: 'exact', head: true }).eq('camp_id', c.id);
-        // Fall back to demo_headcount if no real victims
-        headcounts[c.id] = count || c.demo_headcount || 0;
+        // Use real victim count if available, otherwise fall back to demo_headcount
+        headcounts[c.id] = (count > 0 ? count : null) ?? c.demo_headcount ?? 0;
         total += headcounts[c.id];
       }));
       setTotalPeople(total);
-      setCamps(campsList.map((c) => ({ ...c, headcount: headcounts[c.id] || 0 })));
+      setCamps(campsList.map((c) => ({ ...c, headcount: headcounts[c.id] })));
       const reqRes = await fetch('/api/resource-requests?status=pending');
       const reqData = await reqRes.json();
       setRequests(reqData.requests || []);
       const invRes = await fetch('/api/kit-inventory');
       const invData = await invRes.json();
       setInventory(invData);
+      
+      // Fetch kit requests and NGOs
+      const kitReqRes = await fetch('/api/kit-requests');
+      const kitReqData = await kitReqRes.json();
+      setKitRequests(kitReqData.requests || []);
+      
+      const ngoRes = await fetch('/api/ngos');
+      const ngoData = await ngoRes.json();
+      setNgos(ngoData.ngos || []);
+
+      // Fetch pending kit responses
+      const kitRespRes = await fetch('/api/kit-responses');
+      const kitRespData = await kitRespRes.json();
+      setKitResponses(kitRespData.responses || []);
     } catch (e) { console.error(e); }
     setLoading(false);
   }, []);
@@ -115,7 +134,7 @@ function DashboardContent({ handleLogout }) {
       }));
       const res = await fetch('/api/ml/allocate', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ camps: campStates, total_kits_available: inventory.balance, beta: 0.7, buffer_pct: 0.15, triggered_by: 'super_admin' }),
+        body: JSON.stringify({ camps: campStates, total_kits_available: inventory.balance, beta: 0.7, buffer_pct: 0.15, triggered_by: 'manual' }),
       });
       const data = await res.json();
       setAllocationResult(data);
@@ -126,6 +145,38 @@ function DashboardContent({ handleLogout }) {
 
   const handleRequest = async (id, status) => {
     await fetch('/api/resource-requests', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, status }) });
+    fetchAll();
+  };
+
+  const createKitRequest = async () => {
+    if (!requestForm.ngo_id || !requestForm.kits_requested) return;
+    await fetch('/api/kit-requests', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ngo_id: requestForm.ngo_id,
+        kits_requested: parseInt(requestForm.kits_requested),
+        urgency: requestForm.urgency,
+        reason: requestForm.reason || null,
+        deadline_hours: requestForm.deadline_hours ? parseInt(requestForm.deadline_hours) : null
+      })
+    });
+    setRequestForm({ ngo_id: '', kits_requested: '', urgency: 'NORMAL', reason: '', deadline_hours: '' });
+    setShowRequestForm(false);
+    fetchAll();
+  };
+
+  const handleKitRequestStatus = async (id, status) => {
+    await fetch('/api/kit-requests', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, status }) });
+    fetchAll();
+  };
+
+  const handleResponseApproval = async (responseId, action) => {
+    await fetch('/api/kit-responses/approve', { 
+      method: 'POST', 
+      headers: { 'Content-Type': 'application/json' }, 
+      body: JSON.stringify({ response_id: responseId, action }) 
+    });
     fetchAll();
   };
 
@@ -193,6 +244,10 @@ function DashboardContent({ handleLogout }) {
             <h1 style={s.pageTitle}>Operations Dashboard</h1>
           </div>
           <div style={s.pageHeadActions}>
+            <button onClick={() => setShowRequestForm(true)} style={s.btnSecondary}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+              Request Kits from NGOs
+            </button>
             <button onClick={runAllPredictions} disabled={loading} style={s.btnSecondary}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
               Run Predictions
@@ -240,6 +295,79 @@ function DashboardContent({ handleLogout }) {
                     <span style={{ ...s.gaugeLabel, color: inventoryColor }}>{inventory.balance.toLocaleString('en-IN')} kits remaining</span>
                     <span style={s.gaugeLabel}>{inventoryPct.toFixed(1)}% of total received</span>
                   </div>
+                  {inventory.balance < 500 && (
+                    <div style={{ marginTop: 12, padding: '10px 14px', background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: 8, fontSize: 13, color: '#B45309' }}>
+                      ⚠️ Low inventory detected. Consider requesting more kits from NGOs.
+                    </div>
+                  )}
+                </div>
+
+                {/* Kit Requests from NGOs */}
+                <div style={s.card}>
+                  <div style={s.cardHead}>
+                    <h2 style={s.cardTitle}>Kit Requests to NGOs</h2>
+                    <span style={s.cardMeta}>{kitRequests.filter(r => r.status === 'PENDING').length} pending</span>
+                  </div>
+                  {kitRequests.length === 0 ? (
+                    <div style={s.emptyTable}>
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="1.8"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+                      <span>No kit requests sent yet</span>
+                    </div>
+                  ) : (
+                    <div style={{ overflowX: 'auto' }}>
+                      <table style={s.table}>
+                        <thead>
+                          <tr>
+                            {['NGO', 'Kits Requested', 'Urgency', 'Status', 'Responses', 'Date', 'Actions'].map(h => (
+                              <th key={h} style={s.th}>{h}</th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {kitRequests.map((req) => {
+                            const urgencyColors = {
+                              CRITICAL: { bg: '#FEF2F2', text: '#DC2626' },
+                              HIGH: { bg: '#FEF3C7', text: '#B45309' },
+                              NORMAL: { bg: '#EFF6FF', text: '#2563EB' },
+                              LOW: { bg: '#F3F4F6', text: '#6B7280' }
+                            };
+                            const statusColors = {
+                              PENDING: { bg: '#FEF3C7', text: '#B45309' },
+                              ACCEPTED: { bg: '#EFF6FF', text: '#2563EB' },
+                              FULFILLED: { bg: '#ECFDF5', text: '#059669' },
+                              REJECTED: { bg: '#FEF2F2', text: '#DC2626' },
+                              CANCELLED: { bg: '#F3F4F6', text: '#6B7280' }
+                            };
+                            const uc = urgencyColors[req.urgency] || urgencyColors.NORMAL;
+                            const sc = statusColors[req.status] || statusColors.PENDING;
+                            const responses = req.kit_responses || [];
+                            return (
+                              <tr key={req.id} style={s.tr}>
+                                <td style={s.td}><span style={s.tdBold}>{req.ngos?.name || 'Unknown NGO'}</span></td>
+                                <td style={s.td}><span style={{ ...s.tdBold, color: '#1B3676' }}>{req.kits_requested}</span></td>
+                                <td style={s.td}><span style={{ ...s.badge, background: uc.bg, color: uc.text }}>{req.urgency}</span></td>
+                                <td style={s.td}><span style={{ ...s.badge, background: sc.bg, color: sc.text }}>{req.status}</span></td>
+                                <td style={s.td}>{responses.length > 0 ? `${responses.length} response${responses.length > 1 ? 's' : ''}` : '—'}</td>
+                                <td style={s.td}>{new Date(req.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</td>
+                                <td style={s.td}>
+                                  {req.status === 'PENDING' && (
+                                    <button onClick={() => handleKitRequestStatus(req.id, 'CANCELLED')} style={s.actionReject} title="Cancel">
+                                      Cancel
+                                    </button>
+                                  )}
+                                  {responses.length > 0 && (
+                                    <span style={{ fontSize: 12, color: '#059669' }}>
+                                      {responses.reduce((sum, r) => sum + (r.kits_offered || 0), 0)} kits offered
+                                    </span>
+                                  )}
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
                 </div>
 
                 {/* Camp grid */}
@@ -290,6 +418,56 @@ function DashboardContent({ handleLogout }) {
                       <div style={s.emptyCell}>No active camps found</div>
                     )}
                   </div>
+                </div>
+
+                {/* NGO Responses Awaiting Approval */}
+                <div style={s.card}>
+                  <div style={s.cardHead}>
+                    <h2 style={s.cardTitle}>NGO Responses Awaiting Approval</h2>
+                    <span style={s.cardMeta}>{kitResponses.filter(r => r.status === 'PENDING').length} pending</span>
+                  </div>
+                  {kitResponses.filter(r => r.status === 'PENDING').length === 0 ? (
+                    <div style={s.emptyTable}>
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="1.8"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+                      <span>No responses awaiting approval</span>
+                    </div>
+                  ) : (
+                    <div style={{ overflowX: 'auto' }}>
+                      <table style={s.table}>
+                        <thead>
+                          <tr>
+                            {['NGO', 'Original Request', 'Kits Offered', 'Delivery', 'Cost/Kit', 'Notes', 'Actions'].map(h => (
+                              <th key={h} style={s.th}>{h}</th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {kitResponses.filter(r => r.status === 'PENDING').map((resp) => (
+                            <tr key={resp.id} style={s.tr}>
+                              <td style={s.td}><span style={s.tdBold}>{resp.ngos?.name || 'Unknown NGO'}</span></td>
+                              <td style={s.td}>{resp.kit_requests?.kits_requested || '—'} kits requested</td>
+                              <td style={s.td}><span style={{ ...s.tdBold, color: '#059669' }}>{resp.kits_offered}</span></td>
+                              <td style={s.td}>{resp.estimated_delivery_days ? `${resp.estimated_delivery_days} days` : '—'}</td>
+                              <td style={s.td}>{resp.cost_per_kit ? `₹${resp.cost_per_kit}` : '—'}</td>
+                              <td style={{ ...s.td, maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{resp.notes || '—'}</td>
+                              <td style={s.td}>
+                                <div style={s.actionBtns}>
+                                  <button onClick={() => handleResponseApproval(resp.id, 'approve')} style={s.actionApprove} title="Approve & Add to Inventory">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                                    Approve
+                                  </button>
+                                  <button onClick={() => handleResponseApproval(resp.id, 'reject')} style={s.actionReject} title="Reject">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                    Reject
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
                 </div>
 
                 {/* Requests table */}
@@ -473,6 +651,73 @@ function DashboardContent({ handleLogout }) {
           </div>
         </div>
       )}
+
+      {/* ── Kit Request Form Modal ── */}
+      {showRequestForm && (
+        <div style={s.modalOverlay} onClick={() => setShowRequestForm(false)}>
+          <div style={{ ...s.modal, maxWidth: 500 }} onClick={e => e.stopPropagation()}>
+            <div style={s.modalStripe} />
+            <div style={s.modalBody}>
+              <div style={s.modalHead}>
+                <div>
+                  <p style={s.modalEyebrow}>NGO Kit Request</p>
+                  <h2 style={s.modalTitle}>Request Kits from NGO</h2>
+                </div>
+                <button onClick={() => setShowRequestForm(false)} style={s.modalClose}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+              </div>
+
+              <div style={{ display: 'grid', gap: 16 }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 6 }}>Select NGO *</label>
+                  <select value={requestForm.ngo_id} onChange={e => setRequestForm({ ...requestForm, ngo_id: e.target.value })} style={{ ...s.input, width: '100%' }}>
+                    <option value="">Choose an NGO...</option>
+                    {ngos.map(ngo => (
+                      <option key={ngo.id} value={ngo.id}>{ngo.name}</option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 6 }}>Kits Needed *</label>
+                    <input type="number" value={requestForm.kits_requested} onChange={e => setRequestForm({ ...requestForm, kits_requested: e.target.value })} style={s.input} placeholder="e.g. 500" />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 6 }}>Urgency</label>
+                    <select value={requestForm.urgency} onChange={e => setRequestForm({ ...requestForm, urgency: e.target.value })} style={s.input}>
+                      <option value="LOW">Low</option>
+                      <option value="NORMAL">Normal</option>
+                      <option value="HIGH">High</option>
+                      <option value="CRITICAL">Critical</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 6 }}>Reason</label>
+                  <textarea value={requestForm.reason} onChange={e => setRequestForm({ ...requestForm, reason: e.target.value })} style={{ ...s.input, minHeight: 80, resize: 'vertical' }} placeholder="Why are these kits needed?" />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 6 }}>Deadline (hours from now)</label>
+                  <input type="number" value={requestForm.deadline_hours} onChange={e => setRequestForm({ ...requestForm, deadline_hours: e.target.value })} style={s.input} placeholder="e.g. 48" />
+                </div>
+              </div>
+
+              <div style={s.modalFooter}>
+                <button onClick={() => setShowRequestForm(false)} style={s.btnSecondary}>Cancel</button>
+                <button onClick={createKitRequest} disabled={!requestForm.ngo_id || !requestForm.kits_requested} style={{ ...s.btnPrimary, opacity: (!requestForm.ngo_id || !requestForm.kits_requested) ? 0.6 : 1 }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+                  Send Request
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      
       {/* ── Modules Drawer ── */}
       {drawerOpen && (
         <>
@@ -668,4 +913,6 @@ const s = {
   modalStatLabel: { fontSize: 12, color: '#9CA3AF', margin: 0, fontWeight: 500 },
   modalStatDivider: { width: 1, height: 36, background: '#E2E8F0', flexShrink: 0 },
   modalFooter: { display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 20, paddingTop: 16, borderTop: '1px solid #F1F5F9' },
+
+  input: { padding: '10px 12px', border: '1px solid #D1D5DB', borderRadius: 8, background: 'white', color: '#111827', fontSize: 14, outline: 'none', fontFamily: FONT, boxSizing: 'border-box' },
 };
