@@ -32,10 +32,15 @@ jobs:
           TWILIO_PHONE_NUMBER: ${{ secrets.TWILIO_PHONE_NUMBER }}
           APP_BASE_URL: ${{ secrets.APP_BASE_URL }}
 
-      - name: Zip artifact
+      - name: Prepare standalone build
         run: |
-          cd rakshak
-          zip -r ../release.zip .
+          cp -r rakshak/public rakshak/.next/standalone/public
+          cp -r rakshak/.next/static rakshak/.next/standalone/.next/static
+
+      - name: Zip standalone
+        run: |
+          cd rakshak/.next/standalone
+          zip -r ../../../release.zip .
 
       - name: Deploy
         uses: azure/webapps-deploy@v2
