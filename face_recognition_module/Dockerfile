@@ -12,6 +12,9 @@ RUN apt-get update && apt-get install -y \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Pre-download the InsightFace model during build
+RUN python -c "from insightface.app import FaceAnalysis; app = FaceAnalysis(name='buffalo_sc'); app.prepare(ctx_id=0)"
+
 COPY . ./face_recognition_module
 
 WORKDIR /app/face_recognition_module
