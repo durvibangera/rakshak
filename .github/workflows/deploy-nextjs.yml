@@ -35,7 +35,7 @@ jobs:
       - name: Zip artifact
         run: |
           cd rakshak
-          zip -r ../release.zip .next node_modules package.json package-lock.json next.config.mjs public
+          zip -r ../release.zip .
 
       - name: Deploy
         uses: azure/webapps-deploy@v2
