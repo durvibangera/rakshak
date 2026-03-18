@@ -277,7 +277,7 @@ function PortalContent() {
                         
                         {req.reason && (
                           <p style={{ fontSize: 13, color: '#374151', margin: '8px 0', fontStyle: 'italic' }}>
-                            "{req.reason}"
+                            &ldquo;{req.reason}&rdquo;
                           </p>
                         )}
                         
@@ -291,7 +291,7 @@ function PortalContent() {
                             </p>
                             {myResponse.notes && (
                               <p style={{ fontSize: 12, color: '#6B7280', margin: '4px 0 0', fontStyle: 'italic' }}>
-                                "{myResponse.notes}"
+                                &ldquo;{myResponse.notes}&rdquo;
                               </p>
                             )}
                             <p style={{ fontSize: 11, color: '#9CA3AF', margin: '4px 0 0' }}>
