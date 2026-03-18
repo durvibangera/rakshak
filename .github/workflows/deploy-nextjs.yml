@@ -8,22 +8,25 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set up Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      - run: npm ci
-      - run: npx next build --no-lint
+      - name: Install dependencies
+        run: npm ci
 
-      - name: Zip artifact for deployment
-        run: zip -r release.zip . --exclude "*.git*"
+      - name: Build
+        run: npx next build --no-lint
 
-      - name: Deploy to Azure App Service
+      - name: Zip artifact
+        run: zip -r release.zip . --exclude "*.git*" --exclude "node_modules/*"
+
+      - name: Deploy
         uses: azure/webapps-deploy@v2
         with:
-          app-name: 'sahaay'
+          app-name: sahaay
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           package: release.zip
