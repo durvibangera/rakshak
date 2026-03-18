@@ -27,8 +27,3 @@ jobs:
           app-name: 'sahaay'
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           package: release.zip
-```
-
-And in Azure → Configuration → General settings → Startup Command set:
-```
-npm run start
