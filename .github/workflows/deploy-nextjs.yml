@@ -16,13 +16,17 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies
+        working-directory: rakshak
         run: npm ci
 
       - name: Build
+        working-directory: rakshak
         run: npx next build --no-lint
 
       - name: Zip artifact
-        run: zip -r release.zip . --exclude "*.git*" --exclude "node_modules/*"
+        run: |
+          cd rakshak
+          zip -r ../release.zip . --exclude "*.git*" --exclude "node_modules/*"
 
       - name: Deploy
         uses: azure/webapps-deploy@v2
