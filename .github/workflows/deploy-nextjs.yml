@@ -15,17 +15,20 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Find and build
-        run: |
-          if [ -f "package.json" ]; then
-            npm ci && npm run build
-          else
-            cd $(find . -name "package.json" -not -path "*/node_modules/*" -maxdepth 3 | head -1 | xargs dirname)
-            npm ci && npm run build
-          fi
+      - run: npm ci
+      - run: npx next build --no-lint
+
+      - name: Zip artifact for deployment
+        run: zip -r release.zip . --exclude "*.git*"
 
       - name: Deploy to Azure App Service
         uses: azure/webapps-deploy@v2
         with:
           app-name: 'sahaay'
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: release.zip
+```
+
+And in Azure → Configuration → General settings → Startup Command set:
+```
+npm run start
