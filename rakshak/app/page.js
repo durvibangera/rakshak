@@ -66,7 +66,7 @@ export default function HomePage() {
           {/* Overview Banner */}
           <section style={s.overviewBanner}>
             <div style={s.overviewText}>
-              <p style={s.overviewEyebrow}>India's National Disaster Response Platform</p>
+              <p style={s.overviewEyebrow}>India&apos;s National Disaster Response Platform</p>
               <h1 style={s.overviewTitle}>Sahaay — Emergency Operations</h1>
               <p style={s.overviewDesc}>
                 Pre-register civilians, issue QR identity cards, coordinate relief camps, and reunite families across disaster zones in real time.
